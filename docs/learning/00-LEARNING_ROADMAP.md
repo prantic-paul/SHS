@@ -65,33 +65,41 @@ Phase 7: Sprint 6 - Polish & Optimization
 ### **Phase 1: Architecture & Design** 🔄 IN PROGRESS
 
 **Current Focus:**
-- [06 - System Architecture Design](./06-system-architecture-design.md) 🔄
-- [07 - Database Design Basics](./07-database-design-basics.md) 🔄
-- [08 - API Design Principles](./08-api-design-principles.md) 🔄
+- [06 - Agile Process Complete Flow](./06-agile-process-complete-flow.md) ✅
+- [07 - System Architecture Design](./07-system-architecture-design.md) 🔄
+- [08 - Database Design Basics](./08-database-design-basics.md) 🔄
+- [09 - API Design Principles](./09-api-design-principles.md) 🔄
 
 **What You'll Learn:**
-1. **High-Level System Architecture**
+1. **Complete Agile Process Flow**
+   - Sprint 0 setup process
+   - Sprint cycle (Planning → Design → Development → Testing → Review → Retrospective)
+   - When to write user stories vs architecture
+   - High-level vs detailed design
+
+2. **High-Level System Architecture**
    - Frontend → Backend → Database → AI Service flow
    - Microservices architecture basics
    - How components communicate (REST APIs)
    - When to design everything vs. incremental design
 
-2. **Initial Database Schema**
+3. **Initial Database Schema**
    - Entity Relationship Diagrams (ERD)
    - Core entities: Users, Doctors, Patients
    - Relationships: One-to-Many, Many-to-Many
    - Normalization basics (avoiding data duplication)
 
-3. **API Design Principles**
+4. **API Design Principles**
    - RESTful API standards
    - HTTP methods (GET, POST, PUT, DELETE)
    - URL structure and naming conventions
    - Request/Response patterns
 
 **Deliverables:**
-- ⏳ Simplified SYSTEM_ARCHITECTURE.md (high-level only)
-- ⏳ Simplified DATABASE_SCHEMA_EXPLAINED.md (blueprint only)
-- ⏳ API_DESIGN_PRINCIPLES.md (reviewed and finalized)
+- ✅ Complete Agile flow documented
+- ✅ Simplified SYSTEM_ARCHITECTURE.md (high-level only)
+- ✅ Simplified DATABASE_SCHEMA_EXPLAINED.md (blueprint only)
+- ⏳ API_DESIGN_PRINCIPLES.md (needs review)
 
 **Time Estimate:** 2-3 days  
 **Next:** Write user stories for Sprint 1
@@ -101,12 +109,12 @@ Phase 7: Sprint 6 - Polish & Optimization
 ### **Phase 2: Sprint 1 - User Authentication** ⏳ UPCOMING
 
 **What You'll Learn:**
-- [09 - User Stories & Acceptance Criteria](./09-user-stories-acceptance-criteria.md) ⏳
-- [10 - Django Models & ORM](./10-django-models-orm.md) ⏳
-- [11 - Django REST Framework Basics](./11-django-rest-framework-basics.md) ⏳
-- [12 - JWT Authentication](./12-jwt-authentication.md) ⏳
-- [13 - React State Management](./13-react-state-management.md) ⏳
-- [14 - API Integration in React](./14-api-integration-react.md) ⏳
+- [10 - User Stories & Acceptance Criteria](./10-user-stories-acceptance-criteria.md) ⏳
+- [11 - Django Models & ORM](./11-django-models-orm.md) ⏳
+- [12 - Django REST Framework Basics](./12-django-rest-framework-basics.md) ⏳
+- [13 - JWT Authentication](./13-jwt-authentication.md) ⏳
+- [14 - React State Management](./14-react-state-management.md) ⏳
+- [15 - API Integration in React](./15-api-integration-react.md) ⏳
 
 **Sprint 1 Topics:**
 1. Writing User Stories (with acceptance criteria)
@@ -233,20 +241,21 @@ Phase 7: Sprint 6 - Polish & Optimization
 5. ✅ [Documentation-Driven Development](./05-documentation-driven-development.md)
 
 ### Architecture & Design (Current)
-6. 🔄 [System Architecture Design](./06-system-architecture-design.md)
-7. 🔄 [Database Design Basics](./07-database-design-basics.md)
-8. 🔄 [API Design Principles](./08-api-design-principles.md)
+6. ✅ [Agile Process Complete Flow](./06-agile-process-complete-flow.md)
+7. 🔄 [System Architecture Design](./07-system-architecture-design.md)
+8. 🔄 [Database Design Basics](./08-database-design-basics.md)
+9. 🔄 [API Design Principles](./09-api-design-principles.md)
 
 ### Sprint 1 - Authentication (Next)
-9. ⏳ [User Stories & Acceptance Criteria](./09-user-stories-acceptance-criteria.md)
-10. ⏳ [Django Models & ORM](./10-django-models-orm.md)
-11. ⏳ [Django REST Framework Basics](./11-django-rest-framework-basics.md)
-12. ⏳ [JWT Authentication](./12-jwt-authentication.md)
-13. ⏳ [React State Management](./13-react-state-management.md)
-14. ⏳ [API Integration in React](./14-api-integration-react.md)
+10. ⏳ [User Stories & Acceptance Criteria](./10-user-stories-acceptance-criteria.md)
+11. ⏳ [Django Models & ORM](./11-django-models-orm.md)
+12. ⏳ [Django REST Framework Basics](./12-django-rest-framework-basics.md)
+13. ⏳ [JWT Authentication](./13-jwt-authentication.md)
+14. ⏳ [React State Management](./14-react-state-management.md)
+15. ⏳ [API Integration in React](./15-api-integration-react.md)
 
 ### Future Topics
-15-33: See phase descriptions above
+16-34: See phase descriptions above
 
 ---
 
@@ -255,14 +264,14 @@ Phase 7: Sprint 6 - Polish & Optimization
 | Phase | Status | Topics | Completed | Progress |
 |-------|--------|--------|-----------|----------|
 | Phase 0 | ✅ Complete | 5 | 5/5 | 100% |
-| Phase 1 | 🔄 In Progress | 3 | 0/3 | 0% |
+| Phase 1 | 🔄 In Progress | 4 | 1/4 | 25% |
 | Phase 2 | ⏳ Not Started | 6 | 0/6 | 0% |
 | Phase 3 | ⏳ Not Started | 4 | 0/4 | 0% |
 | Phase 4 | ⏳ Not Started | 4 | 0/4 | 0% |
 | Phase 5 | ⏳ Not Started | 3 | 0/3 | 0% |
 | Phase 6 | ⏳ Not Started | 4 | 0/4 | 0% |
 
-**Overall Progress:** 5/29 topics (17%)
+**Overall Progress:** 6/30 topics (20%)
 
 ---
 
@@ -272,20 +281,24 @@ Phase 7: Sprint 6 - Polish & Optimization
 - ✅ Project setup complete
 - ✅ Git repository initialized
 - ✅ Dependencies installed
-- 🔄 Reviewing and simplifying architecture
-- 🔄 Reviewing and simplifying database schema
+- ✅ Agile process flow understood
+- ✅ Architecture simplified
+- ✅ Database schema simplified
+- 🔄 Reviewing architecture docs
+- 🔄 Reviewing database schema
 
 **What's Next (Immediate):**
-1. **Study:** Read and understand `06-system-architecture-design.md`
-2. **Review:** Check `SYSTEM_ARCHITECTURE.md` and simplify if needed
-3. **Study:** Read `07-database-design-basics.md`
-4. **Review:** Check `DATABASE_SCHEMA_EXPLAINED.md` and simplify
-5. **Finalize:** API design principles
+1. **Read:** [06 - Agile Process Complete Flow](./06-agile-process-complete-flow.md) ✅
+2. **Review:** `SYSTEM_ARCHITECTURE.md` - understand high-level design
+3. **Review:** `DATABASE_SCHEMA_EXPLAINED.md` - understand entities
+4. **Review:** `API_DESIGN_PRINCIPLES.md` - understand API standards
+5. **Finalize:** Architecture understanding - ask any questions!
 
 **After Architecture is Done:**
-1. Write user stories for Sprint 1
-2. Create technical design for authentication
-3. Start implementing authentication feature
+1. Create product backlog (list all features)
+2. Write user stories for Sprint 1
+3. Create technical design for authentication
+4. Start implementing authentication feature
 
 ---
 
@@ -309,6 +322,6 @@ Phase 7: Sprint 6 - Polish & Optimization
 
 ---
 
-**Last Updated:** December 19, 2025  
+**Last Updated:** December 20, 2025  
 **Current Phase:** Phase 1 - Architecture & Design  
-**Next Document:** [06 - System Architecture Design](./06-system-architecture-design.md)
+**Next Document:** [06 - Agile Process Complete Flow](./06-agile-process-complete-flow.md) ✅ READ THIS!
