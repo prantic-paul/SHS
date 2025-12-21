@@ -1,25 +1,36 @@
 """
 User Views
-API views for user profile operations
+API views for user profile operations using Django REST Framework Generic Views
 """
-from rest_framework import status
-from rest_framework.views import APIView
+from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from apps.users.serializers import UserProfileSerializer, UserUpdateSerializer
 
 
-class UserProfileView(APIView):
+class UserProfileView(generics.RetrieveUpdateAPIView):
     """
     API endpoint for user profile
     GET /api/v1/users/profile/ - Get current user profile
     PATCH /api/v1/users/profile/ - Update current user profile
     """
+    serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
     
-    def get(self, request):
+    def get_object(self):
+        """Return the current authenticated user"""
+        return self.request.user
+    
+    def get_serializer_class(self):
+        """Use different serializer for update"""
+        if self.request.method in ['PATCH', 'PUT']:
+            return UserUpdateSerializer
+        return UserProfileSerializer
+    
+    def retrieve(self, request, *args, **kwargs):
         """Get current user profile"""
-        serializer = UserProfileSerializer(request.user)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
         
         return Response({
             'success': True,
@@ -27,28 +38,19 @@ class UserProfileView(APIView):
             'message': 'Profile retrieved successfully'
         }, status=status.HTTP_200_OK)
     
-    def patch(self, request):
+    def update(self, request, *args, **kwargs):
         """Update current user profile"""
-        serializer = UserUpdateSerializer(
-            request.user,
-            data=request.data,
-            partial=True
-        )
+        partial = kwargs.pop('partial', True)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
         
-        if serializer.is_valid():
-            serializer.save()
-            
-            # Return updated profile
-            profile_serializer = UserProfileSerializer(request.user)
-            
-            return Response({
-                'success': True,
-                'data': profile_serializer.data,
-                'message': 'Profile updated successfully'
-            }, status=status.HTTP_200_OK)
+        # Return updated profile with UserProfileSerializer
+        profile_serializer = UserProfileSerializer(instance)
         
         return Response({
-            'success': False,
-            'errors': serializer.errors,
-            'message': 'Validation failed'
-        }, status=status.HTTP_400_BAD_REQUEST)
+            'success': True,
+            'data': profile_serializer.data,
+            'message': 'Profile updated successfully'
+        }, status=status.HTTP_200_OK)
