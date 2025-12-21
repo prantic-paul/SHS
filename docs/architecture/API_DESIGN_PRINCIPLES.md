@@ -1,965 +1,594 @@
-# API Design Principles - Smart Health Synchronizer
+# API Design Principles: Smart Health Synchronizer
 
-## Table of Contents
-- [RESTful API Fundamentals](#restful-api-fundamentals)
-- [HTTP Methods](#http-methods)
-- [HTTP Status Codes](#http-status-codes)
-- [URL Structure & Naming](#url-structure--naming)
-- [Request & Response Format](#request--response-format)
-- [Authentication & Authorization](#authentication--authorization)
-- [Pagination & Filtering](#pagination--filtering)
-- [Error Handling](#error-handling)
-- [Versioning](#versioning)
-- [Best Practices](#best-practices)
+## Overview
+This document defines the REST API design standards and conventions for Smart Health Synchronizer. All backend APIs must follow these principles to ensure consistency, maintainability, and ease of use.
+
+**Status:** Sprint 0 - Foundation  
+**Last Updated:** December 21, 2025  
+**Applies To:** All sprints
 
 ---
 
-## RESTful API Fundamentals
+## 1. REST API Fundamentals
 
-### What is REST?
+### 1.1 RESTful Principles
+- Use **HTTP methods** correctly (GET, POST, PUT, PATCH, DELETE)
+- Resources are **nouns**, not verbs
+- Use **plural names** for collections
+- **Stateless** communication (JWT authentication)
 
-**REST (Representational State Transfer)** is an architectural style for designing networked applications.
+### 1.2 Base URL Structure
+```
+Development:  http://localhost:8000/api/v1/
+Production:   https://api.shsplatform.com/api/v1/
+```
 
-### Core Principles:
-
-1. **Client-Server Architecture**
-   - Frontend (React) and Backend (Django) are separate
-   - They communicate over HTTP
-
-2. **Stateless**
-   - Each request contains all information needed
-   - Server doesn't store client state between requests
-   - JWT tokens contain user information
-
-3. **Cacheable**
-   - Responses can be cached for better performance
-   - Use HTTP cache headers
-
-4. **Uniform Interface**
-   - Standard HTTP methods (GET, POST, PUT, DELETE)
-   - Predictable URL patterns
-   - JSON response format
-
-5. **Resource-Based**
-   - Everything is a "resource" (users, appointments, prescriptions)
-   - Resources identified by URLs
-   - Actions performed using HTTP methods
+**Version in URL:** `/api/v1/` for future versioning support
 
 ---
 
-## HTTP Methods
+## 2. URL Naming Conventions
 
-### Standard CRUD Operations
+### 2.1 Resource Naming Rules
 
-| HTTP Method | Action | Example | Description |
-|-------------|--------|---------|-------------|
-| **GET** | Read | `GET /api/appointments/` | Retrieve list of resources |
-| **GET** | Read | `GET /api/appointments/1/` | Retrieve single resource |
-| **POST** | Create | `POST /api/appointments/` | Create new resource |
-| **PUT** | Update (Full) | `PUT /api/appointments/1/` | Update entire resource |
-| **PATCH** | Update (Partial) | `PATCH /api/appointments/1/` | Update specific fields |
-| **DELETE** | Delete | `DELETE /api/appointments/1/` | Delete resource |
+✅ **DO:**
+- Use plural nouns: `/users`, `/doctors`, `/appointments`
+- Use lowercase: `/medical-records`
+- Use hyphens for multi-word: `/appointment-schedules`
+- Be consistent
 
-### Method Details:
+❌ **DON'T:**
+- Use verbs: `/getUsers`, `/createAppointment`
+- Use camelCase: `/medicalRecords`
+- Use underscores: `/medical_records`
+- Mix singular/plural: `/user`, `/doctors`
 
-#### 1. GET (Retrieve Data)
+### 2.2 Examples
 
-**Purpose**: Fetch data from server
-
-**Characteristics**:
-- Safe (doesn't change data)
-- Idempotent (calling multiple times has same effect)
-- Can be cached
-
-**Examples**:
-```http
-# Get all appointments
-GET /api/appointments/
-Response: [
-  {"id": 1, "doctor": {...}, "patient": {...}},
-  {"id": 2, "doctor": {...}, "patient": {...}}
-]
-
-# Get specific appointment
-GET /api/appointments/1/
-Response: {"id": 1, "doctor": {...}, "patient": {...}}
-
-# Get with filters
-GET /api/appointments/?status=confirmed
-GET /api/appointments/?doctor_id=1&date=2025-01-05
 ```
+✅ Good:
+GET    /api/v1/users              # List all users
+GET    /api/v1/users/123          # Get specific user
+POST   /api/v1/users              # Create user
+PUT    /api/v1/users/123          # Update entire user
+PATCH  /api/v1/users/123          # Partial update
+DELETE /api/v1/users/123          # Delete user
 
-#### 2. POST (Create New Resource)
-
-**Purpose**: Create new data
-
-**Characteristics**:
-- Not safe (changes data)
-- Not idempotent (creates new resource each time)
-- Returns 201 Created on success
-
-**Example**:
-```http
-POST /api/appointments/
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
-
-Request Body:
-{
-  "doctor_id": 1,
-  "patient_id": 1,
-  "appointment_date": "2025-01-15T10:00:00",
-  "reason": "Regular checkup"
-}
-
-Response: 201 Created
-{
-  "id": 5,
-  "doctor": {
-    "id": 1,
-    "name": "Dr. Ahmed Rahman",
-    "specialization": "Cardiologist"
-  },
-  "patient": {
-    "id": 1,
-    "name": "Fatima Khan"
-  },
-  "appointment_date": "2025-01-15T10:00:00",
-  "status": "pending",
-  "reason": "Regular checkup",
-  "created_at": "2025-01-01T12:00:00"
-}
-```
-
-#### 3. PUT (Full Update)
-
-**Purpose**: Replace entire resource
-
-**Characteristics**:
-- Not safe (changes data)
-- Idempotent (same result if called multiple times)
-- Must send all fields
-
-**Example**:
-```http
-PUT /api/appointments/5/
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
-
-Request Body (ALL fields required):
-{
-  "doctor_id": 1,
-  "patient_id": 1,
-  "appointment_date": "2025-01-15T14:00:00",  # Changed time
-  "status": "confirmed",                       # Changed status
-  "reason": "Regular checkup"
-}
-
-Response: 200 OK
-{
-  "id": 5,
-  "doctor_id": 1,
-  "patient_id": 1,
-  "appointment_date": "2025-01-15T14:00:00",
-  "status": "confirmed",
-  "reason": "Regular checkup"
-}
-```
-
-#### 4. PATCH (Partial Update)
-
-**Purpose**: Update specific fields only
-
-**Characteristics**:
-- Not safe (changes data)
-- Idempotent
-- Only send fields you want to change
-
-**Example**:
-```http
-PATCH /api/appointments/5/
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
-
-Request Body (Only changed fields):
-{
-  "status": "confirmed"
-}
-
-Response: 200 OK
-{
-  "id": 5,
-  "doctor_id": 1,
-  "patient_id": 1,
-  "appointment_date": "2025-01-15T14:00:00",
-  "status": "confirmed",  # Updated
-  "reason": "Regular checkup"
-}
-```
-
-**When to use PUT vs PATCH?**
-- **PATCH**: Preferred (more flexible, less data sent)
-- **PUT**: When you want to replace entire resource
-
-#### 5. DELETE (Remove Resource)
-
-**Purpose**: Delete a resource
-
-**Characteristics**:
-- Not safe (changes data)
-- Idempotent (deleting deleted resource = same result)
-
-**Example**:
-```http
-DELETE /api/appointments/5/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
-
-Response: 204 No Content
-(No response body)
+❌ Bad:
+GET    /api/v1/getUsers
+POST   /api/v1/createUser
+GET    /api/v1/user/123
+PUT    /api/v1/updateUser/123
 ```
 
 ---
 
-## HTTP Status Codes
+## 3. HTTP Methods
 
-### Success Codes (2xx)
+### 3.1 Method Usage
 
-| Code | Meaning | Use Case |
-|------|---------|----------|
+| Method | Usage | Idempotent | Safe |
+|--------|-------|------------|------|
+| **GET** | Retrieve resource(s) | ✅ Yes | ✅ Yes |
+| **POST** | Create new resource | ❌ No | ❌ No |
+| **PUT** | Replace entire resource | ✅ Yes | ❌ No |
+| **PATCH** | Update partial resource | ❌ No* | ❌ No |
+| **DELETE** | Remove resource | ✅ Yes | ❌ No |
+
+*PATCH should be idempotent but may not be in practice
+
+### 3.2 Method Examples
+
+```
+# GET - Retrieve
+GET /api/v1/users              → List users
+GET /api/v1/users/123          → Get user ID 123
+GET /api/v1/users/123/profile  → Get user's profile
+
+# POST - Create
+POST /api/v1/users             → Create new user
+POST /api/v1/auth/login        → Login (create session/token)
+POST /api/v1/appointments      → Book appointment
+
+# PUT - Replace entire resource
+PUT /api/v1/users/123          → Replace all user fields
+
+# PATCH - Update partial
+PATCH /api/v1/users/123        → Update some user fields
+PATCH /api/v1/appointments/456 → Update appointment status
+
+# DELETE - Remove
+DELETE /api/v1/users/123       → Delete user
+DELETE /api/v1/appointments/456 → Cancel appointment
+```
+
+---
+
+## 4. HTTP Status Codes
+
+### 4.1 Success Codes (2xx)
+
+| Code | Meaning | Usage |
+|------|---------|-------|
 | **200 OK** | Success | GET, PUT, PATCH successful |
-| **201 Created** | Resource created | POST successful |
-| **204 No Content** | Success, no data returned | DELETE successful |
+| **201 Created** | Resource created | POST successful, returns new resource |
+| **204 No Content** | Success, no body | DELETE successful |
 
-### Client Error Codes (4xx)
+### 4.2 Client Error Codes (4xx)
 
-| Code | Meaning | Use Case |
-|------|---------|----------|
-| **400 Bad Request** | Invalid data | Validation failed |
-| **401 Unauthorized** | Not authenticated | Missing/invalid JWT token |
-| **403 Forbidden** | Not authorized | User can't access resource |
-| **404 Not Found** | Resource doesn't exist | Invalid ID |
-| **409 Conflict** | Resource conflict | Duplicate email, time slot taken |
-| **422 Unprocessable Entity** | Validation error | Invalid field values |
-| **429 Too Many Requests** | Rate limit exceeded | Too many API calls |
+| Code | Meaning | Usage |
+|------|---------|-------|
+| **400 Bad Request** | Invalid input | Validation errors, malformed request |
+| **401 Unauthorized** | Not authenticated | Missing or invalid token |
+| **403 Forbidden** | Not authorized | Valid token but insufficient permissions |
+| **404 Not Found** | Resource not found | ID doesn't exist |
+| **409 Conflict** | Resource conflict | Duplicate email, double booking |
+| **422 Unprocessable Entity** | Validation failed | Business logic validation errors |
 
-### Server Error Codes (5xx)
+### 4.3 Server Error Codes (5xx)
 
-| Code | Meaning | Use Case |
-|------|---------|----------|
-| **500 Internal Server Error** | Server crashed | Unhandled exception |
-| **502 Bad Gateway** | Upstream service failed | AI service down |
-| **503 Service Unavailable** | Server overloaded | Maintenance mode |
+| Code | Meaning | Usage |
+|------|---------|-------|
+| **500 Internal Server Error** | Server error | Unexpected errors, exceptions |
+| **503 Service Unavailable** | Service down | Maintenance, overload |
 
-### Examples:
+### 4.4 Response Examples
 
-```http
-# Success: Get appointments
-GET /api/appointments/
-Response: 200 OK
-
-# Success: Create appointment
-POST /api/appointments/
-Response: 201 Created
-
-# Error: Invalid JWT token
-GET /api/appointments/
-Response: 401 Unauthorized
-{
-  "detail": "Authentication credentials were not provided."
-}
-
-# Error: Permission denied (patient trying to delete prescription)
-DELETE /api/prescriptions/1/
-Response: 403 Forbidden
-{
-  "detail": "You do not have permission to perform this action."
-}
-
-# Error: Appointment not found
-GET /api/appointments/999/
-Response: 404 Not Found
-{
-  "detail": "Not found."
-}
-
-# Error: Validation failed
-POST /api/appointments/
-Request: {"doctor_id": "abc"}  # Invalid type
-Response: 400 Bad Request
-{
-  "doctor_id": ["A valid integer is required."]
-}
-```
-
----
-
-## URL Structure & Naming
-
-### URL Pattern
-
-```
-https://api.smarthealthsync.com/api/{version}/{resource}/{id}/{sub-resource}/
-```
-
-### Naming Conventions:
-
-1. **Use nouns, not verbs**
-   - ✅ `GET /api/appointments/`
-   - ❌ `GET /api/getAppointments/`
-
-2. **Use plural nouns**
-   - ✅ `GET /api/doctors/`
-   - ❌ `GET /api/doctor/`
-
-3. **Use lowercase with hyphens**
-   - ✅ `/api/health-records/`
-   - ❌ `/api/HealthRecords/`
-   - ❌ `/api/health_records/` (underscore OK but hyphen preferred)
-
-4. **No trailing slash** (Django adds it automatically)
-   - ✅ `/api/appointments/1/`
-   - ⚠️ `/api/appointments/1` (Django redirects to above)
-
-5. **Hierarchical structure for relationships**
-   - ✅ `/api/doctors/1/appointments/`
-   - ✅ `/api/patients/1/prescriptions/`
-
-### Our API Endpoints:
-
-```
-# Authentication
-POST   /api/auth/register/
-POST   /api/auth/login/
-POST   /api/auth/refresh/
-POST   /api/auth/logout/
-
-# Users
-GET    /api/users/
-GET    /api/users/{id}/
-PATCH  /api/users/{id}/
-DELETE /api/users/{id}/
-
-# Doctors
-GET    /api/doctors/
-GET    /api/doctors/{id}/
-POST   /api/doctors/
-PATCH  /api/doctors/{id}/
-DELETE /api/doctors/{id}/
-GET    /api/doctors/{id}/appointments/     # Nested resource
-GET    /api/doctors/?specialization=Cardiologist  # Filter
-
-# Patients
-GET    /api/patients/
-GET    /api/patients/{id}/
-POST   /api/patients/
-PATCH  /api/patients/{id}/
-DELETE /api/patients/{id}/
-GET    /api/patients/{id}/appointments/
-GET    /api/patients/{id}/prescriptions/
-GET    /api/patients/{id}/health-records/
-
-# Appointments
-GET    /api/appointments/
-GET    /api/appointments/{id}/
-POST   /api/appointments/
-PATCH  /api/appointments/{id}/
-DELETE /api/appointments/{id}/
-GET    /api/appointments/?status=confirmed
-GET    /api/appointments/?doctor_id=1
-
-# Prescriptions
-GET    /api/prescriptions/
-GET    /api/prescriptions/{id}/
-POST   /api/prescriptions/
-PATCH  /api/prescriptions/{id}/
-DELETE /api/prescriptions/{id}/
-
-# Health Records
-GET    /api/health-records/
-GET    /api/health-records/{id}/
-POST   /api/health-records/
-PATCH  /api/health-records/{id}/
-DELETE /api/health-records/{id}/
-
-# Blogs
-GET    /api/blogs/
-GET    /api/blogs/{id}/
-POST   /api/blogs/
-PATCH  /api/blogs/{id}/
-DELETE /api/blogs/{id}/
-GET    /api/blogs/{id}/comments/
-POST   /api/blogs/{id}/comments/
-
-# AI Features (Backend proxies to FastAPI)
-POST   /api/ai/predict-disease/
-POST   /api/ai/recommend-doctor/
-POST   /api/ai/assess-risk/
-```
-
----
-
-## Request & Response Format
-
-### Request Format
-
-**Content-Type**: Always use `application/json`
-
-```http
-POST /api/appointments/
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
-
-{
-  "doctor_id": 1,
-  "patient_id": 1,
-  "appointment_date": "2025-01-15T10:00:00",
-  "reason": "Regular checkup"
-}
-```
-
-### Response Format
-
-**Standard Success Response**:
 ```json
+// 200 OK - Success
 {
-  "id": 1,
-  "doctor": {
-    "id": 1,
-    "name": "Dr. Ahmed Rahman",
-    "specialization": "Cardiologist"
+  "success": true,
+  "data": {
+    "id": 123,
+    "name": "John Doe"
   },
-  "patient": {
-    "id": 1,
-    "name": "Fatima Khan"
+  "message": "User retrieved successfully"
+}
+
+// 201 Created - Resource created
+{
+  "success": true,
+  "data": {
+    "id": 124,
+    "name": "Jane Smith",
+    "email": "jane@example.com"
   },
-  "appointment_date": "2025-01-15T10:00:00",
-  "status": "pending",
-  "reason": "Regular checkup",
-  "created_at": "2025-01-01T12:00:00"
+  "message": "User created successfully"
 }
-```
 
-**Standard Error Response**:
-```json
+// 400 Bad Request - Validation error
 {
-  "detail": "Error message here"
-}
-```
-
-**Validation Error Response**:
-```json
-{
-  "field_name": ["Error message for this field"],
-  "another_field": ["Another error message"]
-}
-```
-
-### Response Fields:
-
-1. **Always include IDs**
-   - `id`, `doctor_id`, `patient_id`
-
-2. **Use ISO 8601 for dates**
-   - `"2025-01-15T10:00:00Z"` (with timezone)
-   - `"2025-01-15"` (date only)
-
-3. **Use nested objects for relationships**
-   ```json
-   {
-     "id": 1,
-     "doctor": {           // Nested object, not just ID
-       "id": 1,
-       "name": "Dr. Ahmed",
-       "specialization": "Cardiologist"
-     }
-   }
-   ```
-
-4. **Include timestamps**
-   - `created_at`, `updated_at`
-
----
-
-## Authentication & Authorization
-
-### JWT Token Authentication
-
-**Login Flow**:
-```http
-POST /api/auth/login/
-Content-Type: application/json
-
-Request:
-{
-  "email": "patient1@example.com",
-  "password": "securepassword"
-}
-
-Response: 200 OK
-{
-  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-**Using Access Token**:
-```http
-GET /api/appointments/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-**Refresh Token**:
-```http
-POST /api/auth/refresh/
-Content-Type: application/json
-
-Request:
-{
-  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-
-Response: 200 OK
-{
-  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."  # New access token
-}
-```
-
-### Authorization Rules
-
-**1. Public Endpoints** (No authentication required):
-```
-GET  /api/blogs/           # Anyone can read blogs
-GET  /api/blogs/{id}/
-GET  /api/doctors/         # Anyone can view doctor list
-GET  /api/doctors/{id}/
-```
-
-**2. Authenticated Endpoints** (Require login):
-```
-GET  /api/appointments/    # View own appointments
-POST /api/appointments/    # Book appointment
-```
-
-**3. Role-Based Endpoints**:
-
-**Patient-only**:
-```
-POST /api/appointments/    # Only patients can book
-GET  /api/patients/{id}/   # View own profile only
-```
-
-**Doctor-only**:
-```
-POST /api/prescriptions/   # Only doctors can prescribe
-POST /api/blogs/           # Only doctors can write blogs
-```
-
-**Example Authorization Logic**:
-```python
-# views.py
-class PrescriptionViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, IsDoctorOrReadOnly]
-    
-    def create(self, request):
-        # Only doctors can create prescriptions
-        if request.user.user_type != 'doctor':
-            return Response(
-                {"detail": "Only doctors can create prescriptions."},
-                status=403
-            )
-        # ... create prescription
-```
-
----
-
-## Pagination & Filtering
-
-### Pagination
-
-**Why?** Don't return 10,000 appointments in one request!
-
-**Default Pagination** (Django REST Framework):
-```http
-GET /api/appointments/
-
-Response:
-{
-  "count": 156,
-  "next": "https://api.example.com/api/appointments/?page=2",
-  "previous": null,
-  "results": [
-    {"id": 1, ...},
-    {"id": 2, ...},
-    ...
-  ]
-}
-```
-
-**Page Size**:
-```http
-GET /api/appointments/?page=2&page_size=10
-```
-
-**Cursor Pagination** (for large datasets):
-```http
-GET /api/appointments/?cursor=cD0yMDIx
-
-Response:
-{
-  "next": "https://api.example.com/api/appointments/?cursor=cD0yMDIy",
-  "previous": "https://api.example.com/api/appointments/?cursor=cD0yMDIw",
-  "results": [...]
-}
-```
-
-### Filtering
-
-**Basic Filtering**:
-```http
-# Filter by status
-GET /api/appointments/?status=confirmed
-
-# Filter by doctor
-GET /api/appointments/?doctor_id=1
-
-# Filter by date range
-GET /api/appointments/?date_after=2025-01-01&date_before=2025-01-31
-
-# Multiple filters
-GET /api/appointments/?doctor_id=1&status=confirmed&date_after=2025-01-01
-```
-
-**Search**:
-```http
-# Search in multiple fields
-GET /api/doctors/?search=cardiologist
-
-# Searches in: name, specialization, bio
-```
-
-**Ordering**:
-```http
-# Sort by date (ascending)
-GET /api/appointments/?ordering=appointment_date
-
-# Sort by date (descending)
-GET /api/appointments/?ordering=-appointment_date
-
-# Multiple ordering
-GET /api/appointments/?ordering=-appointment_date,status
-```
-
-### Example in Frontend (React):
-```javascript
-// Fetch filtered appointments
-const fetchAppointments = async (filters) => {
-  const params = new URLSearchParams();
-  
-  if (filters.status) params.append('status', filters.status);
-  if (filters.doctor_id) params.append('doctor_id', filters.doctor_id);
-  if (filters.page) params.append('page', filters.page);
-  
-  const response = await axios.get(
-    `/api/appointments/?${params.toString()}`
-  );
-  return response.data;
-};
-
-// Usage
-const data = await fetchAppointments({
-  status: 'confirmed',
-  doctor_id: 1,
-  page: 1
-});
-```
-
----
-
-## Error Handling
-
-### Standard Error Response
-
-```json
-{
-  "detail": "Error message"
-}
-```
-
-### Validation Errors
-
-```json
-{
-  "email": ["This field is required."],
-  "password": ["Password must be at least 8 characters."]
-}
-```
-
-### Custom Error Codes
-
-```json
-{
-  "error": {
-    "code": "APPOINTMENT_CONFLICT",
-    "message": "Doctor is not available at this time.",
-    "details": {
-      "conflicting_appointment_id": 15,
-      "available_slots": ["10:00", "14:00"]
-    }
-  }
-}
-```
-
-### Error Handling in Frontend:
-```javascript
-try {
-  const response = await axios.post('/api/appointments/', data);
-  // Success
-} catch (error) {
-  if (error.response) {
-    // Server responded with error
-    const status = error.response.status;
-    const data = error.response.data;
-    
-    if (status === 400) {
-      // Validation error
-      console.log('Validation errors:', data);
-    } else if (status === 401) {
-      // Unauthorized - redirect to login
-      navigate('/login');
-    } else if (status === 403) {
-      // Forbidden
-      alert('You do not have permission');
-    } else if (status === 404) {
-      alert('Resource not found');
-    }
-  } else {
-    // Network error
-    alert('Network error. Please try again.');
-  }
-}
-```
-
----
-
-## Versioning
-
-### Why Version APIs?
-
-- Breaking changes don't break old clients
-- Smooth migration to new features
-- Support multiple app versions
-
-### Versioning Strategies:
-
-**1. URL Versioning** (Our approach):
-```
-https://api.example.com/api/v1/appointments/
-https://api.example.com/api/v2/appointments/
-```
-
-**2. Header Versioning**:
-```http
-GET /api/appointments/
-Accept: application/vnd.myapi.v1+json
-```
-
-**3. Query Parameter**:
-```
-https://api.example.com/api/appointments/?version=1
-```
-
-### Our Versioning Strategy:
-
-```python
-# urls.py
-urlpatterns = [
-    path('api/v1/', include('api.v1.urls')),
-    # Future: path('api/v2/', include('api.v2.urls')),
-]
-```
-
-**When to create new version?**
-- Breaking changes (changing field names, removing fields)
-- Not needed for adding new fields or endpoints
-
----
-
-## Best Practices
-
-### 1. Use HTTPS in Production
-```
-✅ https://api.example.com/api/appointments/
-❌ http://api.example.com/api/appointments/
-```
-
-### 2. Rate Limiting
-```python
-# settings.py
-REST_FRAMEWORK = {
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle'
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/hour',
-        'user': '1000/hour'
-    }
-}
-```
-
-### 3. CORS Configuration
-```python
-# settings.py
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Frontend dev server
-    "https://smarthealthsync.com"  # Production frontend
-]
-```
-
-### 4. API Documentation
-- Use drf-spectacular for automatic OpenAPI docs
-- Access at: `/api/docs/`
-
-### 5. Field Selection (Sparse Fieldsets)
-```http
-# Get only specific fields
-GET /api/appointments/?fields=id,appointment_date,status
-```
-
-### 6. Bulk Operations
-```http
-# Create multiple resources
-POST /api/prescriptions/bulk/
-[
-  {"doctor_id": 1, "patient_id": 1, ...},
-  {"doctor_id": 1, "patient_id": 2, ...}
-]
-```
-
-### 7. Health Check Endpoint
-```http
-GET /api/health/
-Response: 200 OK
-{
-  "status": "healthy",
-  "database": "connected",
-  "timestamp": "2025-01-01T12:00:00Z"
-}
-```
-
----
-
-## Complete Example: Appointment Booking Flow
-
-```http
-# 1. Patient logs in
-POST /api/auth/login/
-{
-  "email": "patient1@example.com",
-  "password": "securepassword"
-}
-Response: 200 OK
-{
-  "access": "eyJhbGci...",
-  "refresh": "eyJhbGci..."
-}
-
-# 2. Get list of doctors
-GET /api/doctors/?specialization=Cardiologist
-Authorization: Bearer eyJhbGci...
-
-Response: 200 OK
-{
-  "count": 5,
-  "results": [
-    {
-      "id": 1,
-      "name": "Dr. Ahmed Rahman",
-      "specialization": "Cardiologist",
-      "experience_years": 10,
-      "consultation_fee": 1500.00
-    }
-  ]
-}
-
-# 3. Check doctor availability
-GET /api/doctors/1/available-slots/?date=2025-01-15
-Authorization: Bearer eyJhbGci...
-
-Response: 200 OK
-{
-  "date": "2025-01-15",
-  "available_slots": ["10:00", "11:00", "14:00", "15:00"]
-}
-
-# 4. Book appointment
-POST /api/appointments/
-Authorization: Bearer eyJhbGci...
-{
-  "doctor_id": 1,
-  "appointment_date": "2025-01-15T10:00:00",
-  "reason": "Chest pain consultation"
-}
-
-Response: 201 Created
-{
-  "id": 25,
-  "doctor": {
-    "id": 1,
-    "name": "Dr. Ahmed Rahman",
-    "specialization": "Cardiologist"
+  "success": false,
+  "errors": {
+    "email": ["Email is required", "Email must be valid"],
+    "password": ["Password must be at least 8 characters"]
   },
-  "patient": {
-    "id": 1,
-    "name": "Fatima Khan"
-  },
-  "appointment_date": "2025-01-15T10:00:00",
-  "status": "pending",
-  "reason": "Chest pain consultation",
-  "created_at": "2025-01-01T12:00:00"
+  "message": "Validation failed"
 }
 
-# 5. Get appointment details
-GET /api/appointments/25/
-Authorization: Bearer eyJhbGci...
-
-Response: 200 OK
+// 401 Unauthorized - Not authenticated
 {
-  "id": 25,
-  "doctor": {...},
-  "patient": {...},
-  "appointment_date": "2025-01-15T10:00:00",
-  "status": "pending"
+  "success": false,
+  "error": "Token is invalid or expired",
+  "message": "Authentication required"
+}
+
+// 404 Not Found - Resource not found
+{
+  "success": false,
+  "error": "User with ID 999 not found",
+  "message": "Resource not found"
 }
 ```
 
 ---
 
-## Summary Checklist
+## 5. Request/Response Format
 
-### ✅ API Design Checklist:
+### 5.1 Request Format
 
-- [ ] Use standard HTTP methods (GET, POST, PUT/PATCH, DELETE)
-- [ ] Return correct HTTP status codes
-- [ ] Use nouns in URLs, not verbs
-- [ ] Use plural resource names
-- [ ] Implement JWT authentication
-- [ ] Add authorization checks
-- [ ] Implement pagination
-- [ ] Support filtering and searching
-- [ ] Use JSON for requests and responses
-- [ ] Handle errors gracefully
-- [ ] Version your API
-- [ ] Document your API (OpenAPI/Swagger)
-- [ ] Use HTTPS in production
-- [ ] Implement rate limiting
-- [ ] Configure CORS properly
+**Content-Type:** `application/json`
+
+```json
+// POST /api/v1/users
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "SecurePass123",
+  "phone": "01712345678",
+  "location": "Dhaka",
+  "blood_group": "A+",
+  "gender": "Male",
+  "age": 30
+}
+```
+
+### 5.2 Response Format (Standard)
+
+All responses follow this structure:
+
+```json
+{
+  "success": true|false,
+  "data": { ... },           // On success (single object or array)
+  "message": "...",          // Human-readable message
+  "errors": { ... },         // On validation errors (field-specific)
+  "error": "...",            // On general errors
+  "meta": { ... }            // Pagination, etc. (optional)
+}
+```
+
+### 5.3 Pagination Response
+
+```json
+{
+  "success": true,
+  "data": [
+    { "id": 1, "name": "User 1" },
+    { "id": 2, "name": "User 2" }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 10,
+    "total": 50,
+    "total_pages": 5
+  },
+  "message": "Users retrieved successfully"
+}
+```
 
 ---
 
-## Resources
+## 6. Authentication & Authorization
 
-- [REST API Tutorial](https://restfulapi.net/)
-- [Django REST Framework Docs](https://www.django-rest-framework.org/)
-- [HTTP Status Codes](https://httpstatuses.com/)
-- [JSON API Specification](https://jsonapi.org/)
+### 6.1 JWT Token Authentication
+
+**Header Format:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Example:**
+```
+GET /api/v1/users/profile
+Headers:
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  Content-Type: application/json
+```
+
+### 6.2 Token Structure
+
+JWT payload should contain:
+```json
+{
+  "user_id": "u-199232",
+  "email": "john@example.com",
+  "role": "PATIENT",  // or "DOCTOR", "ADMIN"
+  "exp": 1640000000,
+  "iat": 1639990000
+}
+```
+
+### 6.3 Public vs Protected Endpoints
+
+**Public (No auth required):**
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `GET /api/v1/blogs` (read blogs)
+
+**Protected (Auth required):**
+- `GET /api/v1/users/profile`
+- `POST /api/v1/appointments`
+- `PATCH /api/v1/users/:id`
+
+---
+
+## 7. Filtering, Sorting, Pagination
+
+### 7.1 Filtering (Query Parameters)
+
+```
+GET /api/v1/doctors?specialization=Cardiology&location=Dhaka
+GET /api/v1/appointments?status=CONFIRMED&date=2025-12-25
+GET /api/v1/users?role=DOCTOR&is_verified=true
+```
+
+### 7.2 Sorting
+
+```
+GET /api/v1/doctors?sort=rating&order=desc
+GET /api/v1/appointments?sort=appointment_date&order=asc
+```
+
+### 7.3 Pagination
+
+```
+GET /api/v1/doctors?page=2&per_page=10
+GET /api/v1/blogs?page=1&per_page=20
+```
+
+### 7.4 Search
+
+```
+GET /api/v1/doctors?search=cardiology
+GET /api/v1/blogs?search=pandemic
+```
+
+---
+
+## 8. Error Handling
+
+### 8.1 Validation Errors (422)
+
+```json
+{
+  "success": false,
+  "errors": {
+    "email": ["Email already exists"],
+    "password": ["Password must contain at least one number"],
+    "phone": ["Phone number is invalid"]
+  },
+  "message": "Validation failed"
+}
+```
+
+### 8.2 Authentication Errors (401)
+
+```json
+{
+  "success": false,
+  "error": "Token has expired",
+  "message": "Please log in again"
+}
+```
+
+### 8.3 Authorization Errors (403)
+
+```json
+{
+  "success": false,
+  "error": "You do not have permission to perform this action",
+  "message": "Forbidden"
+}
+```
+
+### 8.4 Server Errors (500)
+
+```json
+{
+  "success": false,
+  "error": "An unexpected error occurred",
+  "message": "Internal server error. Please try again later."
+}
+```
+
+---
+
+## 9. Nested Resources
+
+### 9.1 When to Use Nested Routes
+
+**Use nested when resource is always accessed through parent:**
+```
+GET /api/v1/users/:user_id/appointments      # User's appointments
+GET /api/v1/doctors/:doctor_id/schedules     # Doctor's schedules
+POST /api/v1/appointments/:id/prescriptions  # Create prescription for appointment
+```
+
+**Don't over-nest (max 2 levels):**
+```
+❌ BAD: /api/v1/users/:user_id/appointments/:appt_id/prescriptions/:pres_id
+✅ GOOD: /api/v1/prescriptions/:id
+```
+
+---
+
+## 10. Field Naming Conventions
+
+### 10.1 JSON Field Names
+
+**Use snake_case for consistency:**
+```json
+{
+  "user_id": "u-199232",
+  "first_name": "John",
+  "last_name": "Doe",
+  "phone_number": "01712345678",
+  "blood_group": "A+",
+  "created_at": "2025-12-21T10:30:00Z",
+  "is_verified": true
+}
+```
+
+### 10.2 Date/Time Format
+
+**Use ISO 8601 format:**
+```json
+{
+  "created_at": "2025-12-21T10:30:00Z",
+  "updated_at": "2025-12-21T15:45:30Z",
+  "appointment_date": "2025-12-25T14:00:00Z"
+}
+```
+
+---
+
+## 11. Versioning
+
+### 11.1 URL Versioning
+
+```
+/api/v1/users     # Version 1 (current)
+/api/v2/users     # Version 2 (future)
+```
+
+**When to version:**
+- Breaking changes to API structure
+- Major feature changes
+- Incompatible updates
+
+**Maintain old versions** for at least 6 months after new version release.
+
+---
+
+## 12. Rate Limiting
+
+### 12.1 Rate Limit Headers (Future Implementation)
+
+```
+X-RateLimit-Limit: 100        # Max requests per window
+X-RateLimit-Remaining: 87     # Requests left
+X-RateLimit-Reset: 1640000000 # Reset time (Unix timestamp)
+```
+
+### 12.2 Rate Limit Response (429)
+
+```json
+{
+  "success": false,
+  "error": "Rate limit exceeded. Try again in 15 minutes.",
+  "message": "Too many requests"
+}
+```
+
+---
+
+## 13. Security Best Practices
+
+### 13.1 Always Use HTTPS
+- All production APIs must use HTTPS
+- Development can use HTTP locally
+
+### 13.2 Validate Input
+- Sanitize all user input
+- Use Django REST Framework serializers
+- Prevent SQL injection, XSS
+
+### 13.3 Never Expose Sensitive Data
+```json
+❌ BAD:
+{
+  "password": "hashed_value",
+  "secret_key": "abc123"
+}
+
+✅ GOOD:
+{
+  "email": "john@example.com",
+  "name": "John Doe"
+}
+```
+
+### 13.4 Use Role-Based Access Control (RBAC)
+```python
+# Check user role before allowing action
+if user.role == "ADMIN":
+    # Allow admin operations
+elif user.role == "DOCTOR":
+    # Allow doctor operations
+else:
+    # Return 403 Forbidden
+```
+
+---
+
+## 14. Documentation Standards
+
+### 14.1 API Documentation Format
+
+Each endpoint must be documented with:
+1. **URL** - Full endpoint path
+2. **Method** - HTTP method
+3. **Auth Required** - Yes/No
+4. **Permissions** - Required role(s)
+5. **Request Body** - JSON schema
+6. **Response** - Success and error examples
+7. **Status Codes** - All possible codes
+
+### 14.2 Example Endpoint Documentation
+
+```markdown
+### Register User
+
+**Endpoint:** `POST /api/v1/auth/register/`
+
+**Auth Required:** No
+
+**Permissions:** None (public)
+
+**Request Body:**
+{
+  "name": "string (required, max 100)",
+  "email": "string (required, unique, valid email)",
+  "password": "string (required, min 8 chars)",
+  "phone": "string (required, unique)",
+  "location": "string (required)",
+  "blood_group": "string (optional)",
+  "gender": "string (optional)",
+  "age": "integer (optional)"
+}
+
+**Success Response (201):**
+{
+  "success": true,
+  "data": {
+    "user_id": "u-199232",
+    "name": "John Doe",
+    "email": "john@example.com"
+  },
+  "message": "User registered successfully"
+}
+
+**Error Response (400):**
+{
+  "success": false,
+  "errors": {
+    "email": ["Email already exists"]
+  },
+  "message": "Validation failed"
+}
+```
+
+---
+
+## 15. Testing Standards
+
+### 15.1 All APIs Must Have Tests
+- Unit tests for business logic
+- Integration tests for API endpoints
+- Test all status codes
+- Test authentication/authorization
+
+### 15.2 Example Test Cases
+```python
+# Test successful user creation
+# Test duplicate email error
+# Test missing required fields
+# Test invalid email format
+# Test authentication required
+# Test unauthorized access
+```
+
+---
+
+## Summary
+
+**Key Principles:**
+1. ✅ RESTful design (resources, HTTP methods)
+2. ✅ Consistent naming (snake_case, plural nouns)
+3. ✅ Standard response format
+4. ✅ Proper status codes
+5. ✅ JWT authentication
+6. ✅ Input validation
+7. ✅ Error handling
+8. ✅ Security first
+9. ✅ Complete documentation
+10. ✅ Comprehensive testing
+
+**These principles apply to ALL sprints and features.**
+
+---
+
+**Document Status:** ✅ Completed  
+**Phase:** Sprint 0 - Foundation  
+**Next Step:** Implement Sprint 1 APIs following these principles
