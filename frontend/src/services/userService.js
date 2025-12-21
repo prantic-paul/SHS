@@ -37,4 +37,23 @@ export const userService = {
     const response = await apiClient.post('/doctors/apply/', doctorData);
     return response.data;
   },
+
+  /**
+   * Get doctor profile
+   * @returns {Promise} API response
+   */
+  getDoctorProfile: async () => {
+    const response = await apiClient.get('/doctors/profile/');
+    return response.data;
+  },
+
+  /**
+   * Update doctor profile
+   * @param {Object} doctorData - Updated doctor profile data
+   * @returns {Promise} API response
+   */
+  updateDoctorProfile: async (doctorData) => {
+    const response = await apiClient.patch('/doctors/profile/', doctorData);
+    return response.data;
+  },
 };

@@ -3,7 +3,7 @@ Serializers package for users app
 """
 from .auth import UserRegistrationSerializer, UserLoginSerializer
 from .user import UserProfileSerializer, UserUpdateSerializer
-from .doctor import DoctorApplicationSerializer, DoctorInformationSerializer
+from .doctor import DoctorApplicationSerializer, DoctorInformationSerializer, DoctorProfileUpdateSerializer
 
 __all__ = [
     'UserRegistrationSerializer',
@@ -12,4 +12,5 @@ __all__ = [
     'UserUpdateSerializer',
     'DoctorApplicationSerializer',
     'DoctorInformationSerializer',
+    'DoctorProfileUpdateSerializer',
 ]

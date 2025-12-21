@@ -67,3 +67,30 @@ class DoctorInformationSerializer(serializers.ModelSerializer):
             'status', 'is_verified', 'rating_avg', 'created_at'
         ]
         read_only_fields = ['status', 'is_verified', 'rating_avg', 'created_at']
+
+
+class DoctorProfileUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for updating doctor profile information
+    Only allows editing of professional details, not verification status
+    """
+    class Meta:
+        model = DoctorInformation
+        fields = [
+            'qualification', 'education', 'specialization',
+            'practice_location', 'experience_years', 'bio'
+        ]
+    
+    def validate(self, attrs):
+        """Ensure only approved doctors can update certain fields"""
+        instance = self.instance
+        if instance and instance.status != 'APPROVED':
+            # Pending/rejected doctors have limited editing
+            allowed_fields = {'bio', 'practice_location'}
+            requested_fields = set(attrs.keys())
+            restricted_fields = requested_fields - allowed_fields
+            if restricted_fields:
+                raise serializers.ValidationError(
+                    f"Cannot update {', '.join(restricted_fields)} until application is approved"
+                )
+        return attrs

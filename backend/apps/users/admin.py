@@ -66,27 +66,49 @@ class DoctorInformationAdmin(admin.ModelAdmin):
             )
         }),
         ('Verification', {
-            'fields': ('status', 'is_verified', 'rating_avg')
+            'fields': ('status',)
         }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at')
+        ('Status Info (Read Only)', {
+            'fields': ('is_verified', 'rating_avg', 'created_at', 'updated_at')
         }),
     )
     
-    readonly_fields = ['created_at', 'updated_at', 'rating_avg']
+    readonly_fields = ['created_at', 'updated_at', 'rating_avg', 'is_verified']
     
     actions = ['approve_doctors', 'reject_doctors']
     
+    def save_model(self, request, obj, form, change):
+        """Override save to handle status changes"""
+        if change:  # Only for existing objects
+            old_obj = DoctorInformation.objects.get(pk=obj.pk)
+            # If status changed to APPROVED, call approve method
+            if old_obj.status != 'APPROVED' and obj.status == 'APPROVED':
+                obj.approve()
+                self.message_user(request, f'Doctor {obj.user.name} approved successfully. User role updated to DOCTOR.', level='SUCCESS')
+                return
+            # If status changed to REJECTED, call reject method
+            elif old_obj.status != 'REJECTED' and obj.status == 'REJECTED':
+                obj.reject()
+                self.message_user(request, f'Doctor {obj.user.name} application rejected.', level='WARNING')
+                return
+        super().save_model(request, obj, form, change)
+    
     def approve_doctors(self, request, queryset):
         """Bulk approve doctor applications"""
+        count = 0
         for doctor in queryset:
-            doctor.approve()
-        self.message_user(request, f'{queryset.count()} doctor(s) approved successfully')
+            if doctor.status != 'APPROVED':
+                doctor.approve()
+                count += 1
+        self.message_user(request, f'{count} doctor(s) approved successfully. User roles updated.')
     approve_doctors.short_description = "Approve selected doctor applications"
     
     def reject_doctors(self, request, queryset):
         """Bulk reject doctor applications"""
+        count = 0
         for doctor in queryset:
-            doctor.reject()
-        self.message_user(request, f'{queryset.count()} doctor(s) rejected')
+            if doctor.status != 'REJECTED':
+                doctor.reject()
+                count += 1
+        self.message_user(request, f'{count} doctor(s) rejected')
     reject_doctors.short_description = "Reject selected doctor applications"

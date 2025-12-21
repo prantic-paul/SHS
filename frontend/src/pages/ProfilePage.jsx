@@ -1,17 +1,18 @@
 /**
  * Profile Page
- * View and edit user profile
+ * View and edit user profile with enhanced doctor section
  */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { userService } from '../services/userService';
-import '../styles/profile.css';
+import { FiEdit, FiLogOut, FiUserPlus, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiShield, FiAward, FiActivity, FiSearch, FiFileText, FiClock, FiLock, FiSave, FiX, FiBriefcase, FiBook, FiStar } from 'react-icons/fi';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { user, updateUser, logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [isDoctorEditing, setIsDoctorEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -23,6 +24,14 @@ const ProfilePage = () => {
     blood_group: '',
     gender: '',
     age: '',
+  });
+  const [doctorFormData, setDoctorFormData] = useState({
+    qualification: '',
+    education: '',
+    specialization: '',
+    practice_location: '',
+    experience_years: '',
+    bio: '',
   });
 
   useEffect(() => {
@@ -41,6 +50,16 @@ const ProfilePage = () => {
         gender: response.data.gender || '',
         age: response.data.age || '',
       });
+      if (response.data.doctor_profile) {
+        setDoctorFormData({
+          qualification: response.data.doctor_profile.qualification || '',
+          education: response.data.doctor_profile.education || '',
+          specialization: response.data.doctor_profile.specialization || '',
+          practice_location: response.data.doctor_profile.practice_location || '',
+          experience_years: response.data.doctor_profile.experience_years || '',
+          bio: response.data.doctor_profile.bio || '',
+        });
+      }
     } catch (err) {
       console.error('Error fetching profile:', err);
       setError('Failed to load profile');
@@ -50,6 +69,15 @@ const ProfilePage = () => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
+      [e.target.name]: e.target.value,
+    });
+    setError(null);
+    setSuccess(null);
+  };
+
+  const handleDoctorChange = (e) => {
+    setDoctorFormData({
+      ...doctorFormData,
       [e.target.name]: e.target.value,
     });
     setError(null);
@@ -80,255 +108,723 @@ const ProfilePage = () => {
     }
   };
 
+  const handleDoctorSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await userService.updateDoctorProfile(doctorFormData);
+      // Refresh profile to get updated doctor data
+      await fetchProfile();
+      setSuccess('Doctor profile updated successfully!');
+      setIsDoctorEditing(false);
+    } catch (err) {
+      console.error('Doctor update error:', err);
+      setError(
+        err.response?.data?.errors || 
+        err.response?.data?.message || 
+        'Failed to update doctor profile'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
+  const getStatusBadge = (status) => {
+    const badges = {
+      APPROVED: 'bg-green-100 text-green-800 border-green-200',
+      PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      REJECTED: 'bg-red-100 text-red-800 border-red-200',
+    };
+    return badges[status] || 'bg-gray-100 text-gray-800 border-gray-200';
+  };
+
   if (!profileData) {
     return (
-      <div className="profile-container">
-        <div className="loading">Loading profile...</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <p className="text-gray-600 font-medium">Loading profile...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="profile-container">
-      <div className="profile-card">
-        <div className="profile-header">
-          <h2>My Profile</h2>
-          <div className="profile-actions">
-            {!isEditing && (
-              <button 
-                onClick={() => setIsEditing(true)} 
-                className="btn-secondary"
-              >
-                Edit Profile
-              </button>
-            )}
-            {profileData.role === 'PATIENT' && !profileData.doctor_profile && (
-              <button 
-                onClick={() => navigate('/apply-doctor')} 
-                className="btn-primary"
-              >
-                Apply as Doctor
-              </button>
-            )}
-            <button onClick={handleLogout} className="btn-danger">
-              Logout
-            </button>
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="bg-gradient-to-r from-primary-500 to-secondary-500 rounded-2xl shadow-lg p-8 text-white">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">My Profile</h1>
+                <p className="text-primary-100">Manage your account information</p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {profileData.role === 'PATIENT' && !profileData.doctor_profile && (
+                  <button 
+                    onClick={() => navigate('/apply-doctor')} 
+                    className="inline-flex items-center px-4 py-2 bg-white text-primary-600 rounded-lg font-semibold hover:bg-primary-50 transition-colors shadow-md"
+                  >
+                    <FiUserPlus className="mr-2" />
+                    Apply as Doctor
+                  </button>
+                )}
+                <button 
+                  onClick={handleLogout} 
+                  className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors shadow-md"
+                >
+                  <FiLogOut className="mr-2" />
+                  Logout
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
+        {/* Messages */}
         {error && (
-          <div className="error-message">
-            {typeof error === 'object' ? (
-              <ul>
-                {Object.entries(error).map(([key, value]) => (
-                  <li key={key}>
-                    <strong>{key}:</strong> {Array.isArray(value) ? value.join(', ') : value}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>{error}</p>
-            )}
+          <div className="mb-6 bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                {typeof error === 'object' ? (
+                  <ul className="text-sm text-red-700 space-y-1">
+                    {Object.entries(error).map(([key, value]) => (
+                      <li key={key}>
+                        <span className="font-semibold">{key}:</span>{' '}
+                        {Array.isArray(value) ? value.join(', ') : value}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-red-700">{error}</p>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
         {success && (
-          <div className="success-message">
-            <p>{success}</p>
+          <div className="mb-6 bg-green-50 border-l-4 border-green-500 rounded-lg p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-green-700 font-medium">{success}</p>
+              </div>
+            </div>
           </div>
         )}
 
-        {isEditing ? (
-          <form onSubmit={handleSubmit} className="profile-form">
-            <div className="form-group">
-              <label htmlFor="name">Full Name</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="phone">Phone Number</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="location">Location</label>
-              <input
-                type="text"
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="blood_group">Blood Group</label>
-                <select
-                  id="blood_group"
-                  name="blood_group"
-                  value={formData.blood_group}
-                  onChange={handleChange}
-                >
-                  <option value="">Select</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                </select>
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column - User Profile */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Basic Profile Card */}
+            <div className="bg-white rounded-2xl shadow-lg p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Personal Information</h2>
+                {!isEditing && (
+                  <button 
+                    onClick={() => setIsEditing(true)} 
+                    className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
+                  >
+                    <FiEdit className="mr-2" />
+                    Edit
+                  </button>
+                )}
               </div>
 
-              <div className="form-group">
-                <label htmlFor="gender">Gender</label>
-                <select
-                  id="gender"
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                >
-                  <option value="">Select</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
+              {isEditing ? (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="name" className="label">
+                        <FiUser className="inline mr-2" />
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        className="input-field"
+                      />
+                    </div>
 
-              <div className="form-group">
-                <label htmlFor="age">Age</label>
-                <input
-                  type="number"
-                  id="age"
-                  name="age"
-                  value={formData.age}
-                  onChange={handleChange}
-                  min="1"
-                  max="150"
-                />
-              </div>
+                    <div>
+                      <label htmlFor="phone" className="label">
+                        <FiPhone className="inline mr-2" />
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        required
+                        className="input-field"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="location" className="label">
+                      <FiMapPin className="inline mr-2" />
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      id="location"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      required
+                      className="input-field"
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                      <label htmlFor="blood_group" className="label">
+                        Blood Group
+                      </label>
+                      <select
+                        id="blood_group"
+                        name="blood_group"
+                        value={formData.blood_group}
+                        onChange={handleChange}
+                        className="input-field"
+                      >
+                        <option value="">Select</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label htmlFor="gender" className="label">
+                        Gender
+                      </label>
+                      <select
+                        id="gender"
+                        name="gender"
+                        value={formData.gender}
+                        onChange={handleChange}
+                        className="input-field"
+                      >
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label htmlFor="age" className="label">
+                        Age
+                      </label>
+                      <input
+                        type="number"
+                        id="age"
+                        name="age"
+                        value={formData.age}
+                        onChange={handleChange}
+                        min="1"
+                        max="150"
+                        className="input-field"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                    <button 
+                      type="submit" 
+                      className="btn-primary inline-flex items-center justify-center"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <span className="flex items-center justify-center">
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Saving...
+                        </span>
+                      ) : (
+                        <>
+                          <FiSave className="mr-2" />
+                          Save Changes
+                        </>
+                      )}
+                    </button>
+                    <button 
+                      type="button" 
+                      className="btn-secondary inline-flex items-center justify-center"
+                      onClick={() => {
+                        setIsEditing(false);
+                        setError(null);
+                        setSuccess(null);
+                        fetchProfile();
+                      }}
+                    >
+                      <FiX className="mr-2" />
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="flex items-start space-x-3">
+                      <div className="p-2 bg-primary-100 rounded-lg">
+                        <FiUser className="text-primary-600 text-xl" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Name</p>
+                        <p className="text-gray-900 font-medium">{profileData.name}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3">
+                      <div className="p-2 bg-primary-100 rounded-lg">
+                        <FiMail className="text-primary-600 text-xl" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Email</p>
+                        <p className="text-gray-900 font-medium">{profileData.email}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3">
+                      <div className="p-2 bg-primary-100 rounded-lg">
+                        <FiPhone className="text-primary-600 text-xl" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Phone</p>
+                        <p className="text-gray-900 font-medium">{profileData.phone}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3">
+                      <div className="p-2 bg-primary-100 rounded-lg">
+                        <FiMapPin className="text-primary-600 text-xl" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Location</p>
+                        <p className="text-gray-900 font-medium">{profileData.location}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr className="border-gray-200" />
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-sm text-gray-500 mb-1">Blood Group</p>
+                      <p className="text-lg font-semibold text-gray-900">{profileData.blood_group || 'Not set'}</p>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-sm text-gray-500 mb-1">Gender</p>
+                      <p className="text-lg font-semibold text-gray-900">{profileData.gender || 'Not set'}</p>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-sm text-gray-500 mb-1">Age</p>
+                      <p className="text-lg font-semibold text-gray-900">{profileData.age || 'Not set'}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="form-actions">
-              <button 
-                type="submit" 
-                className="btn-primary"
-                disabled={loading}
-              >
-                {loading ? 'Saving...' : 'Save Changes'}
-              </button>
-              <button 
-                type="button" 
-                className="btn-secondary"
-                onClick={() => {
-                  setIsEditing(false);
-                  setError(null);
-                  setSuccess(null);
-                  fetchProfile();
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        ) : (
-          <div className="profile-details">
-            <div className="detail-item">
-              <span className="label">User ID:</span>
-              <span className="value">{profileData.user_id}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Name:</span>
-              <span className="value">{profileData.name}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Email:</span>
-              <span className="value">{profileData.email}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Phone:</span>
-              <span className="value">{profileData.phone}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Location:</span>
-              <span className="value">{profileData.location}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Blood Group:</span>
-              <span className="value">{profileData.blood_group || 'Not set'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Gender:</span>
-              <span className="value">{profileData.gender || 'Not set'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Age:</span>
-              <span className="value">{profileData.age || 'Not set'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Role:</span>
-              <span className="value role-badge">{profileData.role}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Account Status:</span>
-              <span className={`value status-badge ${profileData.is_active ? 'active' : 'inactive'}`}>
-                {profileData.is_active ? 'Active' : 'Inactive'}
-              </span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Member Since:</span>
-              <span className="value">{new Date(profileData.created_at).toLocaleDateString()}</span>
-            </div>
-
+            {/* Doctor Profile Section */}
             {profileData.doctor_profile && (
-              <div className="doctor-info">
-                <h3>Doctor Information</h3>
-                <div className="detail-item">
-                  <span className="label">License Number:</span>
-                  <span className="value">{profileData.doctor_profile.license_number}</span>
+              <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-blue-100">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                    <div className="p-2 bg-blue-100 rounded-lg mr-3">
+                      <FiAward className="text-blue-600 text-2xl" />
+                    </div>
+                    Doctor Profile
+                  </h2>
+                  {!isDoctorEditing && profileData.doctor_profile.status === 'APPROVED' && (
+                    <button 
+                      onClick={() => setIsDoctorEditing(true)} 
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    >
+                      <FiEdit className="mr-2" />
+                      Edit Profile
+                    </button>
+                  )}
                 </div>
-                <div className="detail-item">
-                  <span className="label">Specialization:</span>
-                  <span className="value">{profileData.doctor_profile.specialization}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="label">Status:</span>
-                  <span className={`value status-badge ${profileData.doctor_profile.status.toLowerCase()}`}>
-                    {profileData.doctor_profile.status}
+
+                {/* Status Badges */}
+                <div className="flex flex-wrap gap-3 mb-6">
+                  <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold border ${getStatusBadge(profileData.doctor_profile.status)}`}>
+                    Status: {profileData.doctor_profile.status}
                   </span>
+                  {profileData.doctor_profile.is_verified && (
+                    <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-800 border border-green-200">
+                      <FiShield className="mr-1" />
+                      Verified Doctor
+                    </span>
+                  )}
+                  {profileData.doctor_profile.rating_avg > 0 && (
+                    <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800 border border-yellow-200">
+                      <FiStar className="mr-1" />
+                      {profileData.doctor_profile.rating_avg} / 5.0
+                    </span>
+                  )}
                 </div>
-                <div className="detail-item">
-                  <span className="label">Verification:</span>
-                  <span className={`value status-badge ${profileData.doctor_profile.is_verified ? 'active' : 'inactive'}`}>
-                    {profileData.doctor_profile.is_verified ? 'Verified' : 'Not Verified'}
-                  </span>
-                </div>
+
+                {isDoctorEditing ? (
+                  <form onSubmit={handleDoctorSubmit} className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label htmlFor="specialization" className="label">
+                          <FiBriefcase className="inline mr-2" />
+                          Specialization
+                        </label>
+                        <input
+                          type="text"
+                          id="specialization"
+                          name="specialization"
+                          value={doctorFormData.specialization}
+                          onChange={handleDoctorChange}
+                          className="input-field"
+                          placeholder="e.g., Cardiology"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="experience_years" className="label">
+                          <FiCalendar className="inline mr-2" />
+                          Years of Experience
+                        </label>
+                        <input
+                          type="number"
+                          id="experience_years"
+                          name="experience_years"
+                          value={doctorFormData.experience_years}
+                          onChange={handleDoctorChange}
+                          min="0"
+                          className="input-field"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="qualification" className="label">
+                        <FiAward className="inline mr-2" />
+                        Qualification
+                      </label>
+                      <input
+                        type="text"
+                        id="qualification"
+                        name="qualification"
+                        value={doctorFormData.qualification}
+                        onChange={handleDoctorChange}
+                        className="input-field"
+                        placeholder="e.g., MBBS, MD"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="education" className="label">
+                        <FiBook className="inline mr-2" />
+                        Education
+                      </label>
+                      <textarea
+                        id="education"
+                        name="education"
+                        value={doctorFormData.education}
+                        onChange={handleDoctorChange}
+                        rows="3"
+                        className="input-field"
+                        placeholder="Educational background and institutions"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="practice_location" className="label">
+                        <FiMapPin className="inline mr-2" />
+                        Practice Location
+                      </label>
+                      <input
+                        type="text"
+                        id="practice_location"
+                        name="practice_location"
+                        value={doctorFormData.practice_location}
+                        onChange={handleDoctorChange}
+                        className="input-field"
+                        placeholder="Hospital/Clinic name and location"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="bio" className="label">
+                        Professional Bio
+                      </label>
+                      <textarea
+                        id="bio"
+                        name="bio"
+                        value={doctorFormData.bio}
+                        onChange={handleDoctorChange}
+                        rows="4"
+                        maxLength="1000"
+                        className="input-field"
+                        placeholder="Tell patients about yourself and your practice..."
+                      />
+                      <p className="text-sm text-gray-500 mt-1">
+                        {doctorFormData.bio.length} / 1000 characters
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                      <button 
+                        type="submit" 
+                        className="btn-primary inline-flex items-center justify-center"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <span className="flex items-center justify-center">
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Saving...
+                          </span>
+                        ) : (
+                          <>
+                            <FiSave className="mr-2" />
+                            Save Changes
+                          </>
+                        )}
+                      </button>
+                      <button 
+                        type="button" 
+                        className="btn-secondary inline-flex items-center justify-center"
+                        onClick={() => {
+                          setIsDoctorEditing(false);
+                          setError(null);
+                          setSuccess(null);
+                          fetchProfile();
+                        }}
+                      >
+                        <FiX className="mr-2" />
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                          <FiShield className="text-blue-600 mr-2" />
+                          <p className="text-sm text-blue-600 font-semibold">License Number</p>
+                        </div>
+                        <p className="text-gray-900 font-bold">{profileData.doctor_profile.license_number}</p>
+                      </div>
+
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                          <FiBriefcase className="text-blue-600 mr-2" />
+                          <p className="text-sm text-blue-600 font-semibold">Specialization</p>
+                        </div>
+                        <p className="text-gray-900 font-bold">{profileData.doctor_profile.specialization}</p>
+                      </div>
+
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                          <FiAward className="text-blue-600 mr-2" />
+                          <p className="text-sm text-blue-600 font-semibold">Qualification</p>
+                        </div>
+                        <p className="text-gray-900 font-bold">{profileData.doctor_profile.qualification}</p>
+                      </div>
+
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                          <FiCalendar className="text-blue-600 mr-2" />
+                          <p className="text-sm text-blue-600 font-semibold">Experience</p>
+                        </div>
+                        <p className="text-gray-900 font-bold">
+                          {profileData.doctor_profile.experience_years ? 
+                            `${profileData.doctor_profile.experience_years} years` : 
+                            'Not specified'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {profileData.doctor_profile.education && (
+                      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                          <FiBook className="text-blue-600 mr-2" />
+                          <p className="text-sm text-blue-600 font-semibold">Education</p>
+                        </div>
+                        <p className="text-gray-700 whitespace-pre-line">{profileData.doctor_profile.education}</p>
+                      </div>
+                    )}
+
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4">
+                      <div className="flex items-center mb-2">
+                        <FiMapPin className="text-purple-600 mr-2" />
+                        <p className="text-sm text-purple-600 font-semibold">Practice Location</p>
+                      </div>
+                      <p className="text-gray-900 font-medium">{profileData.doctor_profile.practice_location}</p>
+                    </div>
+
+                    {profileData.doctor_profile.bio && (
+                      <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                          <FiUser className="text-green-600 mr-2" />
+                          <p className="text-sm text-green-600 font-semibold">Professional Bio</p>
+                        </div>
+                        <p className="text-gray-700 whitespace-pre-line">{profileData.doctor_profile.bio}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
+
+          {/* Right Column - Stats & Info */}
+          <div className="space-y-6">
+            {/* Account Info Card */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Account Details</h3>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <FiShield className="text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">User ID</p>
+                    <p className="text-sm font-semibold text-gray-900">{profileData.user_id}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <FiCalendar className="text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Member Since</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {new Date(profileData.created_at).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Role</span>
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-primary-100 text-primary-800">
+                      {profileData.role}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-sm text-gray-600">Status</span>
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
+                      profileData.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {profileData.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Coming Soon Features */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-bold text-gray-900 px-2">Upcoming Features</h3>
+              
+              <div className="bg-white rounded-xl shadow-md p-4 opacity-70 cursor-not-allowed border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-blue-100 rounded-lg mr-3">
+                      <FiActivity className="text-blue-600" />
+                    </div>
+                    <h4 className="font-bold text-gray-900 text-sm">Health Checkup</h4>
+                  </div>
+                  <FiLock className="text-gray-400" />
+                </div>
+                <p className="text-xs text-gray-600 ml-11">Schedule routine screenings</p>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-md p-4 opacity-70 cursor-not-allowed border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-purple-100 rounded-lg mr-3">
+                      <FiSearch className="text-purple-600" />
+                    </div>
+                    <h4 className="font-bold text-gray-900 text-sm">AI Doctor Search</h4>
+                  </div>
+                  <FiLock className="text-gray-400" />
+                </div>
+                <p className="text-xs text-gray-600 ml-11">Smart doctor recommendations</p>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-md p-4 opacity-70 cursor-not-allowed border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-green-100 rounded-lg mr-3">
+                      <FiFileText className="text-green-600" />
+                    </div>
+                    <h4 className="font-bold text-gray-900 text-sm">Medical Records</h4>
+                  </div>
+                  <FiLock className="text-gray-400" />
+                </div>
+                <p className="text-xs text-gray-600 ml-11">Access your health history</p>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-md p-4 opacity-70 cursor-not-allowed border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-red-100 rounded-lg mr-3">
+                      <FiClock className="text-red-600" />
+                    </div>
+                    <h4 className="font-bold text-gray-900 text-sm">Recent Treatment</h4>
+                  </div>
+                  <FiLock className="text-gray-400" />
+                </div>
+                <p className="text-xs text-gray-600 ml-11">View latest treatments</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -6,7 +6,8 @@ from apps.users.views import (
     UserRegistrationView,
     UserLoginView,
     UserProfileView,
-    DoctorApplicationView
+    DoctorApplicationView,
+    DoctorProfileUpdateView
 )
 
 app_name = 'users'
@@ -21,4 +22,5 @@ urlpatterns = [
     
     # Doctor endpoints
     path('doctors/apply/', DoctorApplicationView.as_view(), name='doctor-apply'),
+    path('doctors/profile/', DoctorProfileUpdateView.as_view(), name='doctor-profile'),
 ]
