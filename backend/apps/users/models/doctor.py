@@ -77,6 +77,70 @@ class DoctorInformation(models.Model):
         default=0.00,
         help_text='Average rating (0.00 to 5.00)'
     )
+    rating_count = models.IntegerField(
+        default=0,
+        help_text='Total number of ratings'
+    )
+    
+    # Availability status
+    AVAILABILITY_CHOICES = [
+        ('available', 'Available'),
+        ('busy', 'Busy'),
+        ('unavailable', 'Unavailable'),
+    ]
+    availability_status = models.CharField(
+        max_length=20,
+        choices=AVAILABILITY_CHOICES,
+        default='unavailable',
+        help_text='Current availability status for appointments'
+    )
+    
+    # Contact and consultation details
+    phone = models.CharField(
+        max_length=20,
+        blank=True,
+        help_text='Contact phone number'
+    )
+    email = models.EmailField(
+        blank=True,
+        help_text='Professional email address'
+    )
+    consultation_fee = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+        help_text='Consultation fee in local currency'
+    )
+    clinic_address = models.TextField(
+        blank=True,
+        help_text='Clinic or practice address'
+    )
+    city = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text='City of practice'
+    )
+    state = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text='State/province of practice'
+    )
+    pincode = models.CharField(
+        max_length=10,
+        blank=True,
+        help_text='Postal/ZIP code'
+    )
+    languages = models.CharField(
+        max_length=255,
+        default='English',
+        help_text='Languages spoken (comma-separated)'
+    )
+    profile_image = models.ImageField(
+        upload_to='doctors/profiles/',
+        blank=True,
+        null=True,
+        help_text='Doctor profile picture'
+    )
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
@@ -92,6 +156,9 @@ class DoctorInformation(models.Model):
             models.Index(fields=['status']),
             models.Index(fields=['specialization']),
             models.Index(fields=['is_verified']),
+            models.Index(fields=['availability_status']),
+            models.Index(fields=['city']),
+            models.Index(fields=['rating_avg']),
         ]
     
     def __str__(self):
