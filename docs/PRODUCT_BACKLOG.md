@@ -23,7 +23,7 @@ This document contains the complete list of features and requirements for Smart 
 |--------|-------|----------|----------|--------|
 | **Sprint 0** | Foundation & Planning | 1 week | Problem statement, architecture, database design | ✅ Complete |
 | **Sprint 1** | Authentication & User Management | 1 day | User registration, login, profile management | ✅ Complete |
-| **Sprint 2** | Doctor Management | 2 weeks | Doctor profiles, verification, schedule management | 📋 Planned |
+| **Sprint 2** | Doctor Search & Discovery | 2 weeks | Doctor listing, search, filter, detail view | � In Progress |
 | **Sprint 3** | Appointment System | 2 weeks | Booking, scheduling, appointment management | 📋 Planned |
 | **Sprint 4** | Medical Records & Prescriptions | 2 weeks | Health records, prescriptions, patient history | 📋 Planned |
 | **Sprint 5** | Blog & Content System | 2 weeks | Blog creation, reading, search functionality | 📋 Planned |
@@ -94,33 +94,38 @@ This document contains the complete list of features and requirements for Smart 
 
 ---
 
-### Sprint 2: Doctor Management 📋
-**Goal:** Enable doctor profiles, verification, and schedule management
+### Sprint 2: Doctor Search & Discovery �
+**Goal:** Enable patients to find and view verified doctors
 
 **Duration:** 2 weeks  
-**User Stories:** 9 stories
+**Started:** December 22, 2025  
+**User Stories:** 6 stories
 
-| ID | Feature | User Story | Priority | Acceptance Criteria |
-|----|---------|------------|----------|---------------------|
-| S2-1 | Doctor Registration | As a doctor, I want to apply to join the platform with my professional information | 🔴 P0 | - Doctor provides license, specialization, qualifications<br>- Application submitted successfully<br>- Status: Pending verification |
-| S2-2 | Admin Doctor Verification | As an admin, I want to review and verify doctor applications | 🔴 P0 | - Admin sees pending applications<br>- Admin can approve/reject with reason<br>- Doctor notified of status |
-| S2-3 | Doctor Profile Creation | As a doctor, I want to create my professional profile | 🔴 P0 | - Doctor adds bio, experience, location<br>- Profile saved successfully<br>- Profile visible after verification |
-| S2-4 | Doctor Profile View | As a patient, I want to view doctor profiles to choose the right doctor | 🔴 P0 | - Patient can see doctor details<br>- Shows specialization, qualifications, experience<br>- Shows location and rating |
-| S2-5 | Doctor Profile Update | As a doctor, I want to update my professional profile | 🔴 P0 | - Doctor can edit bio, qualifications, location<br>- Changes saved successfully<br>- Updated profile displayed |
-| S2-6 | Doctor Search by Location | As a patient, I want to search doctors by location | 🔴 P0 | - Patient enters location<br>- System shows matching doctors<br>- Results sorted by relevance |
-| S2-7 | Doctor Search by Specialty | As a patient, I want to search doctors by specialty | 🔴 P0 | - Patient selects specialty<br>- System shows matching doctors<br>- Results filtered correctly |
-| S2-8 | Schedule Creation | As a doctor, I want to set my availability schedule | 🔴 P0 | - Doctor defines available days/times<br>- Schedule saved successfully<br>- Patients can see availability |
-| S2-9 | Schedule Update | As a doctor, I want to update my schedule and practice location | 🔴 P0 | - Doctor can modify schedule<br>- Changes reflected immediately<br>- Future appointments unaffected |
+**Branch:** `feature/sprint-2-doctor-search`
+
+| ID | Feature | User Story | Priority | Status |
+|----|---------|------------|----------|--------|
+| S2-1 | View All Doctors | As a patient, I want to see a list of all verified doctors | 🔴 P0 | ⬜ To Do |
+| S2-2 | Search Doctors | As a patient, I want to search doctors by name or specialization | 🔴 P0 | ⬜ To Do |
+| S2-3 | Filter Doctors | As a patient, I want to filter doctors by specialization, location, experience | 🟡 P1 | ⬜ To Do |
+| S2-4 | View Doctor Details | As a patient, I want to view detailed information about a doctor | 🔴 P0 | ⬜ To Do |
+| S2-5 | Doctor Availability Status | As a patient, I want to see if a doctor is currently available | 🟡 P1 | ⬜ To Do |
+| S2-6 | Doctor Ratings Display | As a patient, I want to see doctor ratings and reviews | � P1 | ⬜ To Do |
 
 **Technical Tasks:**
-- [ ] Design Doctor Information model
-- [ ] Create doctor registration API endpoints
-- [ ] Implement admin verification system
-- [ ] Create doctor search API (location, specialty)
-- [ ] Design Appointment Schedule model
-- [ ] Implement schedule management APIs
-- [ ] Create doctor profile pages (frontend)
-- [ ] Implement search and filter UI
+- [ ] Create doctor list API endpoint (GET /api/v1/doctors/)
+- [ ] Implement search functionality (query params)
+- [ ] Implement filter functionality (specialization, location, experience)
+- [ ] Create doctor detail API endpoint (GET /api/v1/doctors/{id}/)
+- [ ] Implement pagination (10 doctors per page)
+- [ ] Create DoctorsListPage component (frontend)
+- [ ] Create DoctorDetailPage component (frontend)
+- [ ] Implement search bar UI
+- [ ] Implement filter panel UI
+- [ ] Create doctor card component
+- [ ] Add responsive grid layout
+- [ ] Write unit tests for API endpoints
+- [ ] Manual testing and bug fixes
 
 ---
 
