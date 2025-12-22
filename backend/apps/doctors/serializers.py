@@ -14,15 +14,18 @@ class DoctorListSerializer(serializers.ModelSerializer):
     Serializer for doctor list view with essential information
     """
     doctor_name = serializers.CharField(source='user.name', read_only=True)
+    user_location = serializers.CharField(source='user.location', read_only=True)
     
     class Meta:
         model = DoctorInformation
         fields = [
             'id',
             'doctor_name',
+            'user_location',
             'profile_image',
             'specialization',
             'experience_years',
+            'practice_location',
             'city',
             'state',
             'consultation_fee',
@@ -39,6 +42,7 @@ class DoctorDetailSerializer(serializers.ModelSerializer):
     """
     doctor_name = serializers.CharField(source='user.name', read_only=True)
     doctor_email = serializers.EmailField(source='user.email', read_only=True)
+    user_location = serializers.CharField(source='user.location', read_only=True)
     
     class Meta:
         model = DoctorInformation
@@ -46,6 +50,7 @@ class DoctorDetailSerializer(serializers.ModelSerializer):
             'id',
             'doctor_name',
             'doctor_email',
+            'user_location',
             'profile_image',
             'specialization',
             'license_number',

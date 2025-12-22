@@ -3,6 +3,7 @@
  * Professional landing page with modern design
  */
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import {
   Activity,
@@ -22,6 +23,14 @@ import {
 } from 'lucide-react';
 
 const HomePage = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem('access_token');
+    setIsAuthenticated(!!token);
+  }, []);
+
   const services = [
     {
       icon: <Users className="w-12 h-12" />,
@@ -115,12 +124,14 @@ const HomePage = () => {
                   <span>Find Doctors Now</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <Link
-                  to="/register"
-                  className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white/10 backdrop-blur-sm transition-all"
-                >
-                  Create Free Account
-                </Link>
+                {!isAuthenticated && (
+                  <Link
+                    to="/register"
+                    className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white/10 backdrop-blur-sm transition-all"
+                  >
+                    Create Free Account
+                  </Link>
+                )}
               </div>
 
               {/* Stats */}
@@ -195,23 +206,25 @@ const HomePage = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-6">
-            Ready to Take Control of Your Health?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of satisfied patients who trust us with their healthcare needs
-          </p>
-          <Link
-            to="/register"
-            className="inline-flex items-center px-8 py-4 bg-white text-blue-600 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all shadow-2xl hover:scale-105"
-          >
-            Get Started Free
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </Link>
+      {!isAuthenticated && (
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-6">
+              Ready to Take Control of Your Health?
+            </h2>
+            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+              Join thousands of satisfied patients who trust us with their healthcare needs
+            </p>
+            <Link
+              to="/register"
+              className="inline-flex items-center px-8 py-4 bg-white text-blue-600 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all shadow-2xl hover:scale-105"
+            >
+              Get Started Free
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-12">
@@ -234,16 +247,27 @@ const HomePage = () => {
                     Find Doctors
                   </Link>
                 </li>
-                <li>
-                  <Link to="/register" className="hover:text-white transition-colors">
-                    Sign Up
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/login" className="hover:text-white transition-colors">
-                    Login
-                  </Link>
-                </li>
+                {!isAuthenticated && (
+                  <>
+                    <li>
+                      <Link to="/register" className="hover:text-white transition-colors">
+                        Sign Up
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/login" className="hover:text-white transition-colors">
+                        Login
+                      </Link>
+                    </li>
+                  </>
+                )}
+                {isAuthenticated && (
+                  <li>
+                    <Link to="/profile" className="hover:text-white transition-colors">
+                      My Profile
+                    </Link>
+                  </li>
+                )}
               </ul>
             </div>
 

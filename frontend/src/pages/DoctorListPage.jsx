@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, X, Loader } from 'lucide-react';
+import { Search, Filter, X, Loader, Users } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import DoctorCard from '../components/DoctorCard';
 import { getDoctors, getSpecializations } from '../services/doctorService';
@@ -72,7 +72,9 @@ const DoctorListPage = () => {
         }
       });
       
+      console.log('Loading doctors with params:', params);
       const response = await getDoctors(params);
+      console.log('Doctors response:', response);
       
       setDoctors(response.results || response);
       setTotalCount(response.count || response.length);
@@ -201,14 +203,14 @@ const DoctorListPage = () => {
                 </select>
               </div>
               
-              {/* City Filter */}
+              {/* City/Location Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  City
+                  Location
                 </label>
                 <input
                   type="text"
-                  placeholder="Enter city..."
+                  placeholder="Enter location..."
                   value={filters.city}
                   onChange={(e) => handleFilterChange('city', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

@@ -249,6 +249,13 @@ const DoctorDetailPage = () => {
                     </div>
                   )}
                   
+                  {doctor.user_location && (
+                    <div className="flex items-center text-gray-700">
+                      <MapPin className="w-5 h-5 mr-3 text-indigo-600 flex-shrink-0" />
+                      <span className="font-semibold">{doctor.user_location}</span>
+                    </div>
+                  )}
+                  
                   {doctor.city && (
                     <div className="flex items-center text-gray-700">
                       <MapPin className="w-5 h-5 mr-3 text-red-600 flex-shrink-0" />

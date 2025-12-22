@@ -19,6 +19,12 @@ const DoctorApplicationPage = () => {
     practice_location: '',
     experience_years: '',
     bio: '',
+    city: '',
+    state: '',
+    phone: '',
+    email: '',
+    consultation_fee: '',
+    clinic_address: '',
   });
 
   const handleChange = (e) => {
@@ -205,6 +211,108 @@ const DoctorApplicationPage = () => {
                 placeholder="Dhaka Medical College Hospital"
                 className="input-field"
               />
+            </div>
+
+            {/* City and State */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="city" className="label">
+                  <FiMapPin className="inline mr-2" />
+                  City
+                </label>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  placeholder="Mumbai"
+                  className="input-field"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="state" className="label">
+                  <FiMapPin className="inline mr-2" />
+                  State
+                </label>
+                <input
+                  type="text"
+                  id="state"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  placeholder="Maharashtra"
+                  className="input-field"
+                />
+              </div>
+            </div>
+
+            {/* Contact Details */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="phone" className="label">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="+91 9876543210"
+                  className="input-field"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="label">
+                  Professional Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="doctor@example.com"
+                  className="input-field"
+                />
+              </div>
+            </div>
+
+            {/* Consultation Fee and Clinic Address */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="consultation_fee" className="label">
+                  Consultation Fee (₹)
+                </label>
+                <input
+                  type="number"
+                  id="consultation_fee"
+                  name="consultation_fee"
+                  value={formData.consultation_fee}
+                  onChange={handleChange}
+                  min="0"
+                  placeholder="500"
+                  className="input-field"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="clinic_address" className="label">
+                  Clinic Address
+                </label>
+                <input
+                  type="text"
+                  id="clinic_address"
+                  name="clinic_address"
+                  value={formData.clinic_address}
+                  onChange={handleChange}
+                  placeholder="123 Medical Street"
+                  className="input-field"
+                />
+              </div>
             </div>
 
             {/* Bio */}

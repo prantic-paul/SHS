@@ -15,13 +15,16 @@ class DoctorApplicationSerializer(serializers.ModelSerializer):
         fields = [
             'license_number', 'qualification', 'education',
             'specialization', 'practice_location',
-            'experience_years', 'bio'
+            'experience_years', 'bio', 'city', 'state',
+            'phone', 'email', 'consultation_fee', 'clinic_address'
         ]
         extra_kwargs = {
             'license_number': {'required': True},
             'qualification': {'required': True},
             'specialization': {'required': True},
             'practice_location': {'required': True},
+            'city': {'required': False},
+            'state': {'required': False},
         }
     
     def validate_license_number(self, value):

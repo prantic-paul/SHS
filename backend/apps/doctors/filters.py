@@ -16,11 +16,15 @@ class DoctorFilter(django_filters.FilterSet):
         lookup_expr='iexact'
     )
     city = django_filters.CharFilter(
-        field_name='city',
+        field_name='user__location',
         lookup_expr='icontains'
     )
     state = django_filters.CharFilter(
         field_name='state',
+        lookup_expr='icontains'
+    )
+    location = django_filters.CharFilter(
+        field_name='user__location',
         lookup_expr='icontains'
     )
     
@@ -64,6 +68,7 @@ class DoctorFilter(django_filters.FilterSet):
             'specialization',
             'city',
             'state',
+            'location',
             'min_experience',
             'max_experience',
             'min_rating',

@@ -94,37 +94,13 @@ const DoctorCard = ({ doctor }) => {
             <span className="font-medium">{doctor.experience_years} years experience</span>
           </div>
           
-          {/* Practice Location - Primary */}
-          {doctor.practice_location && (
+          {/* Location */}
+          {(doctor.city || doctor.state) && (
             <div className="flex items-center gap-3 text-gray-700">
               <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
                 <MapPin size={16} className="text-green-600" />
               </div>
-              <span className="font-medium line-clamp-1" title={doctor.practice_location}>
-                {doctor.practice_location}
-              </span>
-            </div>
-          )}
-          
-          {/* User Location (from User table) */}
-          {doctor.user_location && (
-            <div className="flex items-center gap-3 text-gray-700">
-              <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <MapPin size={16} className="text-indigo-600" />
-              </div>
-              <span className="font-medium line-clamp-1" title={doctor.user_location}>
-                {doctor.user_location}
-              </span>
-            </div>
-          )}
-          
-          {/* City, State - Secondary Location */}
-          {(doctor.city || doctor.state) && (
-            <div className="flex items-center gap-3 text-gray-600 text-sm">
-              <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
-                {/* Empty space for alignment */}
-              </div>
-              <span className="font-normal">
+              <span className="font-medium">
                 {doctor.city}{doctor.city && doctor.state && ', '}{doctor.state}
               </span>
             </div>

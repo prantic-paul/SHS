@@ -30,7 +30,7 @@ class DoctorListView(generics.ListAPIView):
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = DoctorFilter
-    search_fields = ['user__name', 'specialization']
+    search_fields = ['user__name', 'specialization', 'practice_location', 'city', 'state', 'user__location']
     ordering_fields = ['rating_avg', 'experience_years', 'consultation_fee']
     ordering = ['-rating_avg']
     
