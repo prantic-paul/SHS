@@ -13,13 +13,14 @@
 This sprint has comprehensive documentation across multiple files for your reference:
 
 ### Core Documentation
-1. **[USER_STORIES.md](./USER_STORIES.md)** - Detailed user stories with acceptance criteria (29 story points)
-2. **[TDD_APPROACH.md](./TDD_APPROACH.md)** - Test-Driven Development strategy with complete test specifications
-3. **[API_SPECIFICATION.md](./API_SPECIFICATION.md)** - Complete API endpoint documentation with examples
-4. **[IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md)** - Step-by-step backend & frontend implementation
-5. **README.md** (this file) - Sprint overview and quick reference
+1. **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** ⭐ START HERE - Quick overview and checklists
+2. **[USER_STORIES.md](./USER_STORIES.md)** - Detailed user stories with acceptance criteria (32 story points)
+3. **[TDD_APPROACH.md](./TDD_APPROACH.md)** - Test-Driven Development strategy with complete test specifications
+4. **[API_SPECIFICATION.md](./API_SPECIFICATION.md)** - Complete API endpoint documentation (8 endpoints)
+5. **[IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md)** - Step-by-step backend & frontend implementation
+6. **README.md** (this file) - Sprint overview and quick reference
 
-💡 **Tip**: Start with USER_STORIES.md to understand requirements, then follow IMPLEMENTATION_GUIDE.md
+💡 **Tip**: Start with QUICK_REFERENCE.md for a fast overview, then dive into specific docs as needed
 
 ---
 
