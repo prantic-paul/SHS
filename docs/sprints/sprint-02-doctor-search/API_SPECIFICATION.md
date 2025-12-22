@@ -13,8 +13,9 @@
 2. [Doctor List Endpoint](#doctor-list-endpoint)
 3. [Doctor Detail Endpoint](#doctor-detail-endpoint)
 4. [Specializations Endpoint](#specializations-endpoint)
-5. [Error Responses](#error-responses)
-6. [Rate Limiting](#rate-limiting)
+5. [Rating Endpoints](#rating-endpoints)
+6. [Error Responses](#error-responses)
+7. [Rate Limiting](#rate-limiting)
 
 ---
 
@@ -46,6 +47,8 @@ REST_FRAMEWORK = {
 | `/doctors/` | ✅ List | ❌ | ❌ | ❌ | ❌ |
 | `/doctors/{id}/` | ✅ Retrieve | ❌ | ❌ | ❌ | ❌ |
 | `/doctors/specializations/` | ✅ List | ❌ | ❌ | ❌ | ❌ |
+| `/doctors/{id}/ratings/` | ✅ List | ✅ Create | ❌ | ❌ | ❌ |
+| `/doctors/{id}/ratings/{rating_id}/` | ✅ Retrieve | ❌ | ✅ Update | ❌ | ✅ Delete |
 
 ---
 
@@ -110,6 +113,8 @@ Accept: application/json
       "years_of_experience": 15,
       "practice_location": "New York, NY",
       "rating_avg": 4.8,
+      "rating_count": 23,
+      "availability_status": "unavailable",
       "is_verified": true,
       "profile_picture": "http://localhost:8000/media/doctors/profiles/john_doe.jpg"
     },
@@ -122,6 +127,8 @@ Accept: application/json
       "years_of_experience": 12,
       "practice_location": "Boston, MA",
       "rating_avg": 4.6,
+      "rating_count": 15,
+      "availability_status": "unavailable",
       "is_verified": true,
       "profile_picture": null
     },
@@ -134,6 +141,8 @@ Accept: application/json
       "years_of_experience": 20,
       "practice_location": "Los Angeles, CA",
       "rating_avg": 4.5,
+      "rating_count": 8,
+      "availability_status": "unavailable",
       "is_verified": true,
       "profile_picture": "http://localhost:8000/media/doctors/profiles/mike_johnson.jpg"
     }
@@ -157,6 +166,8 @@ Accept: application/json
 | `results[].years_of_experience` | integer | Years of medical experience |
 | `results[].practice_location` | string | Practice location (city, state) |
 | `results[].rating_avg` | float | Average rating (0.0 - 5.0) |
+| `results[].rating_count` | integer | Total number of ratings received |
+| `results[].availability_status` | string | Availability status (available, busy, unavailable) |
 | `results[].is_verified` | boolean | Verification status (always true for listed doctors) |
 | `results[].profile_picture` | string/null | URL to profile picture or null |
 
@@ -261,6 +272,8 @@ Accept: application/json
   "education": "Harvard Medical School (MD), Johns Hopkins University (Residency), Mayo Clinic (Fellowship)",
   "qualifications": "MBBS, MD, FACC, FSCAI",
   "rating_avg": 4.8,
+  "rating_count": 23,
+  "availability_status": "unavailable",
   "is_verified": true,
   "status": "APPROVED",
   "profile_picture": "http://localhost:8000/media/doctors/profiles/john_doe.jpg",
@@ -289,6 +302,8 @@ Accept: application/json
 | `education` | string/null | Educational background |
 | `qualifications` | string/null | Medical qualifications/certifications |
 | `rating_avg` | float | Average rating (0.0 - 5.0) |
+| `rating_count` | integer | Total number of ratings received |
+| `availability_status` | string | Availability status (available, busy, unavailable) |
 | `is_verified` | boolean | Verification status |
 | `status` | string | Approval status (APPROVED, PENDING, REJECTED) |
 | `profile_picture` | string/null | URL to profile picture |
@@ -383,6 +398,358 @@ This endpoint is useful for:
 2. Showing specialization statistics on the homepage
 3. Creating "Browse by Specialization" sections
 4. Displaying specialization counts in filter panels
+
+---
+
+## Rating Endpoints
+
+### Submit Doctor Rating
+
+#### Endpoint Details
+
+**URL**: `/api/v1/doctors/{id}/ratings/`  
+**Method**: `POST`  
+**Authentication**: Required (JWT Bearer Token)  
+**Description**: Submit a rating for a specific doctor. Each user can only rate a doctor once.
+
+#### URL Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | integer | Yes | Doctor's unique identifier |
+
+#### Request Headers
+
+```http
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
+
+#### Request Body
+
+```json
+{
+  "rating": 5,
+  "review_text": "Excellent doctor! Very professional and caring."
+}
+```
+
+#### Request Body Fields
+
+| Field | Type | Required | Validation | Description |
+|-------|------|----------|------------|-------------|
+| `rating` | integer | Yes | 1-5 | Star rating (1=worst, 5=best) |
+| `review_text` | string | No | Max 200 chars | Optional text review |
+
+#### Request Example
+
+```http
+POST /api/v1/doctors/1/ratings/ HTTP/1.1
+Host: localhost:8000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+
+{
+  "rating": 5,
+  "review_text": "Excellent doctor! Very professional and caring."
+}
+```
+
+#### Response (201 Created)
+
+```json
+{
+  "id": 42,
+  "doctor": 1,
+  "user": {
+    "id": 10,
+    "email": "patient@example.com",
+    "first_name": "John",
+    "last_name": "Patient"
+  },
+  "rating": 5,
+  "review_text": "Excellent doctor! Very professional and caring.",
+  "created_at": "2025-12-22T14:30:00Z",
+  "updated_at": "2025-12-22T14:30:00Z"
+}
+```
+
+#### Error Response - Already Rated (400 Bad Request)
+
+```json
+{
+  "detail": "You have already rated this doctor. Use PUT to update your rating.",
+  "code": "duplicate_rating"
+}
+```
+
+#### Error Response - Unauthorized (401 Unauthorized)
+
+```json
+{
+  "detail": "Authentication credentials were not provided.",
+  "code": "not_authenticated"
+}
+```
+
+#### Error Response - Invalid Rating (400 Bad Request)
+
+```json
+{
+  "rating": ["Ensure this value is less than or equal to 5."],
+  "review_text": ["Ensure this field has no more than 200 characters."]
+}
+```
+
+---
+
+### List Doctor Ratings
+
+#### Endpoint Details
+
+**URL**: `/api/v1/doctors/{id}/ratings/`  
+**Method**: `GET`  
+**Authentication**: Not Required (Public endpoint)  
+**Description**: Get all ratings for a specific doctor with pagination
+
+#### Query Parameters
+
+| Parameter | Type | Required | Description | Example |
+|-----------|------|----------|-------------|---------|
+| `page` | integer | No | Page number (default: 1) | `?page=2` |
+| `page_size` | integer | No | Results per page (default: 5, max: 20) | `?page_size=10` |
+| `ordering` | string | No | Sort by: `-created_at`, `-rating`, `rating` | `?ordering=-created_at` |
+
+#### Request Example
+
+```http
+GET /api/v1/doctors/1/ratings/?page=1&ordering=-created_at HTTP/1.1
+Host: localhost:8000
+Accept: application/json
+```
+
+#### Response (200 OK)
+
+```json
+{
+  "count": 23,
+  "next": "http://localhost:8000/api/v1/doctors/1/ratings/?page=2",
+  "previous": null,
+  "results": [
+    {
+      "id": 42,
+      "user": {
+        "id": 10,
+        "first_name": "John",
+        "last_name": "Patient"
+      },
+      "rating": 5,
+      "review_text": "Excellent doctor! Very professional and caring.",
+      "created_at": "2025-12-22T14:30:00Z"
+    },
+    {
+      "id": 41,
+      "user": {
+        "id": 9,
+        "first_name": "Jane",
+        "last_name": "Smith"
+      },
+      "rating": 4,
+      "review_text": "Good experience overall.",
+      "created_at": "2025-12-21T10:15:00Z"
+    },
+    {
+      "id": 40,
+      "user": {
+        "id": 8,
+        "first_name": "Mike",
+        "last_name": "Johnson"
+      },
+      "rating": 5,
+      "review_text": null,
+      "created_at": "2025-12-20T16:45:00Z"
+    }
+  ],
+  "rating_breakdown": {
+    "5": 15,
+    "4": 5,
+    "3": 2,
+    "2": 1,
+    "1": 0
+  },
+  "average_rating": 4.5,
+  "total_ratings": 23
+}
+```
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `count` | integer | Total number of ratings |
+| `next` | string/null | URL for next page |
+| `previous` | string/null | URL for previous page |
+| `results` | array | Array of rating objects |
+| `results[].id` | integer | Rating ID |
+| `results[].user` | object | User who submitted the rating (name only, no email) |
+| `results[].rating` | integer | Star rating (1-5) |
+| `results[].review_text` | string/null | Text review |
+| `results[].created_at` | datetime | When rating was submitted |
+| `rating_breakdown` | object | Count of ratings by star level |
+| `average_rating` | float | Average rating (calculated) |
+| `total_ratings` | integer | Total number of ratings |
+
+---
+
+### Update User's Rating
+
+#### Endpoint Details
+
+**URL**: `/api/v1/doctors/{doctor_id}/ratings/{rating_id}/`  
+**Method**: `PUT`  
+**Authentication**: Required (JWT Bearer Token)  
+**Description**: Update your own rating for a doctor
+
+#### URL Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `doctor_id` | integer | Yes | Doctor's unique identifier |
+| `rating_id` | integer | Yes | Rating ID to update |
+
+#### Request Body
+
+```json
+{
+  "rating": 4,
+  "review_text": "Updated review text."
+}
+```
+
+#### Request Example
+
+```http
+PUT /api/v1/doctors/1/ratings/42/ HTTP/1.1
+Host: localhost:8000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+
+{
+  "rating": 4,
+  "review_text": "Updated review after follow-up visit."
+}
+```
+
+#### Response (200 OK)
+
+```json
+{
+  "id": 42,
+  "doctor": 1,
+  "user": {
+    "id": 10,
+    "email": "patient@example.com",
+    "first_name": "John",
+    "last_name": "Patient"
+  },
+  "rating": 4,
+  "review_text": "Updated review after follow-up visit.",
+  "created_at": "2025-12-22T14:30:00Z",
+  "updated_at": "2025-12-22T18:45:00Z"
+}
+```
+
+#### Error Response - Not Owner (403 Forbidden)
+
+```json
+{
+  "detail": "You can only update your own ratings.",
+  "code": "permission_denied"
+}
+```
+
+---
+
+### Delete User's Rating
+
+#### Endpoint Details
+
+**URL**: `/api/v1/doctors/{doctor_id}/ratings/{rating_id}/`  
+**Method**: `DELETE`  
+**Authentication**: Required (JWT Bearer Token)  
+**Description**: Delete your own rating for a doctor
+
+#### Request Example
+
+```http
+DELETE /api/v1/doctors/1/ratings/42/ HTTP/1.1
+Host: localhost:8000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+#### Response (204 No Content)
+
+No response body. Doctor's rating_avg and rating_count are automatically recalculated.
+
+#### Error Response - Not Owner (403 Forbidden)
+
+```json
+{
+  "detail": "You can only delete your own ratings.",
+  "code": "permission_denied"
+}
+```
+
+---
+
+### Get Rating Breakdown Statistics
+
+#### Endpoint Details
+
+**URL**: `/api/v1/doctors/{id}/ratings/breakdown/`  
+**Method**: `GET`  
+**Authentication**: Not Required (Public endpoint)  
+**Description**: Get detailed rating statistics for visualization
+
+#### Request Example
+
+```http
+GET /api/v1/doctors/1/ratings/breakdown/ HTTP/1.1
+Host: localhost:8000
+Accept: application/json
+```
+
+#### Response (200 OK)
+
+```json
+{
+  "doctor_id": 1,
+  "average_rating": 4.5,
+  "total_ratings": 23,
+  "rating_breakdown": {
+    "5": {
+      "count": 15,
+      "percentage": 65.2
+    },
+    "4": {
+      "count": 5,
+      "percentage": 21.7
+    },
+    "3": {
+      "count": 2,
+      "percentage": 8.7
+    },
+    "2": {
+      "count": 1,
+      "percentage": 4.3
+    },
+    "1": {
+      "count": 0,
+      "percentage": 0.0
+    }
+  }
+}
+```
 
 ---
 
