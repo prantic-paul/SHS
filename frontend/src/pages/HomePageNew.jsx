@@ -92,7 +92,7 @@ const HomePage = () => {
             <div className="text-center">
               <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-6 border border-white/30">
                 <Award className="w-4 h-4 mr-2" />
-                Trusted by 18+ users across India
+                Trusted by 10,000+ patients
               </div>
 
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 leading-tight tracking-tight">
@@ -126,9 +126,9 @@ const HomePage = () => {
               {/* Stats */}
               <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
-                  { value: '14+', label: 'Verified Doctors' },
-                  { value: '18+', label: 'Registered Users' },
-                  { value: '10+', label: 'Specializations' },
+                  { value: '500+', label: 'Verified Doctors' },
+                  { value: '10k+', label: 'Happy Patients' },
+                  { value: '50+', label: 'Specializations' },
                   { value: '24/7', label: 'Support Available' },
                 ].map((stat, idx) => (
                   <div

@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { userService } from '../services/userService';
-import Navbar from '../components/Navbar';
 import { FiEdit, FiLogOut, FiUserPlus, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiShield, FiAward, FiActivity, FiSearch, FiFileText, FiClock, FiLock, FiSave, FiX, FiBriefcase, FiBook, FiStar } from 'react-icons/fi';
 
 const ProfilePage = () => {
@@ -149,43 +148,25 @@ const ProfilePage = () => {
 
   if (!profileData) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-        <Navbar />
-        <div className="pt-20 flex items-center justify-center min-h-[80vh]">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p className="text-gray-600 font-medium">Loading profile...</p>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <p className="text-gray-600 font-medium">Loading profile...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Navbar */}
-      <Navbar />
-      
-      <div className="pt-20 pb-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div
-                className="absolute inset-0"
-                style={{
-                  backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
-                  backgroundSize: '40px 40px',
-                }}
-              />
-            </div>
-            
-            <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+          <div className="bg-gradient-to-r from-primary-500 to-secondary-500 rounded-2xl shadow-lg p-8 text-white">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
               <div>
-                <h1 className="text-4xl font-extrabold mb-2">My Profile</h1>
-                <p className="text-blue-100 text-lg">Manage your account information</p>
+                <h1 className="text-3xl font-bold mb-2">My Profile</h1>
+                <p className="text-primary-100">Manage your account information</p>
               </div>
               <div className="flex flex-wrap gap-3">
                 {profileData.role === 'PATIENT' && !profileData.doctor_profile && (
@@ -843,7 +824,6 @@ const ProfilePage = () => {
               </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
     </div>

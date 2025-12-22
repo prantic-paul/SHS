@@ -117,43 +117,46 @@ const DoctorListPage = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Navbar */}
       <Navbar />
       
-      <div className="pt-20 pb-8">
+      <div className="pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Page Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              Find a Doctor
+          <div className="mb-10 text-center">
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-4">
+              <Users className="w-4 h-4 mr-2" />
+              {totalCount} Verified Doctors Available
+            </div>
+            <h1 className="text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+              Find Your Perfect Doctor
             </h1>
-            <p className="text-gray-600">
-              Search and discover qualified doctors near you
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Search from our curated list of verified healthcare professionals across various specializations
             </p>
           </div>
         
         {/* Search and Filter Bar */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
           {/* Search Bar */}
-          <div className="flex gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
                 type="text"
                 placeholder="Search by doctor name or specialization..."
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-900 placeholder-gray-400 text-lg"
               />
             </div>
             
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`
-                px-6 py-3 rounded-lg font-medium flex items-center gap-2
-                ${showFilters ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}
-                transition-colors duration-200
+                px-8 py-4 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-md
+                ${showFilters ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white' : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-400'}
               `}
             >
               <Filter size={20} />
