@@ -54,9 +54,9 @@ const HomePage = () => {
               </Link>
             </div>
             <div className="flex items-center space-x-6">
-              <a href="#doctors" className="text-white hover:text-primary-100 text-sm font-medium transition-colors">
+              <Link to="/doctors" className="text-white hover:text-primary-100 text-sm font-medium transition-colors">
                 Doctors
-              </a>
+              </Link>
               <a href="#awareness" className="text-white hover:text-primary-100 text-sm font-medium transition-colors">
                 Public Awareness
               </a>
@@ -150,16 +150,23 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Doctors Section Placeholder */}
+      {/* Doctors Section */}
       <div id="doctors" className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
+          <div className="text-center mb-12">
             <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl mb-4">
-              Our Verified Doctors
+              Find Verified Doctors
             </h2>
-            <p className="text-xl text-gray-600">
-              Coming soon - Browse our network of qualified healthcare professionals
+            <p className="text-xl text-gray-600 mb-8">
+              Browse our network of qualified healthcare professionals
             </p>
+            <Link
+              to="/doctors"
+              className="inline-flex items-center bg-gradient-to-r from-primary-600 to-secondary-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:from-primary-700 hover:to-secondary-700 transition-all shadow-lg hover:shadow-xl"
+            >
+              <FiUsers className="mr-2" />
+              Browse All Doctors
+            </Link>
           </div>
         </div>
       </div>

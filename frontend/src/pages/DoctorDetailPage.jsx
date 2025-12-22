@@ -37,7 +37,18 @@ const DoctorDetailPage = () => {
 
   // Check if user is logged in
   const isAuthenticated = !!localStorage.getItem('access_token');
-  const currentUserId = isAuthenticated ? JSON.parse(localStorage.getItem('user'))?.id : null;
+  const getCurrentUserId = () => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) return null;
+      const user = JSON.parse(userStr);
+      return user?.id || null;
+    } catch (error) {
+      console.error('Error parsing user from localStorage:', error);
+      return null;
+    }
+  };
+  const currentUserId = isAuthenticated ? getCurrentUserId() : null;
 
   useEffect(() => {
     loadDoctorDetails();
@@ -313,10 +324,10 @@ const DoctorDetailPage = () => {
                 {/* Rating Bars */}
                 <div className="space-y-2">
                   {[5, 4, 3, 2, 1].map((star) => {
-                    const count = breakdown.breakdown[star] || 0;
-                    const percentage = breakdown.total > 0 
-                      ? (count / breakdown.total * 100).toFixed(0)
-                      : 0;
+                    const starKey = star.toString();
+                    const ratingData = breakdown.breakdown?.[starKey] || { count: 0, percentage: 0 };
+                    const count = ratingData.count || 0;
+                    const percentage = ratingData.percentage || 0;
                     
                     return (
                       <div key={star} className="flex items-center gap-2">
