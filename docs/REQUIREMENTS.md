@@ -19,6 +19,10 @@ Functional requirements define **what the system must do** - the features and ca
 | FR-1.4 | The system shall send email verification during registration | Should Have | All Users |
 | FR-1.5 | The system shall provide password reset functionality | Should Have | All Users |
 
+
+
+
+
 ### 1.2 Doctor Registration & Verification
 
 | ID | Requirement | Priority | User Type |
@@ -87,6 +91,8 @@ Functional requirements define **what the system must do** - the features and ca
 | FR-8.3 | The system shall display average ratings on doctor profiles | Must Have | System |
 | FR-8.4 | The system shall allow patients to edit or delete their own reviews | Should Have | Patient |
 
+
+
 ### 1.9 Profile Management
 
 | ID | Requirement | Priority | User Type |
@@ -104,6 +110,14 @@ Functional requirements define **what the system must do** - the features and ca
 | FR-10.2 | The system shall allow admins to suspend or deactivate user accounts | Must Have | Admin |
 | FR-10.3 | The system shall allow admins to view platform statistics and reports | Should Have | Admin |
 | FR-10.4 | The system shall allow admins to moderate blog content | Should Have | Admin |
+
+
+
+
+
+
+
+
 
 ---
 
@@ -168,6 +182,9 @@ Non-functional requirements define **how the system should perform** - quality a
 | NFR-6.2 | The system shall have comprehensive API documentation | Should Have | Developer productivity |
 | NFR-6.3 | The system shall have automated unit and integration tests | Should Have | Code reliability |
 | NFR-6.4 | The system shall use version control (Git) for all code | Must Have | Change tracking |
+
+
+
 
 ### 2.7 Compliance Requirements
 
