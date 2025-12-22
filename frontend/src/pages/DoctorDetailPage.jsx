@@ -50,6 +50,8 @@ const DoctorDetailPage = () => {
   };
   const currentUserId = isAuthenticated ? getCurrentUserId() : null;
 
+  console.log('DoctorDetailPage mounted with id:', id);
+
   useEffect(() => {
     loadDoctorDetails();
     loadRatings();
