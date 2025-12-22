@@ -16,6 +16,7 @@ import {
   Calendar,
   Clock,
 } from 'lucide-react';
+import Navbar from '../components/Navbar';
 import { getDoctorById, getDoctorRatings, submitRating, getRatingBreakdown } from '../services/doctorService';
 import StarDisplay from '../components/StarDisplay';
 import AvailabilityBadge from '../components/AvailabilityBadge';
@@ -139,10 +140,13 @@ const DoctorDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading doctor profile...</p>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="pt-20 flex items-center justify-center min-h-[80vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading doctor profile...</p>
+          </div>
         </div>
       </div>
     );
@@ -150,15 +154,18 @@ const DoctorDetailPage = () => {
 
   if (error || !doctor) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error || 'Doctor not found'}</p>
-          <button
-            onClick={() => navigate('/doctors')}
-            className="text-blue-600 hover:text-blue-700 font-medium"
-          >
-            ← Back to Doctors
-          </button>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="pt-20 flex items-center justify-center min-h-[80vh]">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">{error || 'Doctor not found'}</p>
+            <button
+              onClick={() => navigate('/doctors')}
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              ← Back to Doctors
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -167,8 +174,12 @@ const DoctorDetailPage = () => {
   const hasMoreRatings = ratings.length < totalRatings;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50">
+      {/* Navbar */}
+      <Navbar />
+      
+      <div className="pt-20 pb-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <button
           onClick={() => navigate('/doctors')}
@@ -464,6 +475,7 @@ const DoctorDetailPage = () => {
               )}
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

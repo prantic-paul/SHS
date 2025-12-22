@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, X, Loader } from 'lucide-react';
+import Navbar from '../components/Navbar';
 import DoctorCard from '../components/DoctorCard';
 import { getDoctors, getSpecializations } from '../services/doctorService';
 
@@ -116,17 +117,21 @@ const DoctorListPage = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Find a Doctor
-          </h1>
-          <p className="text-gray-600">
-            Search and discover qualified doctors near you
-          </p>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Navbar */}
+      <Navbar />
+      
+      <div className="pt-20 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Page Header */}
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              Find a Doctor
+            </h1>
+            <p className="text-gray-600">
+              Search and discover qualified doctors near you
+            </p>
+          </div>
         
         {/* Search and Filter Bar */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -354,6 +359,7 @@ const DoctorListPage = () => {
             </button>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
