@@ -1,8 +1,25 @@
 # Sprint 2: Doctor Search & Discovery
 
-**Duration**: Sprint 2  
+**Duration**: 2 weeks  
 **Status**: 🔄 In Progress  
-**Branch**: `feature/sprint-2-doctor-search`
+**Branch**: `feature/sprint-2-doctor-search`  
+**Start Date**: December 22, 2025  
+**Target End Date**: January 5, 2026
+
+---
+
+## 📚 Complete Documentation
+
+This sprint has comprehensive documentation across multiple files for your reference:
+
+### Core Documentation
+1. **[USER_STORIES.md](./USER_STORIES.md)** - Detailed user stories with acceptance criteria (29 story points)
+2. **[TDD_APPROACH.md](./TDD_APPROACH.md)** - Test-Driven Development strategy with complete test specifications
+3. **[API_SPECIFICATION.md](./API_SPECIFICATION.md)** - Complete API endpoint documentation with examples
+4. **[IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md)** - Step-by-step backend & frontend implementation
+5. **README.md** (this file) - Sprint overview and quick reference
+
+💡 **Tip**: Start with USER_STORIES.md to understand requirements, then follow IMPLEMENTATION_GUIDE.md
 
 ---
 
