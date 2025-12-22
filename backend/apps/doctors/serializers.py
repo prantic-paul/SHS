@@ -107,6 +107,11 @@ class RatingCreateSerializer(serializers.ModelSerializer):
     """
     Serializer for creating and updating ratings
     """
+    doctor = serializers.PrimaryKeyRelatedField(
+        queryset=DoctorInformation.objects.all(),
+        required=False  # Not required because it comes from URL
+    )
+    
     class Meta:
         model = Rating
         fields = [
@@ -138,7 +143,19 @@ class RatingCreateSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         doctor = attrs.get('doctor')
         
-        if request and hasattr(request, 'user'):
+        # If doctor not in attrs, get it from view kwargs (URL parameter)
+        if not doctor:
+            view = self.context.get('view')
+            if view and hasattr(view, 'kwargs'):
+                doctor_id = view.kwargs.get('doctor_id')
+                if doctor_id:
+                    try:
+                        doctor = DoctorInformation.objects.get(id=doctor_id)
+                        attrs['doctor'] = doctor
+                    except DoctorInformation.DoesNotExist:
+                        raise serializers.ValidationError("Doctor not found.")
+        
+        if request and hasattr(request, 'user') and doctor:
             # Check for existing rating only on create
             if not self.instance:
                 existing_rating = Rating.objects.filter(

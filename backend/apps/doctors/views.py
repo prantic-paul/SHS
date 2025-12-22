@@ -107,12 +107,25 @@ class RatingListCreateView(generics.ListCreateAPIView):
             return RatingCreateSerializer
         return RatingListSerializer
     
+    def get_serializer_context(self):
+        """
+        Add view to serializer context
+        """
+        context = super().get_serializer_context()
+        context['view'] = self
+        return context
+    
     def perform_create(self, serializer):
         """
         Save the rating with the doctor_id from the URL
         """
         doctor_id = self.kwargs.get('doctor_id')
-        serializer.save(user=self.request.user, doctor_id=doctor_id)
+        # If doctor is already in validated_data (from serializer), use it
+        # Otherwise, set it from the URL parameter
+        if 'doctor' not in serializer.validated_data:
+            serializer.save(user=self.request.user, doctor_id=doctor_id)
+        else:
+            serializer.save(user=self.request.user)
 
 
 class RatingDetailView(generics.RetrieveUpdateDestroyAPIView):
