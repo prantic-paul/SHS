@@ -74,7 +74,28 @@ export const userService = {
    * @returns {Promise} API response
    */
   updateDoctorProfile: async (doctorData) => {
-    const response = await apiClient.patch('/doctors/profile/', doctorData);
+    // Check if doctorData contains a File (profile image)
+    const hasFile = Object.values(doctorData).some(value => value instanceof File);
+    
+    let response;
+    if (hasFile) {
+      // Use FormData for file upload
+      const formData = new FormData();
+      Object.keys(doctorData).forEach(key => {
+        if (doctorData[key] !== null && doctorData[key] !== undefined && doctorData[key] !== '') {
+          formData.append(key, doctorData[key]);
+        }
+      });
+      response = await apiClient.patch('/doctors/profile/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } else {
+      // Regular JSON request
+      response = await apiClient.patch('/doctors/profile/', doctorData);
+    }
+    
     return response.data;
   },
 };

@@ -126,9 +126,21 @@ const ProfilePictureUpload = ({ currentImage, onUpload, loading }) => {
       </div>
 
       {/* Instructions */}
-      <p className="text-xs text-gray-500 text-center max-w-xs">
-        Your profile picture will be visible to doctors and other users
-      </p>
+      <div className="text-center max-w-xs space-y-2">
+        <p className="text-xs text-gray-500">
+          Your profile picture will be visible to doctors and other users
+        </p>
+        {loading && (
+          <p className="text-xs text-primary-600 font-semibold animate-pulse">
+            Uploading and saving...
+          </p>
+        )}
+        {!loading && preview && (
+          <p className="text-xs text-green-600 font-semibold">
+            ✓ Profile picture updated successfully
+          </p>
+        )}
+      </div>
     </div>
   );
 };

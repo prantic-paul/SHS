@@ -60,6 +60,7 @@ class DoctorInformationSerializer(serializers.ModelSerializer):
     """
     user_name = serializers.CharField(source='user.name', read_only=True)
     user_id = serializers.CharField(source='user.user_id', read_only=True)
+    profile_image = serializers.ImageField(read_only=True)
     
     class Meta:
         model = DoctorInformation
@@ -67,7 +68,7 @@ class DoctorInformationSerializer(serializers.ModelSerializer):
             'id', 'user_id', 'user_name', 'license_number',
             'qualification', 'education', 'specialization',
             'practice_location', 'experience_years', 'bio',
-            'status', 'is_verified', 'rating_avg', 'created_at'
+            'status', 'is_verified', 'rating_avg', 'created_at', 'profile_image'
         ]
         read_only_fields = ['status', 'is_verified', 'rating_avg', 'created_at']
 
@@ -77,11 +78,13 @@ class DoctorProfileUpdateSerializer(serializers.ModelSerializer):
     Serializer for updating doctor profile information
     Only allows editing of professional details, not verification status
     """
+    profile_image = serializers.ImageField(required=False, allow_null=True)
+    
     class Meta:
         model = DoctorInformation
         fields = [
             'qualification', 'education', 'specialization',
-            'practice_location', 'experience_years', 'bio'
+            'practice_location', 'experience_years', 'bio', 'profile_image'
         ]
     
     def validate(self, attrs):

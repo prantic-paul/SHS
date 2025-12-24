@@ -15,6 +15,7 @@ class DoctorListSerializer(serializers.ModelSerializer):
     """
     doctor_name = serializers.CharField(source='user.name', read_only=True)
     user_location = serializers.CharField(source='user.location', read_only=True)
+    profile_image = serializers.SerializerMethodField()
     
     class Meta:
         model = DoctorInformation
@@ -34,6 +35,14 @@ class DoctorListSerializer(serializers.ModelSerializer):
             'availability_status',
         ]
         read_only_fields = ['rating_avg', 'rating_count']
+    
+    def get_profile_image(self, obj):
+        """Return doctor's profile_image if exists, otherwise user's profile_picture"""
+        if obj.profile_image:
+            return obj.profile_image.url
+        elif obj.user.profile_picture:
+            return obj.user.profile_picture.url
+        return None
 
 
 class DoctorDetailSerializer(serializers.ModelSerializer):
@@ -43,6 +52,7 @@ class DoctorDetailSerializer(serializers.ModelSerializer):
     doctor_name = serializers.CharField(source='user.name', read_only=True)
     doctor_email = serializers.EmailField(source='user.email', read_only=True)
     user_location = serializers.CharField(source='user.location', read_only=True)
+    profile_image = serializers.SerializerMethodField()
     
     class Meta:
         model = DoctorInformation
@@ -74,6 +84,14 @@ class DoctorDetailSerializer(serializers.ModelSerializer):
             'updated_at',
         ]
         read_only_fields = ['rating_avg', 'rating_count', 'created_at', 'updated_at']
+    
+    def get_profile_image(self, obj):
+        """Return doctor's profile_image if exists, otherwise user's profile_picture"""
+        if obj.profile_image:
+            return obj.profile_image.url
+        elif obj.user.profile_picture:
+            return obj.user.profile_picture.url
+        return None
 
 
 class RatingUserSerializer(serializers.ModelSerializer):
