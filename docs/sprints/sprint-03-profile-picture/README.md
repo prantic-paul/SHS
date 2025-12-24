@@ -14,6 +14,8 @@ This sprint implements user profile picture upload functionality with a modern, 
 - ✅ Updated `UserProfileSerializer` to include profile picture
 - ✅ Added `MultiPartParser` and `FormParser` for file uploads
 - ✅ Created database migration for profile_picture field
+- ✅ Updated `DoctorListSerializer` and `DoctorDetailSerializer` to show profile_picture as fallback
+- ✅ Added `profile_image` support to `DoctorProfileUpdateSerializer`
 
 ### 2. Frontend (React)
 - ✅ Created `ProfilePictureUpload` component with:
@@ -22,9 +24,14 @@ This sprint implements user profile picture upload functionality with a modern, 
   - Image preview before upload
   - File validation (type and size)
   - Loading states
+  - Upload success feedback
 - ✅ Integrated component into ProfilePage sidebar
+- ✅ Added separate upload sections for:
+  - User profile picture (appears in account settings)
+  - Doctor profile picture (appears in search results)
 - ✅ Updated `userService` to handle FormData for file uploads
 - ✅ Removed "Upcoming Features" section from profile
+- ✅ Doctor cards display profile pictures with fallback to user profile_picture
 
 ### 3. Improvements
 - Clean, modern UI with hover effects
@@ -32,6 +39,9 @@ This sprint implements user profile picture upload functionality with a modern, 
 - Maximum file size: 5MB
 - Supported formats: PNG, JPG, JPEG
 - Responsive design
+- Clear labeling for user vs doctor profile pictures
+- Automatic upload on file selection
+- Visual feedback during upload
 
 ## Technical Details
 
@@ -69,15 +79,19 @@ python manage.py migrate
 ```
 
 ## Testing Checklist
-- [ ] Upload PNG image
-- [ ] Upload JPG image
-- [ ] Upload JPEG image
+- [ ] Upload PNG image to user profile
+- [ ] Upload JPG image to user profile
+- [ ] Upload JPEG image to user profile
 - [ ] Try uploading non-image file (should fail)
 - [ ] Try uploading file > 5MB (should fail)
-- [ ] Verify image appears on profile after upload
+- [ ] Verify user image appears on profile after upload
 - [ ] Verify image persists after page reload
 - [ ] Test drag-and-drop functionality
 - [ ] Test click-to-upload functionality
+- [ ] For doctors: Upload doctor profile picture
+- [ ] For doctors: Verify doctor image appears in search results
+- [ ] For doctors: Verify fallback to user profile_picture if no doctor image
+- [ ] Verify upload success feedback message appears
 
 ## Git Workflow
 ```bash
@@ -98,9 +112,11 @@ git push -u origin feature/user-profile-picture
 3. `backend/config/urls.py` - Added media file serving in development
 4. `backend/apps/users/serializers/user.py` - Updated serializers
 5. `backend/apps/users/views/user.py` - Added MultiPartParser
-6. `frontend/src/components/ProfilePictureUpload.jsx` - New component
-7. `frontend/src/pages/ProfilePage.jsx` - Integrated upload, removed upcoming features
-8. `frontend/src/services/userService.js` - Added FormData support
+6. `backend/apps/doctors/serializers.py` - Added profile_image fallback to profile_picture
+7. `backend/apps/users/serializers/doctor.py` - Added profile_image field
+8. `frontend/src/components/ProfilePictureUpload.jsx` - New component
+9. `frontend/src/pages/ProfilePage.jsx` - Integrated upload, removed upcoming features, added doctor upload
+10. `frontend/src/services/userService.js` - Added FormData support for both endpoints
 
 ## Next Steps
 - Merge feature branch into sprint-2 branch
