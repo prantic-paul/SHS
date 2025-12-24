@@ -13,9 +13,8 @@ const ProfilePictureUpload = ({ currentImage, onUpload, loading }) => {
 
   // Update preview when currentImage changes (after successful upload or page load)
   useEffect(() => {
-    console.log('ProfilePictureUpload: currentImage changed to:', currentImage);
     setPreview(currentImage);
-    setSelectedFile(null); // Clear selected file after successful upload
+    setSelectedFile(null);
   }, [currentImage]);
 
   const handleFileSelect = (file) => {
