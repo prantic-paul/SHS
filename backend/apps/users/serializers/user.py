@@ -11,12 +11,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
     Serializer for user profile (read-only)
     """
     doctor_profile = serializers.SerializerMethodField()
+    profile_picture = serializers.ImageField(read_only=True)
     
     class Meta:
         model = User
         fields = [
             'user_id', 'name', 'email', 'phone', 'location',
-            'blood_group', 'gender', 'age', 'role',
+            'blood_group', 'gender', 'age', 'role', 'profile_picture',
             'is_active', 'created_at', 'doctor_profile'
         ]
         read_only_fields = ['user_id', 'email', 'role', 'created_at']
@@ -36,9 +37,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     """
     Serializer for updating user profile
     """
+    profile_picture = serializers.ImageField(required=False, allow_null=True)
+    
     class Meta:
         model = User
-        fields = ['name', 'phone', 'location', 'blood_group', 'gender', 'age']
+        fields = ['name', 'phone', 'location', 'blood_group', 'gender', 'age', 'profile_picture']
         extra_kwargs = {
             'phone': {'required': False},
         }

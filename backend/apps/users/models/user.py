@@ -107,6 +107,12 @@ class User(AbstractUser):
         default='PATIENT',
         help_text='User role (determines permissions)'
     )
+    profile_picture = models.ImageField(
+        upload_to='profile_pictures/',
+        blank=True,
+        null=True,
+        help_text='User profile picture'
+    )
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)

@@ -5,6 +5,7 @@ API views for user profile operations using Django REST Framework Generic Views
 from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from apps.users.serializers import UserProfileSerializer, UserUpdateSerializer
 
 
@@ -16,6 +17,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     """
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     
     def get_object(self):
         """Return the current authenticated user"""

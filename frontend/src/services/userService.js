@@ -20,7 +20,28 @@ export const userService = {
    * @returns {Promise} API response
    */
   updateProfile: async (profileData) => {
-    const response = await apiClient.patch('/users/profile/', profileData);
+    // Check if profileData contains a File (profile picture)
+    const hasFile = Object.values(profileData).some(value => value instanceof File);
+    
+    let response;
+    if (hasFile) {
+      // Use FormData for file upload
+      const formData = new FormData();
+      Object.keys(profileData).forEach(key => {
+        if (profileData[key] !== null && profileData[key] !== undefined && profileData[key] !== '') {
+          formData.append(key, profileData[key]);
+        }
+      });
+      response = await apiClient.patch('/users/profile/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } else {
+      // Regular JSON request
+      response = await apiClient.patch('/users/profile/', profileData);
+    }
+    
     if (response.data.success) {
       // Update stored user data
       localStorage.setItem('user', JSON.stringify(response.data.data));
