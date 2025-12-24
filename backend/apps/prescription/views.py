@@ -78,7 +78,7 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def patient_history(self, request):
-        """Get prescription history for a patient"""
+        """Get prescription history for a patient - shows ALL prescriptions regardless of doctor"""
         patient_id = request.query_params.get('patient_id')
         
         if not patient_id:
@@ -87,6 +87,11 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        prescriptions = self.get_queryset().filter(patient_id=patient_id)
+        # Get ALL prescriptions for this patient (not filtered by doctor)
+        # This allows doctors to see complete medical history
+        prescriptions = Prescription.objects.filter(patient_id=patient_id).select_related(
+            'doctor__user', 'patient', 'appointment'
+        ).order_by('-created_at')
+        
         serializer = self.get_serializer(prescriptions, many=True)
         return Response(serializer.data)

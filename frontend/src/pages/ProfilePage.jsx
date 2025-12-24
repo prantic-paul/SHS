@@ -217,6 +217,13 @@ const ProfilePage = () => {
                   My Appointments
                 </button>
                 <button 
+                  onClick={() => navigate('/medical-records')} 
+                  className="inline-flex items-center px-4 py-2 bg-white text-purple-600 rounded-lg font-semibold hover:bg-purple-50 transition-colors shadow-md"
+                >
+                  <FiActivity className="mr-2" />
+                  Medical Records
+                </button>
+                <button 
                   onClick={handleLogout} 
                   className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors shadow-md"
                 >

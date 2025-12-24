@@ -7,6 +7,7 @@ import { Calendar, Clock, User, Phone, FileText, AlertCircle, CheckCircle, Trend
 import { appointmentService } from '../services/appointmentService';
 import { prescriptionService } from '../services/prescriptionService';
 import PrescriptionModal from './PrescriptionModal';
+import PatientMedicalHistoryModal from './PatientMedicalHistoryModal';
 
 const DoctorDashboard = () => {
   const [activeTab, setActiveTab] = useState('today'); // 'today', 'tomorrow', 'prescribed'
@@ -18,6 +19,8 @@ const DoctorDashboard = () => {
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [editingPrescription, setEditingPrescription] = useState(null);
+  const [showMedicalHistoryModal, setShowMedicalHistoryModal] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
   const [todayStats, setTodayStats] = useState({
     total: 0,
     upcoming: 0,
@@ -85,6 +88,14 @@ const DoctorDashboard = () => {
     setSelectedAppointment(null);
     setEditingPrescription(null);
     fetchDashboardData(); // Refresh data
+  };
+
+  const handleViewMedicalHistory = (appointment) => {
+    setSelectedPatient({
+      id: appointment.patient,
+      name: appointment.patient_name,
+    });
+    setShowMedicalHistoryModal(true);
   };
 
   const handleDeleteMissed = async (appointmentId) => {
@@ -207,11 +218,18 @@ const DoctorDashboard = () => {
               )}
             </div>
 
-            {/* Prescribe Button */}
-            <div className="mt-4">
+            {/* Action Buttons */}
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button
+                onClick={() => handleViewMedicalHistory(appointment)}
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
+              >
+                <FileText className="w-4 h-4" />
+                Medical History
+              </button>
               <button
                 onClick={() => handlePrescribeClick(appointment)}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
               >
                 <Stethoscope className="w-4 h-4" />
                 Prescribe
@@ -242,6 +260,19 @@ const DoctorDashboard = () => {
           appointment={selectedAppointment}
           prescription={editingPrescription}
           onSuccess={handlePrescriptionSuccess}
+        />
+      )}
+
+      {/* Patient Medical History Modal */}
+      {showMedicalHistoryModal && selectedPatient && (
+        <PatientMedicalHistoryModal
+          isOpen={showMedicalHistoryModal}
+          onClose={() => {
+            setShowMedicalHistoryModal(false);
+            setSelectedPatient(null);
+          }}
+          patientId={selectedPatient.id}
+          patientName={selectedPatient.name}
         />
       )}
 
@@ -458,11 +489,18 @@ const DoctorDashboard = () => {
                             </div>
                           </div>
 
-                          {/* Edit Prescription Button */}
-                          <div className="mt-3">
+                          {/* Action Buttons */}
+                          <div className="mt-3 grid grid-cols-2 gap-2">
+                            <button
+                              onClick={() => handleViewMedicalHistory(appointment)}
+                              className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-2 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
+                            >
+                              <FileText className="w-4 h-4" />
+                              Medical History
+                            </button>
                             <button
                               onClick={() => handleEditPrescription(appointment)}
-                              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
+                              className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
                             >
                               <Edit className="w-4 h-4" />
                               Edit Prescription
