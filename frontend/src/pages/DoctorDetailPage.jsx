@@ -232,7 +232,7 @@ const DoctorDetailPage = () => {
                       </div>
                     </div>
                   </div>
-                  <AvailabilityBadge status={doctor.availability_status} />
+                  <AvailabilityBadge status={doctor.is_available ? 'available' : 'unavailable'} />
                 </div>
 
                 {/* Quick Info Grid */}
@@ -306,20 +306,39 @@ const DoctorDetailPage = () => {
               </div>
             )}
 
-            {/* Book Appointment Button (Sprint 3 feature) */}
+            {/* Book Appointment Button */}
             <div className="mt-6 pt-6 border-t border-gray-200">
-              <button
-                disabled
-                className="w-full sm:w-auto px-8 py-3 bg-gray-300 text-gray-500 rounded-lg font-semibold cursor-not-allowed"
-                title="Appointment booking will be available in Sprint 3"
-              >
-                <Calendar className="w-5 h-5 inline mr-2" />
-                Book Appointment (Coming in Sprint 3)
-              </button>
-              <p className="text-sm text-gray-500 mt-2">
-                <Clock className="w-4 h-4 inline mr-1" />
-                Online appointment booking will be available soon
-              </p>
+              {doctor.is_available ? (
+                <>
+                  <button
+                    disabled
+                    className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    title="Appointment booking functionality coming soon"
+                  >
+                    <Calendar className="w-5 h-5 inline mr-2" />
+                    Book Appointment
+                  </button>
+                  <p className="text-sm text-green-600 mt-2 font-medium">
+                    <Clock className="w-4 h-4 inline mr-1" />
+                    Doctor is available for appointments
+                  </p>
+                </>
+              ) : (
+                <>
+                  <button
+                    disabled
+                    className="w-full sm:w-auto px-8 py-3 bg-gray-300 text-gray-500 rounded-lg font-semibold cursor-not-allowed"
+                    title="Doctor is not accepting appointments at this time"
+                  >
+                    <Calendar className="w-5 h-5 inline mr-2" />
+                    Not Available
+                  </button>
+                  <p className="text-sm text-gray-500 mt-2">
+                    <Clock className="w-4 h-4 inline mr-1" />
+                    Doctor is not accepting appointments at this time
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
