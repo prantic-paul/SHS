@@ -80,6 +80,7 @@ class DoctorDetailSerializer(serializers.ModelSerializer):
     doctor_email = serializers.EmailField(source='user.email', read_only=True)
     is_available = serializers.SerializerMethodField()
     user_location = serializers.CharField(source='user.location', read_only=True)
+    schedules = DoctorScheduleSerializer(many=True, read_only=True)
     
     class Meta:
         model = DoctorInformation
@@ -108,10 +109,11 @@ class DoctorDetailSerializer(serializers.ModelSerializer):
             'bio',
             'languages',
             'practice_location',
+            'schedules',
             'created_at',
             'updated_at',
         ]
-        read_only_fields = ['rating_avg', 'rating_count', 'is_available', 'created_at', 'updated_at']
+        read_only_fields = ['rating_avg', 'rating_count', 'is_available', 'schedules', 'created_at', 'updated_at']
     
     def get_is_available(self, obj):
         """Check if doctor is available today or tomorrow"""

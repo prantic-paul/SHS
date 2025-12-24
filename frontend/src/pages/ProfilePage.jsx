@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { userService } from '../services/userService';
 import Navbar from '../components/Navbar';
 import DoctorScheduleManager from '../components/DoctorScheduleManager';
+import DoctorDashboard from '../components/DoctorDashboard';
 import { FiEdit, FiLogOut, FiUserPlus, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiShield, FiAward, FiActivity, FiSearch, FiFileText, FiClock, FiLock, FiSave, FiX, FiBriefcase, FiBook, FiStar } from 'react-icons/fi';
 
 const ProfilePage = () => {
@@ -208,6 +209,13 @@ const ProfilePage = () => {
                     Set My Schedule
                   </button>
                 )}
+                <button 
+                  onClick={() => navigate('/my-appointments')} 
+                  className="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors shadow-md"
+                >
+                  <FiFileText className="mr-2" />
+                  My Appointments
+                </button>
                 <button 
                   onClick={handleLogout} 
                   className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors shadow-md"
@@ -798,6 +806,13 @@ const ProfilePage = () => {
             </div>
           </div>
         </div>
+
+        {/* Doctor Dashboard Section */}
+        {profileData.role === 'DOCTOR' && profileData.doctor_profile && (
+          <div className="mt-8">
+            <DoctorDashboard />
+          </div>
+        )}
         </div>
       </div>
 
