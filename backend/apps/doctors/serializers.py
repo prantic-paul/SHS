@@ -4,9 +4,39 @@ Serializers for the doctors app
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from apps.users.models import DoctorInformation
-from .models import Rating
+from .models import Rating, DoctorSchedule
 
 User = get_user_model()
+
+
+class DoctorScheduleSerializer(serializers.ModelSerializer):
+    """
+    Serializer for doctor weekly schedules
+    """
+    day_of_week_display = serializers.CharField(source='get_day_of_week_display', read_only=True)
+    
+    class Meta:
+        model = DoctorSchedule
+        fields = [
+            'id',
+            'doctor',
+            'day_of_week',
+            'day_of_week_display',
+            'start_time',
+            'end_time',
+            'is_active',
+            'created_at',
+            'updated_at'
+        ]
+        read_only_fields = ['id', 'doctor', 'created_at', 'updated_at']
+    
+    def validate(self, data):
+        if data.get('start_time') and data.get('end_time'):
+            if data['start_time'] >= data['end_time']:
+                raise serializers.ValidationError({
+                    'end_time': 'End time must be after start time'
+                })
+        return data
 
 
 class DoctorListSerializer(serializers.ModelSerializer):
@@ -15,6 +45,7 @@ class DoctorListSerializer(serializers.ModelSerializer):
     """
     doctor_name = serializers.CharField(source='user.name', read_only=True)
     user_location = serializers.CharField(source='user.location', read_only=True)
+    is_available = serializers.SerializerMethodField()
     
     class Meta:
         model = DoctorInformation
@@ -32,8 +63,13 @@ class DoctorListSerializer(serializers.ModelSerializer):
             'rating_avg',
             'rating_count',
             'availability_status',
+            'is_available',
         ]
-        read_only_fields = ['rating_avg', 'rating_count']
+        read_only_fields = ['rating_avg', 'rating_count', 'is_available']
+    
+    def get_is_available(self, obj):
+        """Check if doctor is available today or tomorrow"""
+        return DoctorSchedule.is_doctor_available(obj)
 
 
 class DoctorDetailSerializer(serializers.ModelSerializer):
@@ -42,7 +78,9 @@ class DoctorDetailSerializer(serializers.ModelSerializer):
     """
     doctor_name = serializers.CharField(source='user.name', read_only=True)
     doctor_email = serializers.EmailField(source='user.email', read_only=True)
+    is_available = serializers.SerializerMethodField()
     user_location = serializers.CharField(source='user.location', read_only=True)
+    schedules = DoctorScheduleSerializer(many=True, read_only=True)
     
     class Meta:
         model = DoctorInformation
@@ -67,13 +105,19 @@ class DoctorDetailSerializer(serializers.ModelSerializer):
             'rating_avg',
             'rating_count',
             'availability_status',
+            'is_available',
             'bio',
             'languages',
             'practice_location',
+            'schedules',
             'created_at',
             'updated_at',
         ]
-        read_only_fields = ['rating_avg', 'rating_count', 'created_at', 'updated_at']
+        read_only_fields = ['rating_avg', 'rating_count', 'is_available', 'schedules', 'created_at', 'updated_at']
+    
+    def get_is_available(self, obj):
+        """Check if doctor is available today or tomorrow"""
+        return DoctorSchedule.is_doctor_available(obj)
 
 
 class RatingUserSerializer(serializers.ModelSerializer):

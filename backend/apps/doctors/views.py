@@ -1,14 +1,14 @@
 """
 Views for the doctors app
 """
-from rest_framework import generics, filters, status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework import generics, filters, status, viewsets
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Count, Q
 from apps.users.models import DoctorInformation
-from .models import Rating
+from .models import Rating, DoctorSchedule
 from .serializers import (
     DoctorListSerializer,
     DoctorDetailSerializer,
@@ -16,6 +16,7 @@ from .serializers import (
     RatingCreateSerializer,
     RatingDetailSerializer,
     SpecializationSerializer,
+    DoctorScheduleSerializer,
 )
 from .filters import DoctorFilter
 
@@ -225,3 +226,49 @@ def rating_breakdown_view(request, doctor_id):
     }
     
     return Response(data)
+
+
+class DoctorScheduleViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing doctor schedules
+    Doctors can create, view, update and delete their weekly schedules
+    """
+    serializer_class = DoctorScheduleSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'DOCTOR':
+            # Doctors can only see/manage their own schedules
+            return DoctorSchedule.objects.filter(doctor__user=user)
+        return DoctorSchedule.objects.none()
+    
+    def perform_create(self, serializer):
+        # Automatically set the doctor based on logged-in user
+        if self.request.user.role != 'DOCTOR':
+            raise PermissionError('Only doctors can create schedules')
+        doctor_profile = self.request.user.doctor_profile
+        serializer.save(doctor=doctor_profile)
+    
+    def perform_update(self, serializer):
+        # Ensure doctor field remains unchanged during updates
+        if self.request.user.role != 'DOCTOR':
+            raise PermissionError('Only doctors can update schedules')
+        serializer.save()
+    
+    @action(detail=False, methods=['get'])
+    def my_schedules(self, request):
+        """
+        Get all schedules for the logged-in doctor
+        GET /api/v1/doctors/schedules/my_schedules/
+        """
+        if request.user.role != 'DOCTOR':
+            return Response(
+                {'error': 'Only doctors can access this endpoint'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        doctor_profile = request.user.doctor_profile
+        schedules = DoctorSchedule.objects.filter(doctor=doctor_profile).order_by('day_of_week')
+        serializer = self.get_serializer(schedules, many=True)
+        return Response(serializer.data)

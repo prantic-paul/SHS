@@ -12,6 +12,7 @@ import ProfilePage from './pages/ProfilePage';
 import DoctorApplicationPage from './pages/DoctorApplicationPage';
 import DoctorListPage from './pages/DoctorListPage';
 import DoctorDetailPage from './pages/DoctorDetailPage';
+import MyAppointmentsPage from './pages/MyAppointmentsPage';
 import './App.css';
 
 function App() {
@@ -39,6 +40,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <DoctorApplicationPage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/my-appointments" 
+            element={
+              <ProtectedRoute>
+                <MyAppointmentsPage />
               </ProtectedRoute>
             } 
           />

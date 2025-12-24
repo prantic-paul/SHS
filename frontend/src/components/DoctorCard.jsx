@@ -47,7 +47,7 @@ const DoctorCard = ({ doctor }) => {
         
         {/* Availability Badge - Top Right */}
         <div className="absolute top-4 right-4">
-          <AvailabilityBadge status={doctor.availability_status} />
+          <AvailabilityBadge status={doctor.is_available ? 'available' : 'unavailable'} />
         </div>
         
         {/* Verified Badge - Top Left */}

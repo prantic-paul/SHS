@@ -21,6 +21,7 @@ import { getDoctorById, getDoctorRatings, submitRating, getRatingBreakdown } fro
 import StarDisplay from '../components/StarDisplay';
 import AvailabilityBadge from '../components/AvailabilityBadge';
 import RatingForm from '../components/RatingForm';
+import AppointmentBookingModal from '../components/AppointmentBookingModal';
 
 const DoctorDetailPage = () => {
   const { id } = useParams();
@@ -35,6 +36,7 @@ const DoctorDetailPage = () => {
   const [ratingsPage, setRatingsPage] = useState(1);
   const [totalRatings, setTotalRatings] = useState(0);
   const [ratingsLoading, setRatingsLoading] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   // Check if user is logged in
   const isAuthenticated = !!localStorage.getItem('access_token');
@@ -232,7 +234,7 @@ const DoctorDetailPage = () => {
                       </div>
                     </div>
                   </div>
-                  <AvailabilityBadge status={doctor.availability_status} />
+                  <AvailabilityBadge status={doctor.is_available ? 'available' : 'unavailable'} />
                 </div>
 
                 {/* Quick Info Grid */}
@@ -306,20 +308,48 @@ const DoctorDetailPage = () => {
               </div>
             )}
 
-            {/* Book Appointment Button (Sprint 3 feature) */}
+            {/* Book Appointment Button */}
             <div className="mt-6 pt-6 border-t border-gray-200">
-              <button
-                disabled
-                className="w-full sm:w-auto px-8 py-3 bg-gray-300 text-gray-500 rounded-lg font-semibold cursor-not-allowed"
-                title="Appointment booking will be available in Sprint 3"
-              >
-                <Calendar className="w-5 h-5 inline mr-2" />
-                Book Appointment (Coming in Sprint 3)
-              </button>
-              <p className="text-sm text-gray-500 mt-2">
-                <Clock className="w-4 h-4 inline mr-1" />
-                Online appointment booking will be available soon
-              </p>
+              {doctor.is_available ? (
+                <>
+                  {isAuthenticated ? (
+                    <button
+                      onClick={() => setShowBookingModal(true)}
+                      className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+                    >
+                      <Calendar className="w-5 h-5 inline mr-2" />
+                      Book Appointment
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => navigate('/login')}
+                      className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+                    >
+                      <Calendar className="w-5 h-5 inline mr-2" />
+                      Login to Book Appointment
+                    </button>
+                  )}
+                  <p className="text-sm text-green-600 mt-2 font-medium">
+                    <Clock className="w-4 h-4 inline mr-1" />
+                    Doctor is available for appointments
+                  </p>
+                </>
+              ) : (
+                <>
+                  <button
+                    disabled
+                    className="w-full sm:w-auto px-8 py-3 bg-gray-300 text-gray-500 rounded-lg font-semibold cursor-not-allowed"
+                    title="Doctor is not accepting appointments at this time"
+                  >
+                    <Calendar className="w-5 h-5 inline mr-2" />
+                    Not Available
+                  </button>
+                  <p className="text-sm text-gray-500 mt-2">
+                    <Clock className="w-4 h-4 inline mr-1" />
+                    Doctor is not accepting appointments at this time
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -485,6 +515,18 @@ const DoctorDetailPage = () => {
         </div>
         </div>
       </div>
+
+      {/* Appointment Booking Modal */}
+      {showBookingModal && (
+        <AppointmentBookingModal
+          doctor={doctor}
+          onClose={() => setShowBookingModal(false)}
+          onSuccess={() => {
+            // Optionally refresh doctor data or show success message
+            console.log('Appointment booked successfully!');
+          }}
+        />
+      )}
     </div>
   );
 };
