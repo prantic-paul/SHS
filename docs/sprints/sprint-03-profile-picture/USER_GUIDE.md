@@ -21,16 +21,27 @@
    - **Method 1: Drag & Drop**
      - Drag an image file from your computer
      - Drop it on the upload area
-     - Image uploads automatically
+     - Preview appears immediately
    
    - **Method 2: Click to Select**
      - Click anywhere on the profile picture or upload area
      - Select an image from your computer
-     - Image uploads automatically
+     - Preview appears immediately
 
-4. **See Confirmation**
-   - While uploading: "Uploading and saving..." message
-   - After success: "✓ Profile picture updated successfully" message
+4. **Confirm Your Selection**
+   - After selecting a picture, you'll see:
+     - Preview of your new picture
+     - **"Save Picture"** button (green)
+     - **"Cancel"** button (gray)
+   
+   - **To save**: Click "Save Picture" button
+   - **To cancel**: Click "Cancel" to revert to your current picture
+
+5. **See Confirmation**
+   - While saving: "Saving your picture..." message
+   - After success: Green success banner at top
+   - Your picture is now saved in the database
+   - It will persist even after logging out/in
 
 ### For Doctors (Additional Section)
 
@@ -61,19 +72,27 @@ If you're a doctor, you'll see **TWO** profile picture sections:
 
 ## Important Notes
 
-1. **Automatic Upload**: Pictures upload **immediately** when selected - no need to click "Save"
+1. **Two-Step Process**: 
+   - Step 1: Select/preview the image
+   - Step 2: Click "Save Picture" to confirm and upload to database
 
-2. **File Requirements**:
+2. **Picture Persists**: After clicking "Save Picture", your image is saved to the database and will remain even after:
+   - Logging out and back in
+   - Navigating to different pages
+   - Closing and reopening the browser
+
+3. **File Requirements**:
    - Formats: PNG, JPG, JPEG only
    - Max size: 5MB
    - Recommended: Square images (e.g., 500x500px) for best display
 
-3. **Two Pictures for Doctors**:
+4. **Two Pictures for Doctors**:
    - User picture: Your personal account picture
    - Doctor picture: Your professional picture for patients
    - They can be the same or different images
+   - **Both require clicking "Save Picture" button to confirm**
 
-4. **Fallback System**:
+5. **Fallback System**:
    - If doctor picture is not set, user picture is shown
    - If no pictures are set, a default avatar with your initial is shown
 
@@ -83,6 +102,16 @@ If you're a doctor, you'll see **TWO** profile picture sections:
 - Make sure you're logged in
 - Navigate to Profile page (`/profile`)
 - Check the right sidebar
+
+**Q: Picture not showing after I selected it**
+- Make sure you clicked the "Save Picture" button (green button)
+- Check for error messages in the red banner at top
+- Try selecting the image again
+
+**Q: Picture disappeared after refresh**
+- You must click "Save Picture" button to save to database
+- Just selecting/previewing the image doesn't save it
+- Select again and click "Save Picture"
 
 **Q: Upload is not working**
 - Check file size (must be < 5MB)
