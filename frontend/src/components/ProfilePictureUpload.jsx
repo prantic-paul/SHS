@@ -1,14 +1,23 @@
 /**
  * Profile Picture Upload Component
- * Allows users to upload/change their profile picture
+ * Allows users to upload/change their profile picture with confirmation
  */
-import { useState, useRef } from 'react';
-import { FiCamera, FiUpload, FiX } from 'react-icons/fi';
+import { useState, useRef, useEffect } from 'react';
+import { FiCamera, FiUpload, FiX, FiCheck } from 'react-icons/fi';
 
 const ProfilePictureUpload = ({ currentImage, onUpload, loading }) => {
   const [preview, setPreview] = useState(currentImage);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Update preview when currentImage changes (after successful upload)
+  useEffect(() => {
+    if (currentImage) {
+      setPreview(currentImage);
+      setSelectedFile(null); // Clear selected file after successful upload
+    }
+  }, [currentImage]);
 
   const handleFileSelect = (file) => {
     if (!file) return;
@@ -25,15 +34,29 @@ const ProfilePictureUpload = ({ currentImage, onUpload, loading }) => {
       return;
     }
 
+    // Store the file for later upload
+    setSelectedFile(file);
+
     // Show preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreview(reader.result);
     };
     reader.readAsDataURL(file);
+  };
 
-    // Upload the file
-    onUpload(file);
+  const handleSaveClick = () => {
+    if (selectedFile) {
+      onUpload(selectedFile);
+    }
+  };
+
+  const handleCancelClick = () => {
+    setSelectedFile(null);
+    setPreview(currentImage);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleClick = () => {
@@ -125,19 +148,41 @@ const ProfilePictureUpload = ({ currentImage, onUpload, loading }) => {
         </p>
       </div>
 
+      {/* Action Buttons - Show only when file is selected */}
+      {selectedFile && !loading && (
+        <div className="flex gap-3 w-full max-w-xs">
+          <button
+            onClick={handleSaveClick}
+            className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-md"
+          >
+            <FiCheck className="mr-2" />
+            Save Picture
+          </button>
+          <button
+            onClick={handleCancelClick}
+            className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition-colors shadow-md"
+          >
+            <FiX className="mr-2" />
+            Cancel
+          </button>
+        </div>
+      )}
+
       {/* Instructions */}
       <div className="text-center max-w-xs space-y-2">
-        <p className="text-xs text-gray-500">
-          Your profile picture will be visible to doctors and other users
-        </p>
-        {loading && (
-          <p className="text-xs text-primary-600 font-semibold animate-pulse">
-            Uploading and saving...
+        {!selectedFile && !loading && (
+          <p className="text-xs text-gray-500">
+            Your profile picture will be visible to doctors and other users
           </p>
         )}
-        {!loading && preview && (
-          <p className="text-xs text-green-600 font-semibold">
-            ✓ Profile picture updated successfully
+        {selectedFile && !loading && (
+          <p className="text-xs text-blue-600 font-semibold">
+            Click "Save Picture" to confirm your selection
+          </p>
+        )}
+        {loading && (
+          <p className="text-xs text-primary-600 font-semibold animate-pulse">
+            Saving your picture...
           </p>
         )}
       </div>
