@@ -145,7 +145,9 @@ const ProfilePage = () => {
     setSuccess(null);
 
     try {
+      console.log('[ProfilePage] Uploading file:', file.name);
       const response = await userService.updateProfile({ profile_picture: file });
+      console.log('[ProfilePage] Upload response profile_picture:', response.data.profile_picture);
       
       // Update both profile data and auth context
       setProfileData(response.data);
@@ -156,8 +158,10 @@ const ProfilePage = () => {
       
       setSuccess('Profile picture updated successfully!');
       
+      console.log('[ProfilePage] Fetching fresh profile...');
       // Refresh profile data to ensure we have the latest from server
       await fetchProfile();
+      console.log('[ProfilePage] Profile refreshed, new picture:', profileData.profile_picture);
     } catch (err) {
       console.error('Profile picture upload error:', err);
       setError(
@@ -772,8 +776,8 @@ const ProfilePage = () => {
             {/* Profile Picture Upload */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Profile Picture</h3>
+              {console.log('[ProfilePage render] profileData.profile_picture:', profileData.profile_picture)}
               <ProfilePictureUpload
-                key={profileData.profile_picture || Date.now()}
                 currentImage={profileData.profile_picture ? `http://localhost:8000${profileData.profile_picture}` : null}
                 onUpload={handleProfilePictureUpload}
                 loading={loading}
