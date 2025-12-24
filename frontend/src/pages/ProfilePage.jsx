@@ -803,6 +803,7 @@ const ProfilePage = () => {
               <p className="text-xs text-gray-500 mb-4">This appears in your account settings</p>
               {console.log('Rendering ProfilePictureUpload with:', profileData.profile_picture)}
               <ProfilePictureUpload
+                key={profileData.profile_picture || 'no-image'} // Force re-render when image changes
                 currentImage={profileData.profile_picture ? `http://localhost:8000${profileData.profile_picture}` : null}
                 onUpload={handleProfilePictureUpload}
                 loading={loading}
@@ -815,6 +816,7 @@ const ProfilePage = () => {
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Doctor Profile Picture</h3>
                 <p className="text-xs text-gray-500 mb-4">This appears in doctor search results</p>
                 <ProfilePictureUpload
+                  key={profileData.doctor_profile.profile_image || 'no-doctor-image'} // Force re-render
                   currentImage={
                     profileData.doctor_profile.profile_image 
                       ? `http://localhost:8000${profileData.doctor_profile.profile_image}` 
