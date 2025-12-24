@@ -146,9 +146,18 @@ const ProfilePage = () => {
 
     try {
       const response = await userService.updateProfile({ profile_picture: file });
+      
+      // Update both profile data and auth context
       setProfileData(response.data);
       updateUser(response.data);
+      
+      // Force update localStorage to ensure persistence
+      localStorage.setItem('user', JSON.stringify(response.data));
+      
       setSuccess('Profile picture updated successfully!');
+      
+      // Refresh profile data to ensure we have the latest from server
+      await fetchProfile();
     } catch (err) {
       console.error('Profile picture upload error:', err);
       setError(
@@ -168,8 +177,10 @@ const ProfilePage = () => {
 
     try {
       const response = await userService.updateDoctorProfile({ profile_image: file });
+      
       // Refresh profile to get updated doctor data
       await fetchProfile();
+      
       setSuccess('Doctor profile picture updated successfully!');
     } catch (err) {
       console.error('Doctor profile picture upload error:', err);
