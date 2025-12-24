@@ -145,7 +145,9 @@ const ProfilePage = () => {
     setSuccess(null);
 
     try {
+      console.log('Uploading file:', file.name);
       const response = await userService.updateProfile({ profile_picture: file });
+      console.log('Upload response:', response);
       
       // Update both profile data and auth context
       setProfileData(response.data);
@@ -153,6 +155,8 @@ const ProfilePage = () => {
       
       // Force update localStorage to ensure persistence
       localStorage.setItem('user', JSON.stringify(response.data));
+      
+      console.log('Profile data updated, profile_picture:', response.data.profile_picture);
       
       setSuccess('Profile picture updated successfully!');
       
@@ -797,6 +801,7 @@ const ProfilePage = () => {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-2">User Profile Picture</h3>
               <p className="text-xs text-gray-500 mb-4">This appears in your account settings</p>
+              {console.log('Rendering ProfilePictureUpload with:', profileData.profile_picture)}
               <ProfilePictureUpload
                 currentImage={profileData.profile_picture ? `http://localhost:8000${profileData.profile_picture}` : null}
                 onUpload={handleProfilePictureUpload}
