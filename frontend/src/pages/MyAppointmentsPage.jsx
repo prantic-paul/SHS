@@ -12,9 +12,11 @@ import {
   FiX,
   FiCheckCircle,
   FiAlertCircle,
+  FiEye,
 } from 'react-icons/fi';
 import Navbar from '../components/Navbar';
 import { getMyAppointments, cancelAppointment } from '../services/appointmentService';
+import { prescriptionService } from '../services/prescriptionService';
 
 const MyAppointmentsPage = () => {
   const navigate = useNavigate();
@@ -23,6 +25,8 @@ const MyAppointmentsPage = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('upcoming');
   const [cancellingId, setCancellingId] = useState(null);
+  const [viewingPrescription, setViewingPrescription] = useState(null);
+  const [loadingPrescription, setLoadingPrescription] = useState(false);
 
   useEffect(() => {
     loadAppointments();
@@ -56,6 +60,19 @@ const MyAppointmentsPage = () => {
       alert('Failed to cancel appointment');
     } finally {
       setCancellingId(null);
+    }
+  };
+
+  const handleViewPrescription = async (appointmentId) => {
+    try {
+      setLoadingPrescription(true);
+      const prescription = await prescriptionService.getPrescriptionByAppointment(appointmentId);
+      setViewingPrescription(prescription);
+    } catch (err) {
+      console.error('Error loading prescription:', err);
+      alert('Failed to load prescription');
+    } finally {
+      setLoadingPrescription(false);
     }
   };
 
@@ -149,15 +166,27 @@ const MyAppointmentsPage = () => {
               year: 'numeric',
             })}
           </p>
-          {showCancel && appointment.status !== 'COMPLETED' && (
-            <button
-              onClick={() => handleCancelAppointment(appointment.id)}
-              disabled={cancellingId === appointment.id}
-              className="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition text-sm font-medium disabled:opacity-50"
-            >
-              {cancellingId === appointment.id ? 'Deleting...' : 'Cancel Appointment'}
-            </button>
-          )}
+          <div className="flex gap-2">
+            {appointment.status === 'COMPLETED' && appointment.has_prescription && (
+              <button
+                onClick={() => handleViewPrescription(appointment.id)}
+                disabled={loadingPrescription}
+                className="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition text-sm font-medium disabled:opacity-50 flex items-center gap-2"
+              >
+                <FiEye className="w-4 h-4" />
+                View Prescription
+              </button>
+            )}
+            {showCancel && appointment.status !== 'COMPLETED' && (
+              <button
+                onClick={() => handleCancelAppointment(appointment.id)}
+                disabled={cancellingId === appointment.id}
+                className="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition text-sm font-medium disabled:opacity-50"
+              >
+                {cancellingId === appointment.id ? 'Deleting...' : 'Cancel Appointment'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -288,6 +317,140 @@ const MyAppointmentsPage = () => {
           )}
         </div>
       </div>
+
+      {/* Prescription Viewing Modal */}
+      {viewingPrescription && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6 flex justify-between items-center rounded-t-2xl">
+              <div>
+                <h2 className="text-3xl font-bold">Medical Prescription</h2>
+                <p className="text-blue-100 mt-2">Doctor: {viewingPrescription.doctor_name}</p>
+              </div>
+              <button
+                onClick={() => setViewingPrescription(null)}
+                className="text-white hover:bg-white/20 rounded-lg p-2 transition"
+              >
+                <FiX className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Prescription Content */}
+            <div className="p-6 space-y-6">
+              {/* Chief Complaint & Diagnosis */}
+              <div className="bg-blue-50 rounded-xl p-5 border border-blue-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <FiFileText className="h-5 w-5 text-blue-600" />
+                  Complaints & Diagnosis
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Chief Complaint</p>
+                    <p className="text-gray-900 mt-1">{viewingPrescription.chief_complaint}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Diagnosis</p>
+                    <p className="text-gray-900 mt-1">{viewingPrescription.diagnosis}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Vital Signs */}
+              {(viewingPrescription.temperature || viewingPrescription.blood_pressure_systolic || 
+                viewingPrescription.heart_rate || viewingPrescription.respiratory_rate) && (
+                <div className="bg-green-50 rounded-xl p-5 border border-green-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Vital Signs</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {viewingPrescription.temperature && (
+                      <div>
+                        <p className="text-xs text-gray-600">Temperature</p>
+                        <p className="font-semibold text-gray-900">{viewingPrescription.temperature}°F</p>
+                      </div>
+                    )}
+                    {(viewingPrescription.blood_pressure_systolic && viewingPrescription.blood_pressure_diastolic) && (
+                      <div>
+                        <p className="text-xs text-gray-600">Blood Pressure</p>
+                        <p className="font-semibold text-gray-900">
+                          {viewingPrescription.blood_pressure_systolic}/{viewingPrescription.blood_pressure_diastolic} mmHg
+                        </p>
+                      </div>
+                    )}
+                    {viewingPrescription.heart_rate && (
+                      <div>
+                        <p className="text-xs text-gray-600">Heart Rate</p>
+                        <p className="font-semibold text-gray-900">{viewingPrescription.heart_rate} bpm</p>
+                      </div>
+                    )}
+                    {viewingPrescription.respiratory_rate && (
+                      <div>
+                        <p className="text-xs text-gray-600">Respiratory Rate</p>
+                        <p className="font-semibold text-gray-900">{viewingPrescription.respiratory_rate}/min</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Medications */}
+              <div className="bg-purple-50 rounded-xl p-5 border border-purple-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Prescribed Medications</h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Medications</p>
+                    <p className="text-gray-900 mt-1 whitespace-pre-line">{viewingPrescription.medications}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Dosage & Frequency</p>
+                    <p className="text-gray-900 mt-1">{viewingPrescription.dosage}</p>
+                  </div>
+                  {viewingPrescription.instructions && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Instructions</p>
+                      <p className="text-gray-900 mt-1 whitespace-pre-line">{viewingPrescription.instructions}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Doctor Notes */}
+              {viewingPrescription.doctor_notes && (
+                <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Additional Notes</h3>
+                  <p className="text-gray-900 whitespace-pre-line">{viewingPrescription.doctor_notes}</p>
+                </div>
+              )}
+
+              {/* Follow-up */}
+              {viewingPrescription.follow_up_required && (
+                <div className="bg-yellow-50 rounded-xl p-5 border border-yellow-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Follow-up Required</h3>
+                  {viewingPrescription.follow_up_date && (
+                    <p className="text-gray-900">
+                      Date: {new Date(viewingPrescription.follow_up_date).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Close Button */}
+              <div className="flex justify-end pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => setViewingPrescription(null)}
+                  className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

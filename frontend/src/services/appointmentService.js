@@ -69,6 +69,14 @@ export const getTomorrowAppointments = async () => {
 };
 
 /**
+ * Get completed appointments for doctor (prescribed patients)
+ */
+export const getCompletedAppointments = async () => {
+  const response = await api.get('/appointments/doctor/completed/');
+  return response.data;
+};
+
+/**
  * Delete a missed appointment
  */
 export const deleteMissedAppointment = async (id) => {
@@ -94,6 +102,7 @@ const appointmentService = {
   cancelAppointment,
   getTodayAppointments,
   getTomorrowAppointments,
+  getCompletedAppointments,
   deleteMissedAppointment,
   cleanupMissedAppointments,
 };

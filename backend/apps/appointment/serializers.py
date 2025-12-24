@@ -21,6 +21,7 @@ class AppointmentListSerializer(serializers.ModelSerializer):
     patient_name = serializers.CharField(source='patient.name', read_only=True)
     patient_email = serializers.EmailField(source='patient.email', read_only=True)
     approximate_time = serializers.SerializerMethodField()
+    has_prescription = serializers.SerializerMethodField()
     
     class Meta:
         model = Appointment
@@ -39,15 +40,20 @@ class AppointmentListSerializer(serializers.ModelSerializer):
             'serial_number',
             'status',
             'patient_notes',
+            'has_prescription',
             'created_at',
         ]
-        read_only_fields = ['id', 'appointment_number', 'serial_number', 'approximate_time', 'created_at']
+        read_only_fields = ['id', 'appointment_number', 'serial_number', 'approximate_time', 'created_at', 'has_prescription']
     
     def get_approximate_time(self, obj):
         """Get calculated approximate time"""
         # Prefer stored approximate_time if available
         time = getattr(obj, 'approximate_time', None) or obj.get_approximate_time()
         return time.strftime('%H:%M:%S') if time else None
+
+    def get_has_prescription(self, obj):
+        """Check if appointment has a prescription"""
+        return hasattr(obj, 'prescription') and obj.prescription is not None
 
 
 class AppointmentDetailSerializer(serializers.ModelSerializer):

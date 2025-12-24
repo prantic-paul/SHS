@@ -3,15 +3,21 @@
  * Shows Today's Patients, Tomorrow's Patients, and Prescribed Patients
  */
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, User, Phone, FileText, AlertCircle, CheckCircle, TrendingUp } from 'lucide-react';
+import { Calendar, Clock, User, Phone, FileText, AlertCircle, CheckCircle, TrendingUp, Stethoscope, Edit } from 'lucide-react';
 import { appointmentService } from '../services/appointmentService';
+import { prescriptionService } from '../services/prescriptionService';
+import PrescriptionModal from './PrescriptionModal';
 
 const DoctorDashboard = () => {
   const [activeTab, setActiveTab] = useState('today'); // 'today', 'tomorrow', 'prescribed'
   const [todayAppointments, setTodayAppointments] = useState([]);
   const [tomorrowAppointments, setTomorrowAppointments] = useState([]);
+  const [prescribedAppointments, setPrescribedAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [editingPrescription, setEditingPrescription] = useState(null);
   const [todayStats, setTodayStats] = useState({
     total: 0,
     upcoming: 0,
@@ -44,12 +50,41 @@ const DoctorDashboard = () => {
       // Fetch tomorrow's appointments
       const tomorrowResponse = await appointmentService.getTomorrowAppointments();
       setTomorrowAppointments(tomorrowResponse.appointments || []);
+
+      // Fetch prescribed appointments (completed status)
+      const prescribedResponse = await appointmentService.getCompletedAppointments();
+      setPrescribedAppointments(prescribedResponse.appointments || []);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
       setError('Failed to load appointment data');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePrescribeClick = (appointment) => {
+    setSelectedAppointment(appointment);
+    setEditingPrescription(null);
+    setShowPrescriptionModal(true);
+  };
+
+  const handleEditPrescription = async (appointment) => {
+    try {
+      // Fetch existing prescription for this appointment
+      const prescription = await prescriptionService.getPrescriptionByAppointment(appointment.id);
+      setEditingPrescription(prescription);
+      setSelectedAppointment(appointment);
+      setShowPrescriptionModal(true);
+    } catch (err) {
+      console.error('Error fetching prescription:', err);
+    }
+  };
+
+  const handlePrescriptionSuccess = () => {
+    setShowPrescriptionModal(false);
+    setSelectedAppointment(null);
+    setEditingPrescription(null);
+    fetchDashboardData(); // Refresh data
   };
 
   const handleDeleteMissed = async (appointmentId) => {
@@ -171,6 +206,17 @@ const DoctorDashboard = () => {
                 </div>
               )}
             </div>
+
+            {/* Prescribe Button */}
+            <div className="mt-4">
+              <button
+                onClick={() => handlePrescribeClick(appointment)}
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
+              >
+                <Stethoscope className="w-4 h-4" />
+                Prescribe
+              </button>
+            </div>
           </div>
 
           {/* Status Badge */}
@@ -184,6 +230,21 @@ const DoctorDashboard = () => {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+      {/* Prescription Modal */}
+      {showPrescriptionModal && selectedAppointment && (
+        <PrescriptionModal
+          isOpen={showPrescriptionModal}
+          onClose={() => {
+            setShowPrescriptionModal(false);
+            setSelectedAppointment(null);
+            setEditingPrescription(null);
+          }}
+          appointment={selectedAppointment}
+          prescription={editingPrescription}
+          onSuccess={handlePrescriptionSuccess}
+        />
+      )}
+
       {/* Dashboard Header */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-6">
         <h2 className="text-2xl font-bold text-white mb-2">Doctor Dashboard</h2>
@@ -344,10 +405,79 @@ const DoctorDashboard = () => {
 
             {/* Prescribed Patients Tab */}
             {activeTab === 'prescribed' && (
-              <div className="text-center py-12">
-                <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 text-lg font-medium mb-2">Prescription Module</p>
-                <p className="text-gray-500">This feature will be implemented in the next module</p>
+              <div className="space-y-4">
+                {prescribedAppointments.length === 0 ? (
+                  <div className="text-center py-12">
+                    <CheckCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 text-lg font-medium mb-2">No Prescribed Patients</p>
+                    <p className="text-gray-500">Patients with prescriptions will appear here</p>
+                  </div>
+                ) : (
+                  prescribedAppointments.map((appointment) => (
+                    <div key={appointment.id} className="bg-white border-2 border-gray-200 rounded-xl p-4 hover:shadow-lg transition-shadow">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            {/* Serial Number Badge */}
+                            <div className="bg-gradient-to-br from-green-500 to-emerald-500 text-white rounded-lg px-3 py-1 font-bold text-lg">
+                              #{appointment.serial_number}
+                            </div>
+                            
+                            {/* Patient Name */}
+                            <div>
+                              <h4 className="text-lg font-semibold text-gray-900">
+                                {appointment.patient_name}
+                              </h4>
+                              <p className="text-sm text-gray-600">{appointment.patient_email}</p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4 mt-3">
+                            {/* Appointment Date */}
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4 text-green-600" />
+                              <div>
+                                <p className="text-xs text-gray-600">Date</p>
+                                <p className="font-semibold text-gray-900">
+                                  {new Date(appointment.appointment_date).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                  })}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Appointment Number */}
+                            <div className="flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-green-600" />
+                              <div>
+                                <p className="text-xs text-gray-600">Appointment</p>
+                                <p className="font-semibold text-gray-900">{appointment.appointment_number}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Edit Prescription Button */}
+                          <div className="mt-3">
+                            <button
+                              onClick={() => handleEditPrescription(appointment)}
+                              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
+                            >
+                              <Edit className="w-4 h-4" />
+                              Edit Prescription
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Status Badge */}
+                        <div className="ml-4">
+                          {getStatusBadge(appointment.status)}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </>

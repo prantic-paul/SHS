@@ -146,10 +146,12 @@ def my_appointments_view(request):
     appointments = Appointment.objects.filter(patient=user)
     
     # Separate upcoming and past, sorted by time
+    # Upcoming: future dates that are not completed
     upcoming = appointments.filter(
         appointment_date__gte=today
-    ).order_by('appointment_date', 'serial_number')
+    ).exclude(status='COMPLETED').order_by('appointment_date', 'serial_number')
     
+    # Past: old dates OR completed status
     past = appointments.filter(
         Q(appointment_date__lt=today) | Q(status='COMPLETED')
     ).order_by('-appointment_date', '-serial_number')
@@ -184,11 +186,11 @@ def doctor_today_appointments_view(request):
     today = date.today()
     current_time = timezone.now().time()
     
-    # Get all today's appointments (cancelled ones are already deleted)
+    # Get all today's appointments excluding completed ones
     appointments = Appointment.objects.filter(
         doctor=user.doctor_profile,
         appointment_date=today
-    )
+    ).exclude(status='COMPLETED')
     
     # Use approximate_time if available for sorting and filtering
     # Only show upcoming appointments (exclude missed ones)
@@ -241,16 +243,46 @@ def doctor_tomorrow_appointments_view(request):
     
     tomorrow = date.today() + timedelta(days=1)
     
-    # Get all tomorrow's appointments excluding cancelled
+    # Get all tomorrow's appointments excluding completed
     appointments = Appointment.objects.filter(
         doctor=user.doctor_profile,
         appointment_date=tomorrow
-    ).order_by('serial_number')
+    ).exclude(status='COMPLETED').order_by('serial_number')
     
     serializer = AppointmentListSerializer(appointments, many=True)
     
     return Response({
         'date': tomorrow,
+        'total_appointments': appointments.count(),
+        'appointments': serializer.data,
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def doctor_completed_appointments_view(request):
+    """
+    Get completed (prescribed) appointments for a doctor
+    Sorted by date descending (most recent first)
+    GET /api/v1/appointments/doctor/completed/
+    """
+    user = request.user
+    
+    if user.role != 'DOCTOR' or not hasattr(user, 'doctor_profile'):
+        return Response(
+            {'error': 'Only doctors can access this endpoint'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    # Get all completed appointments
+    appointments = Appointment.objects.filter(
+        doctor=user.doctor_profile,
+        status='COMPLETED'
+    ).order_by('-appointment_date', '-created_at')
+    
+    serializer = AppointmentListSerializer(appointments, many=True)
+    
+    return Response({
         'total_appointments': appointments.count(),
         'appointments': serializer.data,
     })
