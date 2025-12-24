@@ -785,63 +785,6 @@ const ProfilePage = () => {
                 </div>
               </div>
             </div>
-
-            {/* Coming Soon Features */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-gray-900 px-2">Upcoming Features</h3>
-              
-              <div className="bg-white rounded-xl shadow-md p-4 opacity-70 cursor-not-allowed border border-gray-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-blue-100 rounded-lg mr-3">
-                      <FiActivity className="text-blue-600" />
-                    </div>
-                    <h4 className="font-bold text-gray-900 text-sm">Health Checkup</h4>
-                  </div>
-                  <FiLock className="text-gray-400" />
-                </div>
-                <p className="text-xs text-gray-600 ml-11">Schedule routine screenings</p>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-md p-4 opacity-70 cursor-not-allowed border border-gray-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-purple-100 rounded-lg mr-3">
-                      <FiSearch className="text-purple-600" />
-                    </div>
-                    <h4 className="font-bold text-gray-900 text-sm">AI Doctor Search</h4>
-                  </div>
-                  <FiLock className="text-gray-400" />
-                </div>
-                <p className="text-xs text-gray-600 ml-11">Smart doctor recommendations</p>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-md p-4 opacity-70 cursor-not-allowed border border-gray-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-green-100 rounded-lg mr-3">
-                      <FiFileText className="text-green-600" />
-                    </div>
-                    <h4 className="font-bold text-gray-900 text-sm">Medical Records</h4>
-                  </div>
-                  <FiLock className="text-gray-400" />
-                </div>
-                <p className="text-xs text-gray-600 ml-11">Access your health history</p>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-md p-4 opacity-70 cursor-not-allowed border border-gray-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-red-100 rounded-lg mr-3">
-                      <FiClock className="text-red-600" />
-                    </div>
-                    <h4 className="font-bold text-gray-900 text-sm">Recent Treatment</h4>
-                  </div>
-                  <FiLock className="text-gray-400" />
-                </div>
-                <p className="text-xs text-gray-600 ml-11">View latest treatments</p>
-              </div>
-            </div>
           </div>
         </div>
         </div>
