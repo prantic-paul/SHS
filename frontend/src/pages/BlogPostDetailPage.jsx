@@ -129,8 +129,8 @@ const BlogPostDetailPage = () => {
     );
   }
 
-  // Fix: use user_id instead of id for author comparison
-  const userId = user?.user_id ? Number(user.user_id) : (user?.id ? Number(user.id) : null);
+  // Use numeric id for author comparison (not user_id string)
+  const userId = user?.id ? Number(user.id) : null;
   const authorId = post.author ? Number(post.author) : null;
   const isAuthor = userId === authorId;
 

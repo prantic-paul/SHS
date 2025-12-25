@@ -44,14 +44,9 @@ const CreateBlogPostPage = () => {
       setFetchingPost(true);
       const post = await blogService.getPost(id);
       
-      // Check if user is the author (fix: use user_id)
-      const userId = user.user_id || user.id;
-      console.log('Edit check - User object:', user);
-      console.log('Edit check - userId:', userId, 'Type:', typeof userId);
-      console.log('Edit check - post.author:', post.author, 'Type:', typeof post.author);
-      console.log('Edit check - Match:', post.author === Number(userId));
-      
-      if (post.author !== Number(userId)) {
+      // Check if user is the author (use numeric id)
+      const userId = Number(user.id);
+      if (post.author !== userId) {
         alert('You can only edit your own articles');
         navigate('/doctors-advice');
         return;

@@ -22,16 +22,6 @@ const DoctorAdvicePage = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
 
-  // Debug: Log the entire user object structure
-  useEffect(() => {
-    console.log('=== USER OBJECT DEBUG ===');
-    console.log('Full user object:', user);
-    console.log('user.id:', user?.id);
-    console.log('user.user_id:', user?.user_id);
-    console.log('All user keys:', user ? Object.keys(user) : 'null');
-    console.log('=========================');
-  }, []);
-
   useEffect(() => {
     fetchBlogPosts();
   }, []);
@@ -42,7 +32,7 @@ const DoctorAdvicePage = () => {
     if (blogPosts.length > 0 && user) {
       const editingState = {};
       const newCommentsState = {};
-      const userId = user.user_id || user.id; // Support both user_id and id
+      const userId = user.id; // Use numeric id, not user_id string
       
       blogPosts.forEach(post => {
         const userComment = post.comments?.find(comment => comment.author === userId);
@@ -55,7 +45,7 @@ const DoctorAdvicePage = () => {
       setEditingComments(editingState);
       setNewComments(prev => ({ ...prev, ...newCommentsState }));
     }
-  }, [blogPosts, user?.user_id, user?.id]);
+  }, [blogPosts, user?.id]);
 
   useEffect(() => {
     // Filter posts based on search query
@@ -291,16 +281,12 @@ const DoctorAdvicePage = () => {
         ) : (
           <div className="max-w-2xl mx-auto space-y-6">
             {filteredPosts.map((post) => {
-              // Ensure type consistency for comparison
-              // Note: localStorage stores 'user_id', not 'id'
-              const userId = user?.user_id ? Number(user.user_id) : (user?.id ? Number(user.id) : null);
+              // Use numeric id for comparison (not user_id string)
+              const userId = user?.id ? Number(user.id) : null;
               const authorId = post.author ? Number(post.author) : null;
               const isAuthor = userId === authorId;
               const commentsExpanded = expandedComments[post.id];
               const displayedComments = commentsExpanded ? post.comments : post.comments.slice(0, 2);
-
-              // Debug logging
-              console.log('Post ID:', post.id, '| User ID:', userId, '| Author ID:', authorId, '| isAuthor:', isAuthor);
 
               return (
                 <div
