@@ -44,8 +44,9 @@ const CreateBlogPostPage = () => {
       setFetchingPost(true);
       const post = await blogService.getPost(id);
       
-      // Check if user is the author
-      if (post.author !== user.id) {
+      // Check if user is the author (fix: use user_id)
+      const userId = user.user_id || user.id;
+      if (post.author !== Number(userId)) {
         alert('You can only edit your own articles');
         navigate('/doctors-advice');
         return;

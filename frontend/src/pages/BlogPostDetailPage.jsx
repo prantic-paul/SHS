@@ -129,7 +129,10 @@ const BlogPostDetailPage = () => {
     );
   }
 
-  const isAuthor = user?.id === post.author;
+  // Fix: use user_id instead of id for author comparison
+  const userId = user?.user_id ? Number(user.user_id) : (user?.id ? Number(user.id) : null);
+  const authorId = post.author ? Number(post.author) : null;
+  const isAuthor = userId === authorId;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -150,9 +153,9 @@ const BlogPostDetailPage = () => {
           {/* Featured Image */}
           {post.image && (
             <img
-              src={`http://localhost:8000${post.image}`}
+              src={post.image.startsWith('http') ? post.image : `http://localhost:8000${post.image}`}
               alt={post.title}
-              className="w-full h-96 object-cover"
+              className="w-full max-h-96 object-contain bg-gray-100"
             />
           )}
 

@@ -289,6 +289,9 @@ const DoctorAdvicePage = () => {
               const commentsExpanded = expandedComments[post.id];
               const displayedComments = commentsExpanded ? post.comments : post.comments.slice(0, 2);
 
+              // Debug logging
+              console.log('Post ID:', post.id, '| User ID:', userId, '| Author ID:', authorId, '| isAuthor:', isAuthor);
+
               return (
                 <div
                   key={post.id}
@@ -316,35 +319,35 @@ const DoctorAdvicePage = () => {
                       </div>
 
                       {/* Action Menu - Only for author */}
-                      {isAuthor && (
-                        <div className="relative">
-                          <button
-                            onClick={(e) => toggleMenu(post.id, e)}
-                            className="p-2 hover:bg-gray-100 rounded-full transition"
-                          >
-                            <FiMoreVertical className="w-5 h-5 text-gray-600" />
-                          </button>
-                          
-                          {showMenu[post.id] && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-10">
-                              <button
-                                onClick={(e) => handleEditPost(post.id, e)}
-                                className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 text-gray-700"
-                              >
-                                <FiEdit className="w-4 h-4" />
-                                Edit Article
-                              </button>
-                              <button
-                                onClick={(e) => handleDeletePost(post.id, e)}
-                                className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-2 text-red-600"
-                              >
-                                <FiTrash2 className="w-4 h-4" />
-                                Delete Article
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                      {/* Always show for testing - will remove after fix */}
+                      <div className="relative">
+                        <button
+                          onClick={(e) => toggleMenu(post.id, e)}
+                          className={`p-2 hover:bg-gray-100 rounded-full transition ${!isAuthor ? 'opacity-30' : ''}`}
+                          title={isAuthor ? 'Your post' : `Not your post (User:${userId} vs Author:${authorId})`}
+                        >
+                          <FiMoreVertical className="w-5 h-5 text-gray-600" />
+                        </button>
+                        
+                        {showMenu[post.id] && (
+                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-10">
+                            <button
+                              onClick={(e) => handleEditPost(post.id, e)}
+                              className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 text-gray-700"
+                            >
+                              <FiEdit className="w-4 h-4" />
+                              Edit Article
+                            </button>
+                            <button
+                              onClick={(e) => handleDeletePost(post.id, e)}
+                              className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-2 text-red-600"
+                            >
+                              <FiTrash2 className="w-4 h-4" />
+                              Delete Article
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
