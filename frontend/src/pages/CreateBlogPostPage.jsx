@@ -46,6 +46,11 @@ const CreateBlogPostPage = () => {
       
       // Check if user is the author (fix: use user_id)
       const userId = user.user_id || user.id;
+      console.log('Edit check - User object:', user);
+      console.log('Edit check - userId:', userId, 'Type:', typeof userId);
+      console.log('Edit check - post.author:', post.author, 'Type:', typeof post.author);
+      console.log('Edit check - Match:', post.author === Number(userId));
+      
       if (post.author !== Number(userId)) {
         alert('You can only edit your own articles');
         navigate('/doctors-advice');
