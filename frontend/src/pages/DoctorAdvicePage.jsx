@@ -16,6 +16,7 @@ const DoctorAdvicePage = () => {
   const [error, setError] = useState(null);
   const [expandedComments, setExpandedComments] = useState({});
   const [newComments, setNewComments] = useState({});
+  const [editingComments, setEditingComments] = useState({});
   const [submittingComment, setSubmittingComment] = useState({});
   const [showMenu, setShowMenu] = useState({});
   const navigate = useNavigate();
@@ -24,6 +25,24 @@ const DoctorAdvicePage = () => {
   useEffect(() => {
     fetchBlogPosts();
   }, []);
+
+  useEffect(() => {
+    // Check which posts the user has already commented on
+    if (filteredPosts.length > 0 && user) {
+      const editingState = {};
+      filteredPosts.forEach(post => {
+        const userComment = post.comments?.find(comment => comment.author === user.id);
+        if (userComment) {
+          editingState[post.id] = userComment;
+          setNewComments(prev => ({
+            ...prev,
+            [post.id]: userComment.content
+          }));
+        }
+      });
+      setEditingComments(editingState);
+    }
+  }, [filteredPosts, user]);
 
   useEffect(() => {
     // Filter posts based on search query
@@ -106,21 +125,28 @@ const DoctorAdvicePage = () => {
     const commentText = newComments[postId];
     if (!commentText?.trim()) return;
 
+    const isEditing = editingComments[postId];
+
     try {
       setSubmittingComment(prev => ({ ...prev, [postId]: true }));
-      await blogService.createComment({
+      const response = await blogService.createComment({
         blog_post: postId,
         content: commentText
       });
       
-      // Clear comment input
-      setNewComments(prev => ({ ...prev, [postId]: '' }));
+      // Update editing state with the new/updated comment
+      if (response) {
+        setEditingComments(prev => ({
+          ...prev,
+          [postId]: response
+        }));
+      }
       
       // Refresh posts to get updated comments
       fetchBlogPosts();
     } catch (err) {
       console.error('Error submitting comment:', err);
-      alert('Failed to post comment');
+      alert(isEditing ? 'Failed to update comment' : 'Failed to post comment');
     } finally {
       setSubmittingComment(prev => ({ ...prev, [postId]: false }));
     }
@@ -174,7 +200,7 @@ const DoctorAdvicePage = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -320,7 +346,7 @@ const DoctorAdvicePage = () => {
                     {post.image && (
                       <div className="w-full">
                         <img
-                          src={`http://localhost:8000${post.image}`}
+                          src={post.image.startsWith('http') ? post.image : `http://localhost:8000${post.image}`}
                           alt={post.title}
                           className="w-full h-auto object-cover max-h-96"
                         />
@@ -365,23 +391,31 @@ const DoctorAdvicePage = () => {
                           <div className="bg-gray-200 rounded-full p-2 flex-shrink-0">
                             <FiUser className="w-5 h-5 text-gray-600" />
                           </div>
-                          <div className="flex-1 flex gap-2">
-                            <input
-                              type="text"
-                              value={newComments[post.id] || ''}
-                              onChange={(e) => handleCommentChange(post.id, e.target.value)}
-                              placeholder="Write a comment..."
-                              className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              onClick={(e) => e.stopPropagation()}
-                            />
-                            <button
-                              type="submit"
-                              disabled={submittingComment[post.id] || !newComments[post.id]?.trim()}
-                              className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <FiSend className="w-4 h-4" />
-                            </button>
+                          <div className="flex-1">
+                            {editingComments[post.id] && (
+                              <div className="text-xs text-blue-600 mb-1 px-4">
+                                Editing your comment
+                              </div>
+                            )}
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                value={newComments[post.id] || ''}
+                                onChange={(e) => handleCommentChange(post.id, e.target.value)}
+                                placeholder={editingComments[post.id] ? "Edit your comment..." : "Write a comment..."}
+                                className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <button
+                                type="submit"
+                                disabled={submittingComment[post.id] || !newComments[post.id]?.trim()}
+                                className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                onClick={(e) => e.stopPropagation()}
+                                title={editingComments[post.id] ? "Update comment" : "Post comment"}
+                              >
+                                {editingComments[post.id] ? <FiEdit className="w-4 h-4" /> : <FiSend className="w-4 h-4" />}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </form>

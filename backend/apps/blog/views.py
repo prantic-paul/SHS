@@ -2,7 +2,7 @@
 Blog Views
 API views for blog posts and comments
 """
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -102,6 +102,36 @@ class CommentViewSet(viewsets.ModelViewSet):
             return Comment.objects.filter(blog_post_id=blog_post_id)
         
         return Comment.objects.all()
+    
+    def create(self, request, *args, **kwargs):
+        """Create or update comment - only one comment per user per post"""
+        blog_post_id = request.data.get('blog_post')
+        
+        if not blog_post_id:
+            return Response(
+                {"error": "blog_post is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check if user already has a comment on this post
+        existing_comment = Comment.objects.filter(
+            author=request.user,
+            blog_post_id=blog_post_id
+        ).first()
+        
+        if existing_comment:
+            # Update existing comment
+            serializer = CommentCreateSerializer(existing_comment, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            # Return full comment data
+            return Response(
+                CommentSerializer(existing_comment).data,
+                status=status.HTTP_200_OK
+            )
+        
+        # Create new comment
+        return super().create(request, *args, **kwargs)
     
     def perform_create(self, serializer):
         """Create comment with author"""
