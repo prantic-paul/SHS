@@ -287,9 +287,6 @@ const DoctorAdvicePage = () => {
               const commentsExpanded = expandedComments[post.id];
               const displayedComments = commentsExpanded ? post.comments : post.comments.slice(0, 2);
 
-              // Debug log for checking author
-              console.log('Post:', post.id, 'Author:', authorId, 'User:', userId, 'isAuthor:', isAuthor);
-
               return (
                 <div
                   key={post.id}
