@@ -14,6 +14,9 @@ import DoctorListPage from './pages/DoctorListPage';
 import DoctorDetailPage from './pages/DoctorDetailPage';
 import MyAppointmentsPage from './pages/MyAppointmentsPage';
 import MedicalRecordsPage from './pages/MedicalRecordsPage';
+import DoctorAdvicePage from './pages/DoctorAdvicePage';
+import BlogPostDetailPage from './pages/BlogPostDetailPage';
+import CreateBlogPostPage from './pages/CreateBlogPostPage';
 import './App.css';
 
 function App() {
@@ -59,6 +62,26 @@ function App() {
             element={
               <ProtectedRoute>
                 <MedicalRecordsPage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Blog Routes - Public viewing, protected creation */}
+          <Route path="/doctors-advice" element={<DoctorAdvicePage />} />
+          <Route path="/doctors-advice/:id" element={<BlogPostDetailPage />} />
+          <Route 
+            path="/doctors-advice/create" 
+            element={
+              <ProtectedRoute>
+                <CreateBlogPostPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/doctors-advice/edit/:id" 
+            element={
+              <ProtectedRoute>
+                <CreateBlogPostPage />
               </ProtectedRoute>
             } 
           />

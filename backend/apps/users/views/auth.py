@@ -30,6 +30,7 @@ class UserRegistrationView(generics.CreateAPIView):
         response_data = {
             'success': True,
             'data': {
+                'id': user.id,  # Add numeric ID for ForeignKey comparisons
                 'user_id': user.user_id,
                 'name': user.name,
                 'email': user.email,
@@ -74,6 +75,7 @@ class UserLoginView(generics.GenericAPIView):
         response_data = {
             'success': True,
             'data': {
+                'id': user.id,  # Add numeric ID for ForeignKey comparisons
                 'user_id': user.user_id,
                 'name': user.name,
                 'email': user.email,

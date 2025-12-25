@@ -14,6 +14,7 @@ import {
   X,
   Heart,
   Activity,
+  FileText,
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -35,6 +36,7 @@ const Navbar = () => {
   const navLinks = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/doctors', label: 'Doctors', icon: Users },
+    { path: '/doctors-advice', label: "Doctor's Advice", icon: FileText },
   ];
 
   return (
