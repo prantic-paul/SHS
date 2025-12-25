@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../services/userService';
 import { FiAward, FiBook, FiMapPin, FiClock, FiFileText, FiAlertCircle } from 'react-icons/fi';
+import DiseaseAutocomplete from '../components/DiseaseAutocomplete';
 
 const DoctorApplicationPage = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const DoctorApplicationPage = () => {
     email: '',
     consultation_fee: '',
     clinic_address: '',
+    diseases_treated: [],
   });
 
   const handleChange = (e) => {
@@ -334,6 +336,21 @@ const DoctorApplicationPage = () => {
               />
               <p className="mt-1 text-sm text-gray-500">
                 {formData.bio.length}/1000 characters
+              </p>
+            </div>
+
+            {/* Diseases Treated */}
+            <div>
+              <label className="label">
+                <FiAward className="inline mr-2" />
+                Diseases You Treat
+              </label>
+              <DiseaseAutocomplete
+                selectedDiseases={formData.diseases_treated}
+                onChange={(diseases) => setFormData({ ...formData, diseases_treated: diseases })}
+              />
+              <p className="mt-2 text-sm text-gray-500">
+                Select the diseases and conditions you specialize in treating. Start typing to see suggestions.
               </p>
             </div>
 
