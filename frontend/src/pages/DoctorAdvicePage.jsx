@@ -280,14 +280,15 @@ const DoctorAdvicePage = () => {
         ) : (
           <div className="max-w-2xl mx-auto space-y-6">
             {filteredPosts.map((post) => {
-              const isAuthor = user?.id === post.author;
+              // Ensure type consistency for comparison
+              const userId = user?.id ? Number(user.id) : null;
+              const authorId = post.author ? Number(post.author) : null;
+              const isAuthor = userId === authorId;
               const commentsExpanded = expandedComments[post.id];
               const displayedComments = commentsExpanded ? post.comments : post.comments.slice(0, 2);
 
               // Debug log for checking author
-              if (post.id && user?.id) {
-                console.log('Post:', post.id, 'Author:', post.author, 'User:', user.id, 'isAuthor:', isAuthor);
-              }
+              console.log('Post:', post.id, 'Author:', authorId, 'User:', userId, 'isAuthor:', isAuthor);
 
               return (
                 <div
