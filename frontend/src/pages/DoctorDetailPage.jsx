@@ -15,6 +15,7 @@ import {
   ArrowLeft,
   Calendar,
   Clock,
+  Activity,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { getDoctorById, getDoctorRatings, submitRating, getRatingBreakdown } from '../services/doctorService';
@@ -305,6 +306,29 @@ const DoctorDetailPage = () => {
                     </div>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Diseases Treated */}
+            {doctor.diseases_treated && doctor.diseases_treated.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <Activity className="w-5 h-5 mr-2 text-indigo-600" />
+                  Diseases Treated
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {doctor.diseases_treated.map((disease, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-3 py-1.5 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium capitalize"
+                    >
+                      {disease}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-sm text-gray-600 mt-3">
+                  Specialized in treating {doctor.diseases_treated.length} condition{doctor.diseases_treated.length !== 1 ? 's' : ''}
+                </p>
               </div>
             )}
 

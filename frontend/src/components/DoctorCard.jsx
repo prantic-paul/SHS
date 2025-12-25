@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Briefcase, DollarSign, Star, ArrowRight, Award } from 'lucide-react';
+import { MapPin, Briefcase, DollarSign, Star, ArrowRight, Award, Activity } from 'lucide-react';
 import StarDisplay from './StarDisplay';
 import AvailabilityBadge from './AvailabilityBadge';
 
@@ -142,6 +142,31 @@ const DoctorCard = ({ doctor }) => {
             </div>
           )}
         </div>
+        
+        {/* Diseases Treated */}
+        {doctor.diseases_treated && doctor.diseases_treated.length > 0 && (
+          <div className="mb-5">
+            <div className="flex items-center gap-2 mb-2">
+              <Activity size={16} className="text-indigo-600" />
+              <span className="text-sm font-semibold text-gray-700">Treats:</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {doctor.diseases_treated.slice(0, 4).map((disease, index) => (
+                <span 
+                  key={index} 
+                  className="inline-flex items-center px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-medium capitalize"
+                >
+                  {disease}
+                </span>
+              ))}
+              {doctor.diseases_treated.length > 4 && (
+                <span className="inline-flex items-center px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">
+                  +{doctor.diseases_treated.length - 4} more
+                </span>
+              )}
+            </div>
+          </div>
+        )}
         
         {/* View Profile Button */}
         <button

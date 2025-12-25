@@ -58,6 +58,13 @@ class DoctorInformation(models.Model):
         help_text='Professional biography'
     )
     
+    # Diseases treated - stored as JSON array
+    diseases_treated = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of diseases/conditions the doctor treats'
+    )
+    
     # Verification and status
     status = models.CharField(
         max_length=20,
