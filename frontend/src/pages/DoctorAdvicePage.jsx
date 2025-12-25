@@ -22,13 +22,6 @@ const DoctorAdvicePage = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
 
-  // Debug: Check user object
-  useEffect(() => {
-    console.log('User from localStorage:', user);
-    console.log('User ID (user_id):', user?.user_id, 'Type:', typeof user?.user_id);
-    console.log('User ID (id):', user?.id, 'Type:', typeof user?.id);
-  }, []);
-
   useEffect(() => {
     fetchBlogPosts();
   }, []);
@@ -72,10 +65,6 @@ const DoctorAdvicePage = () => {
     try {
       setLoading(true);
       const data = await blogService.getAllPosts();
-      console.log('Blog posts from API:', data);
-      if (data.length > 0) {
-        console.log('First post author field:', data[0].author, 'Type:', typeof data[0].author);
-      }
       setBlogPosts(data);
       setFilteredPosts(data);
     } catch (err) {
@@ -327,11 +316,6 @@ const DoctorAdvicePage = () => {
                       </div>
 
                       {/* Action Menu - Only for author */}
-                      {/* Debug info - remove after testing */}
-                      <div className="text-xs text-gray-500 mr-2">
-                        User: {userId} | Author: {authorId} | Match: {isAuthor ? 'YES' : 'NO'}
-                      </div>
-                      
                       {isAuthor && (
                         <div className="relative">
                           <button
