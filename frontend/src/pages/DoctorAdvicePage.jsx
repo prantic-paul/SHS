@@ -22,6 +22,16 @@ const DoctorAdvicePage = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
 
+  // Debug: Log the entire user object structure
+  useEffect(() => {
+    console.log('=== USER OBJECT DEBUG ===');
+    console.log('Full user object:', user);
+    console.log('user.id:', user?.id);
+    console.log('user.user_id:', user?.user_id);
+    console.log('All user keys:', user ? Object.keys(user) : 'null');
+    console.log('=========================');
+  }, []);
+
   useEffect(() => {
     fetchBlogPosts();
   }, []);
