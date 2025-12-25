@@ -9,6 +9,7 @@ import { userService } from '../services/userService';
 import Navbar from '../components/Navbar';
 import DoctorScheduleManager from '../components/DoctorScheduleManager';
 import DoctorDashboard from '../components/DoctorDashboard';
+import DiseaseAutocomplete from '../components/DiseaseAutocomplete';
 import { FiEdit, FiLogOut, FiUserPlus, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiShield, FiAward, FiActivity, FiSearch, FiFileText, FiClock, FiLock, FiSave, FiX, FiBriefcase, FiBook, FiStar } from 'react-icons/fi';
 
 const ProfilePage = () => {
@@ -36,6 +37,7 @@ const ProfilePage = () => {
     practice_location: '',
     experience_years: '',
     bio: '',
+    diseases_treated: [], // Add diseases array
   });
 
   useEffect(() => {
@@ -62,6 +64,7 @@ const ProfilePage = () => {
           practice_location: response.data.doctor_profile.practice_location || '',
           experience_years: response.data.doctor_profile.experience_years || '',
           bio: response.data.doctor_profile.bio || '',
+          diseases_treated: response.data.doctor_profile.diseases_treated || [],
         });
       }
     } catch (err) {
@@ -652,6 +655,23 @@ const ProfilePage = () => {
                       </p>
                     </div>
 
+                    {/* Diseases Treated - Autocomplete */}
+                    <div>
+                      <label className="label">
+                        <FiActivity className="inline mr-2" />
+                        Diseases You Treat
+                      </label>
+                      <DiseaseAutocomplete
+                        selectedDiseases={doctorFormData.diseases_treated}
+                        onChange={(diseases) => {
+                          setDoctorFormData({
+                            ...doctorFormData,
+                            diseases_treated: diseases
+                          });
+                        }}
+                      />
+                    </div>
+
                     <div className="flex flex-col sm:flex-row gap-3 pt-4">
                       <button 
                         type="submit" 
@@ -753,6 +773,29 @@ const ProfilePage = () => {
                           <p className="text-sm text-green-600 font-semibold">Professional Bio</p>
                         </div>
                         <p className="text-gray-700 whitespace-pre-line">{profileData.doctor_profile.bio}</p>
+                      </div>
+                    )}
+
+                    {/* Diseases Treated Display */}
+                    {profileData.doctor_profile.diseases_treated && profileData.doctor_profile.diseases_treated.length > 0 && (
+                      <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg p-4">
+                        <div className="flex items-center mb-3">
+                          <FiActivity className="text-indigo-600 mr-2" />
+                          <p className="text-sm text-indigo-600 font-semibold">Diseases Treated</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {profileData.doctor_profile.diseases_treated.map((disease) => (
+                            <span
+                              key={disease}
+                              className="inline-flex items-center px-3 py-1.5 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium capitalize"
+                            >
+                              {disease}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="text-sm text-gray-600 mt-3">
+                          {profileData.doctor_profile.diseases_treated.length} disease{profileData.doctor_profile.diseases_treated.length !== 1 ? 's' : ''}
+                        </p>
                       </div>
                     )}
                   </div>
