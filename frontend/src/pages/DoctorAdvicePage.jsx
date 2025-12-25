@@ -22,6 +22,13 @@ const DoctorAdvicePage = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
 
+  // Debug: Check user object
+  useEffect(() => {
+    console.log('User from localStorage:', user);
+    console.log('User ID (user_id):', user?.user_id, 'Type:', typeof user?.user_id);
+    console.log('User ID (id):', user?.id, 'Type:', typeof user?.id);
+  }, []);
+
   useEffect(() => {
     fetchBlogPosts();
   }, []);
@@ -32,9 +39,10 @@ const DoctorAdvicePage = () => {
     if (blogPosts.length > 0 && user) {
       const editingState = {};
       const newCommentsState = {};
+      const userId = user.user_id || user.id; // Support both user_id and id
       
       blogPosts.forEach(post => {
-        const userComment = post.comments?.find(comment => comment.author === user.id);
+        const userComment = post.comments?.find(comment => comment.author === userId);
         if (userComment) {
           editingState[post.id] = userComment;
           newCommentsState[post.id] = userComment.content;
@@ -44,7 +52,7 @@ const DoctorAdvicePage = () => {
       setEditingComments(editingState);
       setNewComments(prev => ({ ...prev, ...newCommentsState }));
     }
-  }, [blogPosts, user?.id]);
+  }, [blogPosts, user?.user_id, user?.id]);
 
   useEffect(() => {
     // Filter posts based on search query
@@ -64,6 +72,10 @@ const DoctorAdvicePage = () => {
     try {
       setLoading(true);
       const data = await blogService.getAllPosts();
+      console.log('Blog posts from API:', data);
+      if (data.length > 0) {
+        console.log('First post author field:', data[0].author, 'Type:', typeof data[0].author);
+      }
       setBlogPosts(data);
       setFilteredPosts(data);
     } catch (err) {
@@ -281,7 +293,8 @@ const DoctorAdvicePage = () => {
           <div className="max-w-2xl mx-auto space-y-6">
             {filteredPosts.map((post) => {
               // Ensure type consistency for comparison
-              const userId = user?.id ? Number(user.id) : null;
+              // Note: localStorage stores 'user_id', not 'id'
+              const userId = user?.user_id ? Number(user.user_id) : (user?.id ? Number(user.id) : null);
               const authorId = post.author ? Number(post.author) : null;
               const isAuthor = userId === authorId;
               const commentsExpanded = expandedComments[post.id];
@@ -314,6 +327,11 @@ const DoctorAdvicePage = () => {
                       </div>
 
                       {/* Action Menu - Only for author */}
+                      {/* Debug info - remove after testing */}
+                      <div className="text-xs text-gray-500 mr-2">
+                        User: {userId} | Author: {authorId} | Match: {isAuthor ? 'YES' : 'NO'}
+                      </div>
+                      
                       {isAuthor && (
                         <div className="relative">
                           <button
