@@ -28,21 +28,23 @@ const DoctorAdvicePage = () => {
 
   useEffect(() => {
     // Check which posts the user has already commented on
-    if (filteredPosts.length > 0 && user) {
+    // Only run when blogPosts changes (not filteredPosts to avoid lag)
+    if (blogPosts.length > 0 && user) {
       const editingState = {};
-      filteredPosts.forEach(post => {
+      const newCommentsState = {};
+      
+      blogPosts.forEach(post => {
         const userComment = post.comments?.find(comment => comment.author === user.id);
         if (userComment) {
           editingState[post.id] = userComment;
-          setNewComments(prev => ({
-            ...prev,
-            [post.id]: userComment.content
-          }));
+          newCommentsState[post.id] = userComment.content;
         }
       });
+      
       setEditingComments(editingState);
+      setNewComments(prev => ({ ...prev, ...newCommentsState }));
     }
-  }, [filteredPosts, user]);
+  }, [blogPosts, user?.id]);
 
   useEffect(() => {
     // Filter posts based on search query
@@ -176,11 +178,25 @@ const DoctorAdvicePage = () => {
 
   const toggleMenu = (postId, e) => {
     e.stopPropagation();
-    setShowMenu(prev => ({
-      ...prev,
-      [postId]: !prev[postId]
-    }));
+    setShowMenu(prev => {
+      // Close all other menus and toggle this one
+      const newState = {};
+      newState[postId] = !prev[postId];
+      return newState;
+    });
   };
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowMenu({});
+    };
+    
+    if (Object.keys(showMenu).some(key => showMenu[key])) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showMenu]);
 
   const truncateContent = (content, maxLength = 200) => {
     if (content.length <= maxLength) return content;
@@ -267,6 +283,11 @@ const DoctorAdvicePage = () => {
               const isAuthor = user?.id === post.author;
               const commentsExpanded = expandedComments[post.id];
               const displayedComments = commentsExpanded ? post.comments : post.comments.slice(0, 2);
+
+              // Debug log for checking author
+              if (post.id && user?.id) {
+                console.log('Post:', post.id, 'Author:', post.author, 'User:', user.id, 'isAuthor:', isAuthor);
+              }
 
               return (
                 <div
