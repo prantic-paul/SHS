@@ -4,6 +4,7 @@
 fastapi==0.108.0
 uvicorn[standard]==0.25.0
 pydantic==2.5.3
+pydantic-settings==2.1.0
 python-multipart==0.0.6
 
 # ML Libraries
@@ -17,3 +18,20 @@ spacy==3.7.2
 # Utilities
 python-decouple==3.8
 requests==2.31.0
+python-dotenv==1.0.0
+
+# LangChain & RAG
+langchain==0.1.0
+langchain-community==0.0.13
+langchain-google-genai==0.0.6
+langchain-pinecone==0.0.3
+pypdf==3.17.4
+
+# Vector Database
+pinecone-client==3.0.0
+
+# Embeddings
+sentence-transformers==2.2.2
+
+# Additional
+httpx==0.25.2
