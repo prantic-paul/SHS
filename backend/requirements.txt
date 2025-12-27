@@ -20,3 +20,4 @@ python-decouple==3.8
 
 # Utilities
 pytz==2023.3
+requests==2.31.0
