@@ -15,6 +15,7 @@ import {
   Heart,
   Activity,
   FileText,
+  MessageSquare,
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -36,6 +37,7 @@ const Navbar = () => {
   const navLinks = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/doctors', label: 'Doctors', icon: Users },
+    { path: '/chatbot', label: 'AI Assistant', icon: MessageSquare },
     { path: '/doctors-advice', label: "Doctor's Advice", icon: FileText },
   ];
 

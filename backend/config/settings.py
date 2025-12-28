@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'apps.appointment',
     'apps.prescription',
     'apps.blog',
+    'apps.chat',  # AI Medical Chatbot
 ]
 
 MIDDLEWARE = [
@@ -183,3 +184,6 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
 }
+
+# AI Chatbot Service Configuration
+AI_SERVICE_URL = 'http://localhost:8001'

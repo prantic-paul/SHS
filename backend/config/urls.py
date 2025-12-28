@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/v1/appointments/', include('apps.appointment.urls')),
     path('api/v1/prescriptions/', include('apps.prescription.urls')),
     path('api/v1/blog/', include('apps.blog.urls')),
+    path('api/v1/chat/', include('apps.chat.urls')),  # AI Medical Chatbot
 ]
 
 # Serve media files in development
