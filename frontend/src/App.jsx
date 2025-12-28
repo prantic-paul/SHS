@@ -17,6 +17,8 @@ import MedicalRecordsPage from './pages/MedicalRecordsPage';
 import DoctorAdvicePage from './pages/DoctorAdvicePage';
 import BlogPostDetailPage from './pages/BlogPostDetailPage';
 import CreateBlogPostPage from './pages/CreateBlogPostPage';
+import ChatbotPage from './pages/ChatbotPage';
+import FloatingChatButton from './components/FloatingChatButton';
 import './App.css';
 
 function App() {
@@ -29,6 +31,16 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/doctors" element={<DoctorListPage />} />
           <Route path="/doctors/:id" element={<DoctorDetailPage />} />
+          
+          {/* Medical AI Chatbot - Protected Route */}
+          <Route 
+            path="/chatbot" 
+            element={
+              <ProtectedRoute>
+                <ChatbotPage />
+              </ProtectedRoute>
+            } 
+          />
           
           <Route 
             path="/profile" 
@@ -88,6 +100,9 @@ function App() {
           
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        
+        {/* Floating Chatbot Button - Available on all pages */}
+        <FloatingChatButton />
       </AuthProvider>
     </Router>
   );
