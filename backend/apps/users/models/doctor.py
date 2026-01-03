@@ -135,6 +135,11 @@ class DoctorInformation(models.Model):
         default='English',
         help_text='Languages spoken (comma-separated)'
     )
+    diseases_treated = models.TextField(
+        blank=True,
+        default='',
+        help_text='Diseases treated by the doctor (comma-separated)'
+    )
     profile_image = models.ImageField(
         upload_to='doctors/profiles/',
         blank=True,

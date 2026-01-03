@@ -10,6 +10,7 @@ import Navbar from '../components/Navbar';
 import DoctorScheduleManager from '../components/DoctorScheduleManager';
 import DoctorDashboard from '../components/DoctorDashboard';
 import DoctorRecommendation from '../components/DoctorRecommendation';
+import DiseaseInput from '../components/DiseaseInput';
 import { FiEdit, FiLogOut, FiUserPlus, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiShield, FiAward, FiActivity, FiSearch, FiFileText, FiClock, FiLock, FiSave, FiX, FiBriefcase, FiBook, FiStar, FiUsers } from 'react-icons/fi';
 
 const ProfilePage = () => {
@@ -38,6 +39,7 @@ const ProfilePage = () => {
     practice_location: '',
     experience_years: '',
     bio: '',
+    diseases_treated: '',
   });
 
   useEffect(() => {
@@ -64,6 +66,7 @@ const ProfilePage = () => {
           practice_location: response.data.doctor_profile.practice_location || '',
           experience_years: response.data.doctor_profile.experience_years || '',
           bio: response.data.doctor_profile.bio || '',
+          diseases_treated: response.data.doctor_profile.diseases_treated || '',
         });
       }
     } catch (err) {
@@ -660,6 +663,18 @@ const ProfilePage = () => {
                         {doctorFormData.bio.length} / 1000 characters
                       </p>
                     </div>
+
+                    {/* Diseases Treated Input */}
+                    <DiseaseInput
+                      value={doctorFormData.diseases_treated}
+                      onChange={(value) =>
+                        setDoctorFormData((prev) => ({
+                          ...prev,
+                          diseases_treated: value,
+                        }))
+                      }
+                      disabled={loading}
+                    />
 
                     <div className="flex flex-col sm:flex-row gap-3 pt-4">
                       <button 

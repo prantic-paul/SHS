@@ -67,7 +67,7 @@ class DoctorInformationSerializer(serializers.ModelSerializer):
             'id', 'user_id', 'user_name', 'license_number',
             'qualification', 'education', 'specialization',
             'practice_location', 'experience_years', 'bio',
-            'status', 'is_verified', 'rating_avg', 'created_at'
+            'status', 'is_verified', 'rating_avg', 'diseases_treated', 'created_at'
         ]
         read_only_fields = ['status', 'is_verified', 'rating_avg', 'created_at']
 
@@ -81,7 +81,7 @@ class DoctorProfileUpdateSerializer(serializers.ModelSerializer):
         model = DoctorInformation
         fields = [
             'qualification', 'education', 'specialization',
-            'practice_location', 'experience_years', 'bio'
+            'practice_location', 'experience_years', 'bio', 'diseases_treated'
         ]
     
     def validate(self, attrs):

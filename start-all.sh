@@ -25,6 +25,7 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Service directories
 BACKEND_DIR="$PROJECT_ROOT/backend"
 AI_SERVICE_DIR="$PROJECT_ROOT/ai-service"
+DISEASE_SERVICE_DIR="$PROJECT_ROOT/disease-prediction-service"
 FRONTEND_DIR="$PROJECT_ROOT/frontend"
 
 # Log files
@@ -32,6 +33,7 @@ LOG_DIR="$PROJECT_ROOT/logs"
 mkdir -p "$LOG_DIR"
 BACKEND_LOG="$LOG_DIR/backend.log"
 AI_SERVICE_LOG="$LOG_DIR/ai-service.log"
+DISEASE_SERVICE_LOG="$LOG_DIR/disease-prediction.log"
 FRONTEND_LOG="$LOG_DIR/frontend.log"
 
 # PID file to track running processes
@@ -238,6 +240,54 @@ start_ai_service() {
 }
 
 # ==============================================================================
+# Start Disease Prediction Service (FastAPI)
+# ==============================================================================
+
+start_disease_service() {
+    print_section "🧬 Starting Disease Prediction Service (FastAPI)"
+    
+    cd "$DISEASE_SERVICE_DIR"
+    
+    # Check if virtual environment exists
+    if [ ! -d "venv" ]; then
+        print_warning "Virtual environment not found for disease service"
+        print_error "Please run: cd disease-prediction-service && python3 -m venv venv && pip install -r requirements.txt"
+        exit 1
+    else
+        source venv/bin/activate
+    fi
+    
+    # Check if model exists
+    if [ ! -f "app/data/models/disease_model.pkl" ]; then
+        print_warning "Trained model not found"
+        print_info "Training model now... (this may take a few minutes)"
+        python train_model.py
+        if [ $? -ne 0 ]; then
+            print_error "Model training failed"
+            exit 1
+        fi
+    fi
+    
+    print_info "Starting Disease Prediction service on http://127.0.0.1:8002"
+    python3 -m uvicorn main:app --host 0.0.0.0 --port 8002 > "$DISEASE_SERVICE_LOG" 2>&1 &
+    DISEASE_SERVICE_PID=$!
+    echo $DISEASE_SERVICE_PID >> "$PID_FILE"
+    
+    # Wait a moment and check if it's running
+    sleep 3
+    if kill -0 $DISEASE_SERVICE_PID 2>/dev/null; then
+        print_success "Disease prediction service started (PID: $DISEASE_SERVICE_PID)"
+        print_info "Logs: $DISEASE_SERVICE_LOG"
+    else
+        print_error "Failed to start disease prediction service"
+        cat "$DISEASE_SERVICE_LOG"
+        exit 1
+    fi
+    
+    cd "$PROJECT_ROOT"
+}
+
+# ==============================================================================
 # Start Frontend Service (React + Vite)
 # ==============================================================================
 
@@ -296,6 +346,14 @@ display_status() {
     echo -e "${MAGENTA}│${NC}   Logs: ${YELLOW}$AI_SERVICE_LOG${NC}"
     echo -e "${MAGENTA}└─────────────────────────────────────────────────────────────┘${NC}\n"
     
+    echo -e "${YELLOW}┌─────────────────────────────────────────────────────────────┐${NC}"
+    echo -e "${YELLOW}│${NC} ${BOLD}Disease Prediction (FastAPI + ML)${NC}                         ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC}   URL:  ${GREEN}http://localhost:8002${NC}                              ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC}   Docs: ${GREEN}http://localhost:8002/docs${NC}                        ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC}   API:  ${GREEN}http://localhost:8002/api/v1/predict/${NC}            ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC}   Logs: ${YELLOW}$DISEASE_SERVICE_LOG${NC}"
+    echo -e "${YELLOW}└─────────────────────────────────────────────────────────────┘${NC}\n"
+    
     echo -e "${BLUE}┌─────────────────────────────────────────────────────────────┐${NC}"
     echo -e "${BLUE}│${NC} ${BOLD}Frontend (React + Vite)${NC}                                    ${BLUE}│${NC}"
     echo -e "${BLUE}│${NC}   URL:  ${GREEN}http://localhost:5174${NC}                              ${BLUE}│${NC}"
@@ -338,6 +396,9 @@ main() {
     sleep 2
     
     start_ai_service
+    sleep 2
+    
+    start_disease_service
     sleep 2
     
     start_frontend
