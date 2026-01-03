@@ -58,18 +58,30 @@ class DoctorInformationSerializer(serializers.ModelSerializer):
     """
     Serializer for reading doctor information
     """
-    user_name = serializers.CharField(source='user.name', read_only=True)
-    user_id = serializers.CharField(source='user.user_id', read_only=True)
+    user = serializers.SerializerMethodField()
     
     class Meta:
         model = DoctorInformation
         fields = [
-            'id', 'user_id', 'user_name', 'license_number',
+            'id', 'user', 'license_number',
             'qualification', 'education', 'specialization',
             'practice_location', 'experience_years', 'bio',
-            'status', 'is_verified', 'rating_avg', 'created_at'
+            'status', 'is_verified', 'rating_avg', 'rating_count',
+            'availability_status', 'phone', 'email', 'consultation_fee',
+            'clinic_address', 'city', 'state', 'pincode', 'languages',
+            'diseases_treated', 'profile_image', 'created_at'
         ]
-        read_only_fields = ['status', 'is_verified', 'rating_avg', 'created_at']
+        read_only_fields = ['status', 'is_verified', 'rating_avg', 'rating_count', 'created_at']
+    
+    def get_user(self, obj):
+        """Get user information"""
+        return {
+            'id': obj.user.id,
+            'user_id': obj.user.user_id,
+            'name': obj.user.name,
+            'full_name': obj.user.name,  # Use name field since first_name/last_name don't exist
+            'email': obj.user.email,
+        }
 
 
 class DoctorProfileUpdateSerializer(serializers.ModelSerializer):
@@ -81,7 +93,7 @@ class DoctorProfileUpdateSerializer(serializers.ModelSerializer):
         model = DoctorInformation
         fields = [
             'qualification', 'education', 'specialization',
-            'practice_location', 'experience_years', 'bio'
+            'practice_location', 'experience_years', 'bio', 'diseases_treated'
         ]
     
     def validate(self, attrs):

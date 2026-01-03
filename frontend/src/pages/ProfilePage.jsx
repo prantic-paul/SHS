@@ -9,7 +9,9 @@ import { userService } from '../services/userService';
 import Navbar from '../components/Navbar';
 import DoctorScheduleManager from '../components/DoctorScheduleManager';
 import DoctorDashboard from '../components/DoctorDashboard';
-import { FiEdit, FiLogOut, FiUserPlus, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiShield, FiAward, FiActivity, FiSearch, FiFileText, FiClock, FiLock, FiSave, FiX, FiBriefcase, FiBook, FiStar } from 'react-icons/fi';
+import DoctorRecommendation from '../components/DoctorRecommendation';
+import DiseaseInput from '../components/DiseaseInput';
+import { FiEdit, FiLogOut, FiUserPlus, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiShield, FiAward, FiActivity, FiSearch, FiFileText, FiClock, FiLock, FiSave, FiX, FiBriefcase, FiBook, FiStar, FiUsers } from 'react-icons/fi';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -17,6 +19,7 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isDoctorEditing, setIsDoctorEditing] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showRecommendationModal, setShowRecommendationModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -36,6 +39,7 @@ const ProfilePage = () => {
     practice_location: '',
     experience_years: '',
     bio: '',
+    diseases_treated: '',
   });
 
   useEffect(() => {
@@ -62,6 +66,7 @@ const ProfilePage = () => {
           practice_location: response.data.doctor_profile.practice_location || '',
           experience_years: response.data.doctor_profile.experience_years || '',
           bio: response.data.doctor_profile.bio || '',
+          diseases_treated: response.data.doctor_profile.diseases_treated || '',
         });
       }
     } catch (err) {
@@ -209,6 +214,13 @@ const ProfilePage = () => {
                     Set My Schedule
                   </button>
                 )}
+                <button 
+                  onClick={() => setShowRecommendationModal(true)}
+                  className="inline-flex items-center px-4 py-2 bg-white text-green-600 rounded-lg font-semibold hover:bg-green-50 transition-colors shadow-md"
+                >
+                  <FiUsers className="mr-2" />
+                  Get Doctor Recommendation
+                </button>
                 <button 
                   onClick={() => navigate('/my-appointments')} 
                   className="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors shadow-md"
@@ -652,6 +664,18 @@ const ProfilePage = () => {
                       </p>
                     </div>
 
+                    {/* Diseases Treated Input */}
+                    <DiseaseInput
+                      value={doctorFormData.diseases_treated}
+                      onChange={(value) =>
+                        setDoctorFormData((prev) => ({
+                          ...prev,
+                          diseases_treated: value,
+                        }))
+                      }
+                      disabled={loading}
+                    />
+
                     <div className="flex flex-col sm:flex-row gap-3 pt-4">
                       <button 
                         type="submit" 
@@ -755,6 +779,28 @@ const ProfilePage = () => {
                         <p className="text-gray-700 whitespace-pre-line">{profileData.doctor_profile.bio}</p>
                       </div>
                     )}
+
+                    {profileData.doctor_profile.diseases_treated && profileData.doctor_profile.diseases_treated.trim() !== '' && (
+                      <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg p-4">
+                        <div className="flex items-center mb-3">
+                          <FiActivity className="text-emerald-600 mr-2" />
+                          <p className="text-sm text-emerald-600 font-semibold">Diseases Treated</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {profileData.doctor_profile.diseases_treated.split(',').map((disease, index) => {
+                            const trimmedDisease = disease.trim();
+                            return trimmedDisease ? (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm font-medium border border-emerald-200"
+                              >
+                                {trimmedDisease}
+                              </span>
+                            ) : null;
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -826,6 +872,11 @@ const ProfilePage = () => {
       {/* Schedule Modal */}
       {showScheduleModal && (
         <DoctorScheduleManager onClose={() => setShowScheduleModal(false)} />
+      )}
+
+      {/* Doctor Recommendation Modal */}
+      {showRecommendationModal && (
+        <DoctorRecommendation onClose={() => setShowRecommendationModal(false)} />
       )}
     </div>
   );

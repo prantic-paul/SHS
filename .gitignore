@@ -94,3 +94,4 @@ npm-debug.log*
 # Misc
 .secrets/
 *.backup
+.service-pids
