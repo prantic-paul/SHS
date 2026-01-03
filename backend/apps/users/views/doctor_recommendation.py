@@ -39,11 +39,11 @@ def recommend_doctors(request):
     try:
         # Find doctors who treat this disease
         # Case-insensitive search in diseases_treated field
+        # Include all doctors (available, busy, and unavailable) so patients can still see them
         doctors = DoctorInformation.objects.filter(
             Q(diseases_treated__icontains=disease) &
             Q(is_verified=True) &
-            Q(status='APPROVED') &
-            Q(availability_status__in=['available', 'busy'])
+            Q(status='APPROVED')
         ).select_related('user').order_by('-rating_avg', '-experience_years')
         
         # Serialize doctor data
