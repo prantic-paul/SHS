@@ -4,7 +4,7 @@
  */
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiSearch, FiX, FiAlertCircle, FiCheck, FiChevronDown, FiPlus, FiLoader, FiMapPin, FiStar, FiDollarSign } from 'react-icons/fi';
+import { FiSearch, FiX, FiAlertCircle, FiCheck, FiChevronDown, FiPlus, FiLoader, FiMapPin, FiStar, FiDollarSign, FiExternalLink } from 'react-icons/fi';
 import axios from 'axios';
 import symptomsData from '../data/symptoms_list.txt?raw';
 
@@ -136,8 +136,8 @@ const DoctorRecommendation = ({ onClose }) => {
   };
 
   const handleDoctorClick = (doctorId) => {
-    onClose();
-    navigate(`/doctors/${doctorId}`);
+    // Open doctor profile in new tab instead of navigating away from recommendation modal
+    window.open(`/doctors/${doctorId}`, '_blank');
   };
 
   const handleSearchFocus = () => {
@@ -332,12 +332,15 @@ const DoctorRecommendation = ({ onClose }) => {
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Recommended Doctors ({recommendedDoctors.length})
               </h3>
+              <p className="text-sm text-gray-600 mb-3">
+                💡 Click on any doctor card to view their full profile in a new tab
+              </p>
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {recommendedDoctors.map((doctor) => (
                   <div
                     key={doctor.id}
                     onClick={() => handleDoctorClick(doctor.id)}
-                    className="border-2 border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-primary-300 transition-all cursor-pointer"
+                    className="border-2 border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-primary-300 transition-all cursor-pointer relative group"
                   >
                     <div className="flex items-start gap-4">
                       {/* Profile Image */}
@@ -357,10 +360,15 @@ const DoctorRecommendation = ({ onClose }) => {
 
                       {/* Doctor Info */}
                       <div className="flex-1">
-                        <h4 className="text-lg font-semibold text-gray-900">
-                          Dr. {doctor.user?.full_name}
-                        </h4>
-                        <p className="text-primary-600 font-medium">{doctor.specialization}</p>
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h4 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                              Dr. {doctor.user?.full_name}
+                              <FiExternalLink className="w-4 h-4 text-gray-400 group-hover:text-primary-600 transition-colors" />
+                            </h4>
+                            <p className="text-primary-600 font-medium">{doctor.specialization}</p>
+                          </div>
+                        </div>
                         
                         <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-600">
                           {doctor.experience_years && (

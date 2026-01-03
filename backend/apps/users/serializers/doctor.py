@@ -79,7 +79,7 @@ class DoctorInformationSerializer(serializers.ModelSerializer):
             'id': obj.user.id,
             'user_id': obj.user.user_id,
             'name': obj.user.name,
-            'full_name': obj.user.get_full_name(),
+            'full_name': obj.user.name,  # Use name field since first_name/last_name don't exist
             'email': obj.user.email,
         }
 
