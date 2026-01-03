@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     
     # Model Configuration
     MODEL_PATH: str = "app/data/models/disease_model.pkl"
+    ENCODER_PATH: str = "app/data/models/encoder.pkl"
+    SYMPTOM_INDEX_PATH: str = "app/data/models/symptom_index.pkl"
     MODEL_NAME: str = "disease_prediction_model"
     MODEL_VERSION: str = "1.0.0"
     
@@ -28,11 +30,13 @@ class Settings(BaseSettings):
     RAW_DATA_PATH: str = "app/data/raw"
     PROCESSED_DATA_PATH: str = "app/data/processed"
     MODELS_PATH: str = "app/data/models"
+    DATA_FILE: str = "app/data/processed/Final_Augmented_dataset_Diseases_and_Symptoms.csv"
     
     # ML Configuration
     TEST_SIZE: float = 0.2
     RANDOM_STATE: int = 42
     N_ESTIMATORS: int = 100
+    N_ROWS: int = 50000  # Number of rows to use for training
     
     class Config:
         env_file = ".env"

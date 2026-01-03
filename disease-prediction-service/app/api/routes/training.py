@@ -1,113 +1,129 @@
 """
-Model training endpoint
+Training API routes
 """
-from fastapi import APIRouter, HTTPException, UploadFile, File
-from app.schemas.prediction import TrainingRequest, TrainingResponse
-from app.ml.model import predictor
-from app.ml.training import load_dataset, preprocess_symptoms
-from app.core.config import settings
-import logging
-import pandas as pd
+from fastapi import APIRouter, HTTPException
 from pathlib import Path
+import logging
+
+from app.schemas.prediction import TrainingResponse, ModelStatusResponse
+from app.ml.model import predictor
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
 @router.post("/", response_model=TrainingResponse)
-async def train_model(request: TrainingRequest):
+async def train_model():
     """
     Train the disease prediction model
     
-    Args:
-        request: Training request with dataset path and parameters
+    This endpoint will:
+    1. Load the dataset from app/data/processed/
+    2. Train a Random Forest classifier
+    3. Save the trained model to disk
+    4. Return training metrics
     
-    Returns:
-        Training results with metrics
+    Note: This may take several minutes depending on dataset size
     """
     try:
-        # Get dataset path
-        dataset_path = request.dataset_path or f"{settings.RAW_DATA_PATH}/disease_symptoms.csv"
+        logger.info("Starting model training...")
         
-        # Check if file exists
-        if not Path(dataset_path).exists():
-            return TrainingResponse(
-                success=False,
-                message=f"Dataset not found at {dataset_path}",
-                metrics=None,
-                model_path=None
+        # Check if dataset exists
+        if not Path(settings.DATA_FILE).exists():
+            raise HTTPException(
+                status_code=404,
+                detail=f"Dataset not found at {settings.DATA_FILE}"
             )
         
-        # Load dataset
-        logger.info(f"Loading dataset from {dataset_path}")
-        df = load_dataset(dataset_path)
-        
         # Train model
-        metrics = predictor.train_model(df)
+        metrics = predictor.train()
         
         # Save model
-        model_path = predictor.save_model()
+        saved_paths = predictor.save_model()
+        
+        logger.info("Model training completed successfully")
         
         return TrainingResponse(
             success=True,
             message="Model trained and saved successfully",
-            metrics=metrics,
-            model_path=model_path
+            metrics={
+                'train_accuracy': float(metrics['train_accuracy']),
+                'test_accuracy': float(metrics['test_accuracy']),
+                'precision': float(metrics['precision']),
+                'recall': float(metrics['recall']),
+                'f1_score': float(metrics['f1_score']),
+                'n_diseases': metrics['n_diseases'],
+                'n_symptoms': metrics['n_symptoms'],
+                'n_samples': metrics['n_samples']
+            },
+            model_path=saved_paths['model_path']
         )
         
     except Exception as e:
-        logger.error(f"Training error: {e}")
-        return TrainingResponse(
-            success=False,
-            message=f"Training failed: {str(e)}",
-            metrics=None,
-            model_path=None
-        )
+        logger.error(f"Training error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Training failed: {str(e)}")
 
-@router.post("/upload-dataset")
-async def upload_dataset(file: UploadFile = File(...)):
+
+@router.get("/status", response_model=ModelStatusResponse)
+async def get_training_status():
     """
-    Upload a training dataset CSV file
+    Get current model status
     
-    Args:
-        file: CSV file with disease and symptom columns
-    
-    Returns:
-        Upload confirmation
+    Returns information about whether a model is loaded and its details
     """
     try:
-        # Save uploaded file
-        file_path = Path(settings.RAW_DATA_PATH) / file.filename
+        # Try to load model if not loaded
+        if not predictor.is_trained:
+            loaded = predictor.load_model()
+            if not loaded:
+                return ModelStatusResponse(
+                    model_loaded=False,
+                    message="No trained model found. Please train the model first.",
+                    model_path=settings.MODEL_PATH
+                )
         
-        with open(file_path, "wb") as f:
-            content = await file.read()
-            f.write(content)
+        info = predictor.get_model_info()
         
-        # Validate CSV
-        df = pd.read_csv(file_path)
+        return ModelStatusResponse(
+            model_loaded=True,
+            message="Model is loaded and ready",
+            model_path=settings.MODEL_PATH,
+            model_version=settings.MODEL_VERSION,
+            n_diseases=info.get('n_diseases', 0),
+            n_symptoms=info.get('n_symptoms', 0),
+            model_type="Random Forest"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error checking status: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get status: {str(e)}")
+
+
+@router.post("/reload")
+async def reload_model():
+    """
+    Reload the model from disk
+    
+    Useful after training or updating the model files
+    """
+    try:
+        success = predictor.load_model()
+        
+        if not success:
+            raise HTTPException(
+                status_code=404,
+                detail="Failed to load model. Please ensure model files exist."
+            )
+        
+        info = predictor.get_model_info()
         
         return {
             "success": True,
-            "message": f"Dataset uploaded successfully",
-            "file_path": str(file_path),
-            "rows": len(df),
-            "columns": list(df.columns)
+            "message": "Model reloaded successfully",
+            "model_info": info
         }
         
     except Exception as e:
-        logger.error(f"Upload error: {e}")
-        raise HTTPException(status_code=400, detail=f"Upload failed: {str(e)}")
-
-@router.get("/status")
-async def get_training_status():
-    """
-    Get current model training status
-    
-    Returns:
-        Model status information
-    """
-    return {
-        "model_loaded": predictor.is_loaded(),
-        "model_path": str(settings.MODEL_PATH),
-        "model_version": settings.MODEL_VERSION,
-        "feature_count": len(predictor.feature_names) if predictor.feature_names else 0
-    }
+        logger.error(f"Error reloading model: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to reload model: {str(e)}")

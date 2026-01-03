@@ -39,8 +39,8 @@ class DiseaseOutput(BaseModel):
 class PredictionResponse(BaseModel):
     """Complete prediction response"""
     success: bool
-    prediction: Optional[DiseaseOutput] = None
     message: str
+    prediction: Optional[Dict] = None
     
 class TrainingRequest(BaseModel):
     """Request schema for model training"""
@@ -85,3 +85,22 @@ class HealthResponse(BaseModel):
     service: str
     version: str
     model_loaded: bool
+
+
+class SymptomsListResponse(BaseModel):
+    """Response for symptoms list"""
+    success: bool
+    symptoms: List[str]
+    total: int
+
+
+class ModelStatusResponse(BaseModel):
+    """Model status response"""
+    model_loaded: bool
+    message: str
+    model_path: str
+    model_version: Optional[str] = None
+    n_diseases: Optional[int] = None
+    n_symptoms: Optional[int] = None
+    model_type: Optional[str] = None
+

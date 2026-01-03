@@ -1,70 +1,107 @@
 """
-Disease prediction endpoint
+Prediction API routes
 """
 from fastapi import APIRouter, HTTPException
-from app.schemas.prediction import SymptomInput, PredictionResponse, DiseaseOutput
-from app.ml.model import predictor
+from typing import List
 import logging
+
+from app.schemas.prediction import (
+    SymptomInput,
+    PredictionResponse,
+    SymptomsListResponse
+)
+from app.ml.model import predictor
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
 @router.post("/", response_model=PredictionResponse)
-async def predict_disease(symptoms: SymptomInput):
+async def predict_disease(request: SymptomInput):
     """
-    Predict disease based on symptoms
+    Predict disease based on input symptoms
     
-    Args:
-        symptoms: List of symptom names
+    - **symptoms**: List of symptom names (e.g., ["fever", "cough", "headache"])
     
-    Returns:
-        Predicted disease with confidence score
+    Returns the predicted disease with confidence score and alternatives
     """
     try:
         # Check if model is loaded
-        if not predictor.is_loaded():
+        if not predictor.is_trained:
             # Try to load model
             if not predictor.load_model():
-                return PredictionResponse(
-                    success=False,
-                    message="Model not available. Please train the model first.",
-                    prediction=None
+                raise HTTPException(
+                    status_code=503,
+                    detail="Model not trained yet. Please train the model first using /api/v1/train/ endpoint"
                 )
         
         # Make prediction
-        result = predictor.predict(symptoms.symptoms)
+        result = predictor.predict(request.symptoms)
         
         return PredictionResponse(
             success=True,
             message="Prediction successful",
-            prediction=DiseaseOutput(**result)
+            prediction=result
+        )
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Prediction error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+
+
+@router.get("/symptoms", response_model=SymptomsListResponse)
+async def get_symptoms():
+    """
+    Get list of all available symptoms
+    
+    Returns complete list of symptoms that can be used for prediction
+    """
+    try:
+        # Check if model is loaded
+        if not predictor.is_trained:
+            # Try to load model
+            if not predictor.load_model():
+                raise HTTPException(
+                    status_code=503,
+                    detail="Model not trained yet. Please train the model first."
+                )
+        
+        symptoms = predictor.get_all_symptoms()
+        
+        return SymptomsListResponse(
+            success=True,
+            symptoms=symptoms,
+            total=len(symptoms)
         )
         
     except Exception as e:
-        logger.error(f"Prediction error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error getting symptoms: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get symptoms: {str(e)}")
 
-@router.get("/symptoms")
-async def get_available_symptoms():
+
+@router.get("/info")
+async def get_model_info():
     """
-    Get list of symptoms the model can recognize
+    Get information about the loaded model
     
-    Returns:
-        List of symptom names
+    Returns model statistics and configuration
     """
-    if not predictor.is_loaded():
-        predictor.load_model()
-    
-    if predictor.feature_names:
+    try:
+        # Try to load model if not loaded
+        if not predictor.is_trained:
+            predictor.load_model()
+        
+        info = predictor.get_model_info()
         return {
             "success": True,
-            "symptoms": predictor.feature_names,
-            "total": len(predictor.feature_names)
+            "model_info": info
         }
-    else:
+        
+    except Exception as e:
+        logger.error(f"Error getting model info: {str(e)}")
         return {
             "success": False,
-            "message": "Model not loaded or no symptoms available",
-            "symptoms": [],
-            "total": 0
+            "message": str(e)
         }

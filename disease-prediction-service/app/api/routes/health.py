@@ -15,5 +15,5 @@ async def health_check():
         status="healthy",
         service=settings.SERVICE_NAME,
         version=settings.MODEL_VERSION,
-        model_loaded=predictor.is_loaded()
+        model_loaded=predictor.is_trained
     )
