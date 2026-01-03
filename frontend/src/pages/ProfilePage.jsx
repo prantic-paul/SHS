@@ -779,6 +779,28 @@ const ProfilePage = () => {
                         <p className="text-gray-700 whitespace-pre-line">{profileData.doctor_profile.bio}</p>
                       </div>
                     )}
+
+                    {profileData.doctor_profile.diseases_treated && profileData.doctor_profile.diseases_treated.trim() !== '' && (
+                      <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg p-4">
+                        <div className="flex items-center mb-3">
+                          <FiActivity className="text-emerald-600 mr-2" />
+                          <p className="text-sm text-emerald-600 font-semibold">Diseases Treated</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {profileData.doctor_profile.diseases_treated.split(',').map((disease, index) => {
+                            const trimmedDisease = disease.trim();
+                            return trimmedDisease ? (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm font-medium border border-emerald-200"
+                              >
+                                {trimmedDisease}
+                              </span>
+                            ) : null;
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

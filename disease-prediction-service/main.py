@@ -28,7 +28,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health.router, tags=["Health"])
-app.include_router(prediction.router, prefix=f"{settings.API_V1_STR}/predict", tags=["Prediction"])
+app.include_router(prediction.router, prefix="/predict", tags=["Prediction"])
 app.include_router(training.router, prefix=f"{settings.API_V1_STR}/train", tags=["Training"])
 
 @app.get("/")

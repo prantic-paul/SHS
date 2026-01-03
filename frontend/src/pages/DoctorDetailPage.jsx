@@ -15,6 +15,7 @@ import {
   ArrowLeft,
   Calendar,
   Clock,
+  Activity,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { getDoctorById, getDoctorRatings, submitRating, getRatingBreakdown } from '../services/doctorService';
@@ -274,6 +275,31 @@ const DoctorDetailPage = () => {
                 </div>
               </div>
             </div>
+
+            {/* Diseases Treated Section */}
+            {doctor.diseases_treated && doctor.diseases_treated.trim() !== '' && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="flex items-start mb-3">
+                  <Activity className="w-5 h-5 mr-3 text-green-600 flex-shrink-0 mt-1" />
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Diseases Treated</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {doctor.diseases_treated.split(',').map((disease, index) => {
+                        const trimmedDisease = disease.trim();
+                        return trimmedDisease ? (
+                          <span
+                            key={index}
+                            className="inline-flex items-center px-3 py-1 bg-green-50 text-green-800 rounded-full text-sm font-medium border border-green-200"
+                          >
+                            {trimmedDisease}
+                          </span>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Contact Information */}
             {(doctor.phone || doctor.email || doctor.clinic_address) && (

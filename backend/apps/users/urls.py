@@ -9,6 +9,7 @@ from apps.users.views import (
     DoctorApplicationView,
     DoctorProfileUpdateView
 )
+from apps.users.views.doctor_recommendation import recommend_doctors
 
 app_name = 'users'
 
@@ -23,4 +24,5 @@ urlpatterns = [
     # Doctor endpoints
     path('doctors/apply/', DoctorApplicationView.as_view(), name='doctor-apply'),
     path('doctors/profile/', DoctorProfileUpdateView.as_view(), name='doctor-profile'),
+    path('doctors/recommend/', recommend_doctors, name='doctor-recommend'),
 ]
