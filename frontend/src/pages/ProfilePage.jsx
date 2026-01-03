@@ -9,7 +9,8 @@ import { userService } from '../services/userService';
 import Navbar from '../components/Navbar';
 import DoctorScheduleManager from '../components/DoctorScheduleManager';
 import DoctorDashboard from '../components/DoctorDashboard';
-import { FiEdit, FiLogOut, FiUserPlus, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiShield, FiAward, FiActivity, FiSearch, FiFileText, FiClock, FiLock, FiSave, FiX, FiBriefcase, FiBook, FiStar } from 'react-icons/fi';
+import DoctorRecommendation from '../components/DoctorRecommendation';
+import { FiEdit, FiLogOut, FiUserPlus, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiShield, FiAward, FiActivity, FiSearch, FiFileText, FiClock, FiLock, FiSave, FiX, FiBriefcase, FiBook, FiStar, FiUsers } from 'react-icons/fi';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isDoctorEditing, setIsDoctorEditing] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showRecommendationModal, setShowRecommendationModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -209,6 +211,13 @@ const ProfilePage = () => {
                     Set My Schedule
                   </button>
                 )}
+                <button 
+                  onClick={() => setShowRecommendationModal(true)}
+                  className="inline-flex items-center px-4 py-2 bg-white text-green-600 rounded-lg font-semibold hover:bg-green-50 transition-colors shadow-md"
+                >
+                  <FiUsers className="mr-2" />
+                  Get Doctor Recommendation
+                </button>
                 <button 
                   onClick={() => navigate('/my-appointments')} 
                   className="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors shadow-md"
@@ -826,6 +835,11 @@ const ProfilePage = () => {
       {/* Schedule Modal */}
       {showScheduleModal && (
         <DoctorScheduleManager onClose={() => setShowScheduleModal(false)} />
+      )}
+
+      {/* Doctor Recommendation Modal */}
+      {showRecommendationModal && (
+        <DoctorRecommendation onClose={() => setShowRecommendationModal(false)} />
       )}
     </div>
   );
