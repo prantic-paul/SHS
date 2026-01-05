@@ -76,18 +76,54 @@ const ProfilePage = () => {
   };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Validate phone number - only allow digits and optional + at start
+    if (name === 'phone') {
+      const phoneRegex = /^[+]?[0-9]*$/;
+      if (!phoneRegex.test(value)) {
+        return; // Don't update if invalid characters
+      }
+    }
+    
+    // Validate age - only allow digits
+    if (name === 'age') {
+      const ageRegex = /^[0-9]*$/;
+      if (!ageRegex.test(value)) {
+        return;
+      }
+    }
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
     setError(null);
     setSuccess(null);
   };
 
   const handleDoctorChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Validate phone number - only allow digits and optional + at start
+    if (name === 'phone') {
+      const phoneRegex = /^[+]?[0-9]*$/;
+      if (!phoneRegex.test(value)) {
+        return; // Don't update if invalid characters
+      }
+    }
+    
+    // Validate numeric fields - only allow digits
+    if (name === 'experience_years' || name === 'consultation_fee') {
+      const numericRegex = /^[0-9]*$/;
+      if (!numericRegex.test(value)) {
+        return;
+      }
+    }
+    
     setDoctorFormData({
       ...doctorFormData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
     setError(null);
     setSuccess(null);
@@ -339,6 +375,8 @@ const ProfilePage = () => {
                         value={formData.phone}
                         onChange={handleChange}
                         required
+                        pattern="^[+]?[0-9]{10,15}$"
+                        title="Please enter a valid phone number (10-15 digits, optional + at start)"
                         className="input-field"
                       />
                     </div>

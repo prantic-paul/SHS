@@ -389,7 +389,7 @@ const DoctorRecommendation = ({ onClose }) => {
                           {doctor.consultation_fee && (
                             <span className="flex items-center gap-1">
                               <FiDollarSign className="w-4 h-4" />
-                              ₹{doctor.consultation_fee}
+                              ৳{doctor.consultation_fee}
                             </span>
                           )}
                         </div>

@@ -27,9 +27,27 @@ const RegisterPage = () => {
   });
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Validate phone number - only allow digits and optional + at start
+    if (name === 'phone') {
+      const phoneRegex = /^[+]?[0-9]*$/;
+      if (!phoneRegex.test(value)) {
+        return; // Don't update if invalid characters
+      }
+    }
+    
+    // Validate age - only allow digits
+    if (name === 'age') {
+      const ageRegex = /^[0-9]*$/;
+      if (!ageRegex.test(value)) {
+        return;
+      }
+    }
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
     setError(null);
   };
@@ -205,7 +223,9 @@ const RegisterPage = () => {
                 value={formData.phone}
                 onChange={handleChange}
                 required
-                placeholder="01712345678"
+                pattern="^[+]?[0-9]{10,15}$"
+                title="Please enter a valid phone number (10-15 digits, optional + at start)"
+                placeholder="01712345678 or +8801712345678"
                 className="input-field"
               />
             </div>

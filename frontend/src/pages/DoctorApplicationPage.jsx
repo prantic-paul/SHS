@@ -28,9 +28,27 @@ const DoctorApplicationPage = () => {
   });
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Validate phone number - only allow digits and optional + at start
+    if (name === 'phone') {
+      const phoneRegex = /^[+]?[0-9]*$/;
+      if (!phoneRegex.test(value)) {
+        return; // Don't update if invalid characters
+      }
+    }
+    
+    // Validate numeric fields - only allow digits
+    if (name === 'experience_years' || name === 'consultation_fee') {
+      const numericRegex = /^[0-9]*$/;
+      if (!numericRegex.test(value)) {
+        return;
+      }
+    }
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
     setError(null);
   };
@@ -260,7 +278,9 @@ const DoctorApplicationPage = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+91 9876543210"
+                  pattern="^[+]?[0-9]{10,15}$"
+                  title="Please enter a valid phone number (10-15 digits, optional + at start)"
+                  placeholder="+8801712345678"
                   className="input-field"
                 />
               </div>
@@ -285,7 +305,7 @@ const DoctorApplicationPage = () => {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="consultation_fee" className="label">
-                  Consultation Fee (₹)
+                  Consultation Fee (৳)
                 </label>
                 <input
                   type="number"
@@ -294,6 +314,7 @@ const DoctorApplicationPage = () => {
                   value={formData.consultation_fee}
                   onChange={handleChange}
                   min="0"
+                  step="1"
                   placeholder="500"
                   className="input-field"
                 />

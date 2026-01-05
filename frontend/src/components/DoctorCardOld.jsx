@@ -79,7 +79,7 @@ const DoctorCard = ({ doctor }) => {
           {/* Consultation Fee */}
           <div className="flex items-center gap-2 text-gray-600 text-sm">
             <DollarSign size={16} className="text-gray-400" />
-            <span>₹{parseFloat(doctor.consultation_fee).toFixed(2)} consultation fee</span>
+            <span>৳{parseFloat(doctor.consultation_fee).toFixed(2)} consultation fee</span>
           </div>
         </div>
         
