@@ -347,30 +347,27 @@ const MessageBubble = ({ message }) => {
           {/* Sources */}
           {message.sources && message.sources.length > 0 && (
             <div className="mt-4 pt-3 border-t border-gray-300">
-              <div className="flex items-center space-x-2 mb-2">
+              <div className="flex items-center space-x-2 mb-3">
                 <BookOpen className="w-4 h-4 text-gray-600" />
                 <span className="text-xs font-semibold text-gray-700">
-                  Sources ({message.sources.length})
+                  Reference Sources
                 </span>
               </div>
               <div className="space-y-2">
                 {message.sources.map((source, idx) => (
                   <div
                     key={idx}
-                    className="bg-white rounded-lg p-3 border border-gray-200 hover:border-blue-300 transition-colors"
+                    className="bg-white rounded-lg px-4 py-2.5 border border-gray-200 hover:border-blue-300 transition-colors flex items-center justify-between"
                   >
-                    <div className="flex items-start justify-between mb-1">
-                      <span className="text-xs font-medium text-blue-600">
-                        📄 {source.source}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        Page {source.page}
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg">�</span>
+                      <span className="text-sm font-medium text-gray-800">
+                        {source.source}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-600 leading-relaxed">
-                      {source.content.substring(0, 150)}
-                      {source.content.length > 150 ? '...' : ''}
-                    </p>
+                    <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">
+                      Page {source.page}
+                    </span>
                   </div>
                 ))}
               </div>
