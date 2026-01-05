@@ -93,8 +93,8 @@ async def chat(request: ChatRequest):
             answer=result["answer"],
             sources=[
                 SourceDocument(
-                    content=source["content"],
-                    source=source["source"]
+                    source=source["source"],
+                    page=source["page"]
                 )
                 for source in result["sources"]
             ]
