@@ -76,18 +76,54 @@ const ProfilePage = () => {
   };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Validate phone number - only allow digits and optional + at start
+    if (name === 'phone') {
+      const phoneRegex = /^[+]?[0-9]*$/;
+      if (!phoneRegex.test(value)) {
+        return; // Don't update if invalid characters
+      }
+    }
+    
+    // Validate age - only allow digits
+    if (name === 'age') {
+      const ageRegex = /^[0-9]*$/;
+      if (!ageRegex.test(value)) {
+        return;
+      }
+    }
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
     setError(null);
     setSuccess(null);
   };
 
   const handleDoctorChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Validate phone number - only allow digits and optional + at start
+    if (name === 'phone') {
+      const phoneRegex = /^[+]?[0-9]*$/;
+      if (!phoneRegex.test(value)) {
+        return; // Don't update if invalid characters
+      }
+    }
+    
+    // Validate numeric fields - only allow digits
+    if (name === 'experience_years' || name === 'consultation_fee') {
+      const numericRegex = /^[0-9]*$/;
+      if (!numericRegex.test(value)) {
+        return;
+      }
+    }
+    
     setDoctorFormData({
       ...doctorFormData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
     setError(null);
     setSuccess(null);
@@ -176,9 +212,13 @@ const ProfilePage = () => {
       
       <div className="pt-20 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-        {/* Header */}
+        {/* Header - Different colors for Doctor vs Patient */}
         <div className="mb-8">
-          <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+          <div className={`rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden ${
+            profileData.role === 'DOCTOR' 
+              ? 'bg-gradient-to-r from-purple-600 via-indigo-600 to-violet-700' 
+              : 'bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700'
+          }`}>
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
               <div
@@ -192,49 +232,27 @@ const ProfilePage = () => {
             
             <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
               <div>
-                <h1 className="text-4xl font-extrabold mb-2">My Profile</h1>
-                <p className="text-blue-100 text-lg">Manage your account information</p>
+                <h1 className="text-4xl font-extrabold mb-2">
+                  {profileData.role === 'DOCTOR' ? '👨‍⚕️ Doctor Profile' : '👤 My Profile'}
+                </h1>
+                <p className={`text-lg ${
+                  profileData.role === 'DOCTOR' ? 'text-purple-100' : 'text-emerald-100'
+                }`}>
+                  {profileData.role === 'DOCTOR' 
+                    ? 'Manage your professional information' 
+                    : 'Manage your account information'}
+                </p>
               </div>
-              <div className="flex flex-wrap gap-3">
-                {profileData.role === 'PATIENT' && !profileData.doctor_profile && (
-                  <button 
-                    onClick={() => navigate('/apply-doctor')} 
-                    className="inline-flex items-center px-4 py-2 bg-white text-primary-600 rounded-lg font-semibold hover:bg-primary-50 transition-colors shadow-md"
-                  >
-                    <FiUserPlus className="mr-2" />
-                    Apply as Doctor
-                  </button>
-                )}
+              <div className="flex gap-3">
                 {profileData.role === 'DOCTOR' && profileData.doctor_profile && (
                   <button 
                     onClick={() => setShowScheduleModal(true)} 
-                    className="inline-flex items-center px-4 py-2 bg-white text-indigo-600 rounded-lg font-semibold hover:bg-indigo-50 transition-colors shadow-md"
+                    className="inline-flex items-center px-4 py-2 bg-white text-purple-600 rounded-lg font-semibold hover:bg-purple-50 transition-colors shadow-md"
                   >
                     <FiCalendar className="mr-2" />
                     Set My Schedule
                   </button>
                 )}
-                <button 
-                  onClick={() => setShowRecommendationModal(true)}
-                  className="inline-flex items-center px-4 py-2 bg-white text-green-600 rounded-lg font-semibold hover:bg-green-50 transition-colors shadow-md"
-                >
-                  <FiUsers className="mr-2" />
-                  Get Doctor Recommendation
-                </button>
-                <button 
-                  onClick={() => navigate('/my-appointments')} 
-                  className="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors shadow-md"
-                >
-                  <FiFileText className="mr-2" />
-                  My Appointments
-                </button>
-                <button 
-                  onClick={() => navigate('/medical-records')} 
-                  className="inline-flex items-center px-4 py-2 bg-white text-purple-600 rounded-lg font-semibold hover:bg-purple-50 transition-colors shadow-md"
-                >
-                  <FiActivity className="mr-2" />
-                  Medical Records
-                </button>
                 <button 
                   onClick={handleLogout} 
                   className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors shadow-md"
@@ -244,6 +262,128 @@ const ProfilePage = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Quick Access Cards */}
+        <div className="mb-8">
+          <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Access</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            {/* Apply as Doctor Card - Only for Patients */}
+            {profileData.role === 'PATIENT' && !profileData.doctor_profile && (
+              <div 
+                onClick={() => navigate('/apply-doctor')}
+                className="group bg-gradient-to-br from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 rounded-2xl p-6 cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl border border-emerald-200"
+              >
+                <div className="flex flex-col items-center text-center space-y-3">
+                  <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <FiUserPlus className="text-white text-2xl" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 text-lg mb-1">Apply as Doctor</h4>
+                    <p className="text-sm text-gray-600">Join our medical team</p>
+                  </div>
+                  <div className="pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-emerald-600 text-sm font-semibold flex items-center">
+                      Get Started
+                      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Doctor Recommendation Card */}
+            <div 
+              onClick={() => setShowRecommendationModal(true)}
+              className={`group rounded-2xl p-6 cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl border ${
+                profileData.role === 'DOCTOR'
+                  ? 'bg-gradient-to-br from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border-indigo-200'
+                  : 'bg-gradient-to-br from-teal-50 to-cyan-50 hover:from-teal-100 hover:to-cyan-100 border-teal-200'
+              }`}
+            >
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ${
+                  profileData.role === 'DOCTOR' ? 'bg-indigo-500' : 'bg-teal-500'
+                }`}>
+                  <FiUsers className="text-white text-2xl" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 text-lg mb-1">Find Doctors</h4>
+                  <p className="text-sm text-gray-600">AI-powered recommendations</p>
+                </div>
+                <div className="pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className={`text-sm font-semibold flex items-center ${
+                    profileData.role === 'DOCTOR' ? 'text-indigo-600' : 'text-teal-600'
+                  }`}>
+                    Explore
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* My Appointments Card */}
+            <div 
+              onClick={() => navigate('/my-appointments')}
+              className="group bg-gradient-to-br from-blue-50 to-sky-50 hover:from-blue-100 hover:to-sky-100 rounded-2xl p-6 cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl border border-blue-200"
+            >
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <FiCalendar className="text-white text-2xl" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 text-lg mb-1">My Appointments</h4>
+                  <p className="text-sm text-gray-600">View and manage bookings</p>
+                </div>
+                <div className="pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-blue-600 text-sm font-semibold flex items-center">
+                    View All
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Medical Records Card */}
+            <div 
+              onClick={() => navigate('/medical-records')}
+              className={`group rounded-2xl p-6 cursor-pointer transition-all duration-300 shadow-md hover:shadow-xl border ${
+                profileData.role === 'DOCTOR'
+                  ? 'bg-gradient-to-br from-violet-50 to-purple-50 hover:from-violet-100 hover:to-purple-100 border-violet-200'
+                  : 'bg-gradient-to-br from-rose-50 to-pink-50 hover:from-rose-100 hover:to-pink-100 border-rose-200'
+              }`}
+            >
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ${
+                  profileData.role === 'DOCTOR' ? 'bg-violet-500' : 'bg-rose-500'
+                }`}>
+                  <FiActivity className="text-white text-2xl" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 text-lg mb-1">Medical Records</h4>
+                  <p className="text-sm text-gray-600">Access health history</p>
+                </div>
+                <div className="pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className={`text-sm font-semibold flex items-center ${
+                    profileData.role === 'DOCTOR' ? 'text-violet-600' : 'text-rose-600'
+                  }`}>
+                    View Records
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -300,7 +440,11 @@ const ProfilePage = () => {
                 {!isEditing && (
                   <button 
                     onClick={() => setIsEditing(true)} 
-                    className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
+                    className={`inline-flex items-center px-4 py-2 text-white rounded-lg font-semibold transition-colors ${
+                      profileData.role === 'DOCTOR'
+                        ? 'bg-purple-600 hover:bg-purple-700'
+                        : 'bg-emerald-600 hover:bg-emerald-700'
+                    }`}
                   >
                     <FiEdit className="mr-2" />
                     Edit
@@ -339,6 +483,8 @@ const ProfilePage = () => {
                         value={formData.phone}
                         onChange={handleChange}
                         required
+                        pattern="^[+]?[0-9]{10,15}$"
+                        title="Please enter a valid phone number (10-15 digits, optional + at start)"
                         className="input-field"
                       />
                     </div>
@@ -422,7 +568,11 @@ const ProfilePage = () => {
                   <div className="flex flex-col sm:flex-row gap-3 pt-4">
                     <button 
                       type="submit" 
-                      className="btn-primary inline-flex items-center justify-center"
+                      className={`inline-flex items-center justify-center px-6 py-3 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        profileData.role === 'DOCTOR'
+                          ? 'bg-purple-600 hover:bg-purple-700'
+                          : 'bg-emerald-600 hover:bg-emerald-700'
+                      }`}
                       disabled={loading}
                     >
                       {loading ? (
@@ -459,8 +609,16 @@ const ProfilePage = () => {
                 <div className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="flex items-start space-x-3">
-                      <div className="p-2 bg-primary-100 rounded-lg">
-                        <FiUser className="text-primary-600 text-xl" />
+                      <div className={`p-2 rounded-lg ${
+                        profileData.role === 'DOCTOR' 
+                          ? 'bg-purple-100' 
+                          : 'bg-emerald-100'
+                      }`}>
+                        <FiUser className={`text-xl ${
+                          profileData.role === 'DOCTOR' 
+                            ? 'text-purple-600' 
+                            : 'text-emerald-600'
+                        }`} />
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Name</p>
@@ -469,8 +627,16 @@ const ProfilePage = () => {
                     </div>
 
                     <div className="flex items-start space-x-3">
-                      <div className="p-2 bg-primary-100 rounded-lg">
-                        <FiMail className="text-primary-600 text-xl" />
+                      <div className={`p-2 rounded-lg ${
+                        profileData.role === 'DOCTOR' 
+                          ? 'bg-purple-100' 
+                          : 'bg-emerald-100'
+                      }`}>
+                        <FiMail className={`text-xl ${
+                          profileData.role === 'DOCTOR' 
+                            ? 'text-purple-600' 
+                            : 'text-emerald-600'
+                        }`} />
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Email</p>
@@ -479,8 +645,16 @@ const ProfilePage = () => {
                     </div>
 
                     <div className="flex items-start space-x-3">
-                      <div className="p-2 bg-primary-100 rounded-lg">
-                        <FiPhone className="text-primary-600 text-xl" />
+                      <div className={`p-2 rounded-lg ${
+                        profileData.role === 'DOCTOR' 
+                          ? 'bg-purple-100' 
+                          : 'bg-emerald-100'
+                      }`}>
+                        <FiPhone className={`text-xl ${
+                          profileData.role === 'DOCTOR' 
+                            ? 'text-purple-600' 
+                            : 'text-emerald-600'
+                        }`} />
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Phone</p>
@@ -489,8 +663,16 @@ const ProfilePage = () => {
                     </div>
 
                     <div className="flex items-start space-x-3">
-                      <div className="p-2 bg-primary-100 rounded-lg">
-                        <FiMapPin className="text-primary-600 text-xl" />
+                      <div className={`p-2 rounded-lg ${
+                        profileData.role === 'DOCTOR' 
+                          ? 'bg-purple-100' 
+                          : 'bg-emerald-100'
+                      }`}>
+                        <FiMapPin className={`text-xl ${
+                          profileData.role === 'DOCTOR' 
+                            ? 'text-purple-600' 
+                            : 'text-emerald-600'
+                        }`} />
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Location</p>
@@ -523,18 +705,18 @@ const ProfilePage = () => {
 
             {/* Doctor Profile Section */}
             {profileData.doctor_profile && (
-              <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-blue-100">
+              <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-purple-100">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-                    <div className="p-2 bg-blue-100 rounded-lg mr-3">
-                      <FiAward className="text-blue-600 text-2xl" />
+                    <div className="p-2 bg-purple-100 rounded-lg mr-3">
+                      <FiAward className="text-purple-600 text-2xl" />
                     </div>
                     Doctor Profile
                   </h2>
                   {!isDoctorEditing && profileData.doctor_profile.status === 'APPROVED' && (
                     <button 
                       onClick={() => setIsDoctorEditing(true)} 
-                      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                      className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
                     >
                       <FiEdit className="mr-2" />
                       Edit Profile

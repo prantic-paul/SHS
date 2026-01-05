@@ -248,7 +248,7 @@ const DoctorDetailPage = () => {
                   {doctor.consultation_fee && parseFloat(doctor.consultation_fee) > 0 && (
                     <div className="flex items-center text-gray-700">
                       <DollarSign className="w-5 h-5 mr-3 text-green-600 flex-shrink-0" />
-                      <span>₹{parseFloat(doctor.consultation_fee).toFixed(0)} consultation fee</span>
+                      <span>৳{parseFloat(doctor.consultation_fee).toFixed(0)} consultation fee</span>
                     </div>
                   )}
                   
