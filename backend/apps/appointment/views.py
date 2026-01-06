@@ -260,6 +260,41 @@ def doctor_tomorrow_appointments_view(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+def doctor_upcoming_appointments_view(request):
+    """
+    Get all upcoming appointments for a doctor (from tomorrow onwards)
+    Excludes today's appointments
+    Sorted by date and time
+    GET /api/v1/appointments/doctor/upcoming/
+    """
+    user = request.user
+    
+    if user.role != 'DOCTOR' or not hasattr(user, 'doctor_profile'):
+        return Response(
+            {'error': 'Only doctors can access this endpoint'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    today = date.today()
+    tomorrow = today + timedelta(days=1)
+    
+    # Get all future appointments (from tomorrow onwards) excluding completed
+    appointments = Appointment.objects.filter(
+        doctor=user.doctor_profile,
+        appointment_date__gte=tomorrow  # Greater than or equal to tomorrow
+    ).exclude(status='COMPLETED').order_by('appointment_date', 'serial_number')
+    
+    serializer = AppointmentListSerializer(appointments, many=True)
+    
+    return Response({
+        'start_date': tomorrow,
+        'total_appointments': appointments.count(),
+        'appointments': serializer.data,
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def doctor_completed_appointments_view(request):
     """
     Get completed (prescribed) appointments for a doctor

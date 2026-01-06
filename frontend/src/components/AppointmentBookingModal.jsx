@@ -18,17 +18,25 @@ const AppointmentBookingModal = ({ doctor, onClose, onSuccess }) => {
     patient_notes: '',
   });
 
-  // Get today and tomorrow dates
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  // Generate next 7 days starting from tomorrow (exclude today)
+  const getNextSevenDays = () => {
+    const days = [];
+    const today = new Date();
+    
+    for (let i = 1; i <= 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      days.push(date);
+    }
+    
+    return days;
+  };
+
+  const nextSevenDays = getNextSevenDays();
   
   const formatDate = (date) => {
     return date.toISOString().split('T')[0];
   };
-
-  const todayStr = formatDate(today);
-  const tomorrowStr = formatDate(tomorrow);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -200,59 +208,52 @@ const AppointmentBookingModal = ({ doctor, onClose, onSuccess }) => {
 
           {/* Appointment Date */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-3">
               <FiCalendar className="inline mr-2" />
-              Select Appointment Date *
+              Select Appointment Date (Next 7 Days) *
             </label>
-            <div className="grid grid-cols-2 gap-4">
-              <label className={`cursor-pointer border-2 rounded-lg p-4 transition ${
-                formData.appointment_date === todayStr
-                  ? 'border-blue-600 bg-blue-50'
-                  : 'border-gray-300 hover:border-blue-400'
-              }`}>
-                <input
-                  type="radio"
-                  name="appointment_date"
-                  value={todayStr}
-                  checked={formData.appointment_date === todayStr}
-                  onChange={handleChange}
-                  className="sr-only"
-                />
-                <div className="text-center">
-                  <p className="text-sm text-gray-600 mb-1">Today</p>
-                  <p className="font-bold text-gray-900">
-                    {today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {today.toLocaleDateString('en-US', { weekday: 'long' })}
-                  </p>
-                </div>
-              </label>
-
-              <label className={`cursor-pointer border-2 rounded-lg p-4 transition ${
-                formData.appointment_date === tomorrowStr
-                  ? 'border-blue-600 bg-blue-50'
-                  : 'border-gray-300 hover:border-blue-400'
-              }`}>
-                <input
-                  type="radio"
-                  name="appointment_date"
-                  value={tomorrowStr}
-                  checked={formData.appointment_date === tomorrowStr}
-                  onChange={handleChange}
-                  className="sr-only"
-                />
-                <div className="text-center">
-                  <p className="text-sm text-gray-600 mb-1">Tomorrow</p>
-                  <p className="font-bold text-gray-900">
-                    {tomorrow.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {tomorrow.toLocaleDateString('en-US', { weekday: 'long' })}
-                  </p>
-                </div>
-              </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {nextSevenDays.map((day, index) => {
+                const dayStr = formatDate(day);
+                const isSelected = formData.appointment_date === dayStr;
+                
+                return (
+                  <label
+                    key={dayStr}
+                    className={`cursor-pointer border-2 rounded-lg p-3 transition ${
+                      isSelected
+                        ? 'border-blue-600 bg-blue-50 shadow-md'
+                        : 'border-gray-300 hover:border-blue-400 hover:shadow'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="appointment_date"
+                      value={dayStr}
+                      checked={isSelected}
+                      onChange={handleChange}
+                      className="sr-only"
+                    />
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">
+                        {index === 0 ? 'Tomorrow' : day.toLocaleDateString('en-US', { weekday: 'short' })}
+                      </p>
+                      <p className="font-bold text-gray-900 text-sm">
+                        {day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </p>
+                      {isSelected && (
+                        <div className="mt-1">
+                          <span className="inline-block w-2 h-2 bg-blue-600 rounded-full"></span>
+                        </div>
+                      )}
+                    </div>
+                  </label>
+                );
+              })}
             </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Note: You cannot book appointments for today. Please select from tomorrow onwards.
+            </p>
           </div>
 
           {/* Information Box */}

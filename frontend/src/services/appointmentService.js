@@ -69,6 +69,14 @@ export const getTomorrowAppointments = async () => {
 };
 
 /**
+ * Get all upcoming appointments for doctor (from tomorrow onwards)
+ */
+export const getUpcomingAppointments = async () => {
+  const response = await api.get('/appointments/doctor/upcoming/');
+  return response.data;
+};
+
+/**
  * Get completed appointments for doctor (prescribed patients)
  */
 export const getCompletedAppointments = async () => {
@@ -102,6 +110,7 @@ const appointmentService = {
   cancelAppointment,
   getTodayAppointments,
   getTomorrowAppointments,
+  getUpcomingAppointments,
   getCompletedAppointments,
   deleteMissedAppointment,
   cleanupMissedAppointments,

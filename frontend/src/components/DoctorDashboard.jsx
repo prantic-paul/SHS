@@ -1,6 +1,6 @@
 /**
  * Doctor Dashboard Component
- * Shows Today's Patients, Tomorrow's Patients, and Prescribed Patients
+ * Shows Today's Appointments, Upcoming Appointments, and Prescribed Patients
  */
 import { useState, useEffect } from 'react';
 import { Calendar, Clock, User, Phone, FileText, AlertCircle, CheckCircle, TrendingUp, Stethoscope, Edit } from 'lucide-react';
@@ -10,9 +10,9 @@ import PrescriptionModal from './PrescriptionModal';
 import PatientMedicalHistoryModal from './PatientMedicalHistoryModal';
 
 const DoctorDashboard = () => {
-  const [activeTab, setActiveTab] = useState('today'); // 'today', 'tomorrow', 'prescribed'
+  const [activeTab, setActiveTab] = useState('today'); // 'today', 'upcoming', 'prescribed'
   const [todayAppointments, setTodayAppointments] = useState([]);
-  const [tomorrowAppointments, setTomorrowAppointments] = useState([]);
+  const [upcomingAppointments, setUpcomingAppointments] = useState([]);
   const [prescribedAppointments, setPrescribedAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -50,9 +50,9 @@ const DoctorDashboard = () => {
         noTime: todayResponse.no_time_count || 0,
       });
 
-      // Fetch tomorrow's appointments
-      const tomorrowResponse = await appointmentService.getTomorrowAppointments();
-      setTomorrowAppointments(tomorrowResponse.appointments || []);
+      // Fetch all upcoming appointments (from tomorrow onwards)
+      const upcomingResponse = await appointmentService.getUpcomingAppointments();
+      setUpcomingAppointments(upcomingResponse.appointments || []);
 
       // Fetch prescribed appointments (completed status)
       const prescribedResponse = await appointmentService.getCompletedAppointments();
@@ -308,23 +308,23 @@ const DoctorDashboard = () => {
           </button>
 
           <button
-            onClick={() => setActiveTab('tomorrow')}
+            onClick={() => setActiveTab('upcoming')}
             className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors relative ${
-              activeTab === 'tomorrow'
+              activeTab === 'upcoming'
                 ? 'text-blue-600 bg-blue-50'
                 : 'text-gray-600 hover:bg-gray-50'
             }`}
           >
             <div className="flex items-center justify-center gap-2">
               <Calendar className="w-5 h-5" />
-              <span>Tomorrow's Patients</span>
-              {tomorrowAppointments.length > 0 && (
+              <span>Upcoming Appointments</span>
+              {upcomingAppointments.length > 0 && (
                 <span className="bg-blue-600 text-white rounded-full px-2 py-0.5 text-xs">
-                  {tomorrowAppointments.length}
+                  {upcomingAppointments.length}
                 </span>
               )}
             </div>
-            {activeTab === 'tomorrow' && (
+            {activeTab === 'upcoming' && (
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600"></div>
             )}
           </button>
@@ -405,24 +405,24 @@ const DoctorDashboard = () => {
               </div>
             )}
 
-            {/* Tomorrow's Patients Tab */}
-            {activeTab === 'tomorrow' && (
+            {/* Upcoming Appointments Tab */}
+            {activeTab === 'upcoming' && (
               <div>
                 <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 mb-6">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-indigo-600">{tomorrowAppointments.length}</div>
-                    <div className="text-sm text-gray-600 mt-1">Total Appointments Tomorrow</div>
+                    <div className="text-3xl font-bold text-indigo-600">{upcomingAppointments.length}</div>
+                    <div className="text-sm text-gray-600 mt-1">Total Upcoming Appointments</div>
                   </div>
                 </div>
 
-                {tomorrowAppointments.length === 0 ? (
+                {upcomingAppointments.length === 0 ? (
                   <div className="text-center py-12">
-                    <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">No appointments scheduled for tomorrow</p>
+                    <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">No upcoming appointments scheduled</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {tomorrowAppointments.map((appointment) => (
+                    {upcomingAppointments.map((appointment) => (
                       <AppointmentCard
                         key={appointment.id}
                         appointment={appointment}
