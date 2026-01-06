@@ -2,10 +2,10 @@
  * Registration Page - Professional Design with Tailwind CSS
  * User registration form with validation and password toggle
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { FiEye, FiEyeOff, FiUser, FiMail, FiPhone, FiMapPin, FiLock } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiUser, FiMail, FiPhone, FiMapPin, FiLock, FiRefreshCw } from 'react-icons/fi';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -14,6 +14,12 @@ const RegisterPage = () => {
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // CAPTCHA state
+  const [captcha, setCaptcha] = useState({ num1: 0, num2: 0 });
+  const [captchaInput, setCaptchaInput] = useState('');
+  const [captchaError, setCaptchaError] = useState('');
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -25,6 +31,19 @@ const RegisterPage = () => {
     gender: '',
     age: '',
   });
+
+  // Generate new CAPTCHA on component mount
+  useEffect(() => {
+    generateCaptcha();
+  }, []);
+
+  const generateCaptcha = () => {
+    const num1 = Math.floor(Math.random() * 10) + 1;
+    const num2 = Math.floor(Math.random() * 10) + 1;
+    setCaptcha({ num1, num2 });
+    setCaptchaInput('');
+    setCaptchaError('');
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,6 +73,16 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate CAPTCHA first
+    const correctAnswer = captcha.num1 + captcha.num2;
+    if (parseInt(captchaInput) !== correctAnswer) {
+      setCaptchaError('Incorrect CAPTCHA answer. Please try again.');
+      generateCaptcha();
+      return;
+    }
+    
+    setCaptchaError('');
     setLoading(true);
     setError(null);
 
@@ -309,6 +338,44 @@ const RegisterPage = () => {
                   placeholder="30"
                   className="input-field"
                 />
+              </div>
+            </div>
+
+            {/* CAPTCHA Section */}
+            <div className="mt-6 bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Security Verification
+              </label>
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-2xl font-bold text-blue-600 bg-white px-4 py-2 rounded border-2 border-blue-300">
+                      {captcha.num1} + {captcha.num2} = ?
+                    </span>
+                    <button
+                      type="button"
+                      onClick={generateCaptcha}
+                      className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                      title="Refresh CAPTCHA"
+                    >
+                      <FiRefreshCw size={20} />
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={captchaInput}
+                    onChange={(e) => {
+                      setCaptchaInput(e.target.value);
+                      setCaptchaError('');
+                    }}
+                    placeholder="Enter the answer"
+                    className="input-field w-full"
+                    required
+                  />
+                  {captchaError && (
+                    <p className="mt-1 text-sm text-red-600">{captchaError}</p>
+                  )}
+                </div>
               </div>
             </div>
 
