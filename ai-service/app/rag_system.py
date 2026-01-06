@@ -77,12 +77,17 @@ class MedicalRAGSystem:
         # 6. Create RAG chain
         print("⛓️  Building RAG chain...")
         system_prompt = (
-            "You are a Medical assistant for question-answering tasks. "
-            "Use the following pieces of retrieved context to answer "
-            "the question. If you don't know the answer, say that you "
-            "don't know. Use three sentences maximum and keep the "
-            "answer concise."
-            "\n\n"
+            "You are a knowledgeable Medical AI assistant helping users understand health conditions, "
+            "symptoms, treatments, and medical concepts. Use the following retrieved medical context "
+            "to provide comprehensive, accurate, and helpful answers.\n\n"
+            "Guidelines:\n"
+            "- Provide detailed explanations with proper medical terminology\n"
+            "- Include relevant symptoms, causes, treatments, or preventive measures when applicable\n"
+            "- Structure your response in clear paragraphs for better readability\n"
+            "- Aim for 5-8 sentences to give thorough information\n"
+            "- If you don't have enough information, clearly state what you know and what you don't\n"
+            "- Always remind users to consult healthcare professionals for personalized advice\n\n"
+            "Retrieved medical context:\n"
             "{context}"
         )
         
@@ -113,18 +118,21 @@ class MedicalRAGSystem:
         # Get response from RAG chain
         response = self.rag_chain.invoke({"input": question})
         
-        # Format sources
+        # Format sources - only include book name and page number
         sources = []
         for doc in response.get("context", []):
-            sources.append({
-                "content": doc.page_content[:200] + "..." if len(doc.page_content) > 200 else doc.page_content,
-                "source": doc.metadata.get("source", "Unknown")
-            })
+            source_info = {
+                "source": doc.metadata.get("source", "Unknown"),
+                "page": doc.metadata.get("page", "N/A")
+            }
+            # Avoid duplicate sources
+            if source_info not in sources:
+                sources.append(source_info)
         
         return {
             "question": question,
             "answer": response["answer"],
-            "sources": sources
+            "sources": sources[:3]  # Limit to top 3 sources
         }
     
     def is_ready(self) -> bool:

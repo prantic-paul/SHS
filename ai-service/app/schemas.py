@@ -18,8 +18,8 @@ class ChatRequest(BaseModel):
 
 class SourceDocument(BaseModel):
     """Source document information"""
-    content: str
     source: str
+    page: str
 
 
 class ChatResponse(BaseModel):
@@ -35,8 +35,8 @@ class ChatResponse(BaseModel):
                 "answer": "Diabetes is a chronic condition...",
                 "sources": [
                     {
-                        "content": "Diabetes mellitus is...",
-                        "source": "Medical_book.pdf"
+                        "source": "Medical_Textbook.pdf",
+                        "page": "145"
                     }
                 ]
             }
