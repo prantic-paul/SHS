@@ -135,14 +135,29 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
     
     def validate_appointment_date(self, value):
         """
-        Validate that appointment date is today or tomorrow only
+        Validate that appointment date is within the next 7 days (tomorrow to day+7)
+        Users cannot book appointments for today
         """
         today = date.today()
         tomorrow = today + timedelta(days=1)
+        max_date = today + timedelta(days=7)
         
-        if value not in [today, tomorrow]:
+        # Reject if trying to book for today
+        if value == today:
             raise serializers.ValidationError(
-                "You can only book appointments for today or tomorrow."
+                "You cannot book appointments for today. Please select a date from tomorrow onwards."
+            )
+        
+        # Reject if date is in the past
+        if value < today:
+            raise serializers.ValidationError(
+                "You cannot book appointments for past dates."
+            )
+        
+        # Reject if date is beyond 7 days
+        if value > max_date:
+            raise serializers.ValidationError(
+                "You can only book appointments for the next 7 days (tomorrow to 7 days from today)."
             )
         
         return value
@@ -178,14 +193,8 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
                 'appointment_date': f'Doctor is not available on {appointment_date.strftime("%A")}. '
             })
 
-        # Check 2: No explicit appointment_time to validate; ensure bookings for today are within schedule
-        today = date.today()
-        if appointment_date == today:
-            current_time = timezone.now().time()
-            if current_time >= schedule.end_time:
-                raise serializers.ValidationError({
-                    'appointment_date': 'Doctor is not accepting appointments for today (time has passed).'
-                })
+        # Check 2: Since we don't allow bookings for today, no need to check current time
+        # All appointments are for future dates, so we just ensure doctor has schedule
 
         # Check 3: Prevent multiple appointments with same doctor on same day
         if patient:
