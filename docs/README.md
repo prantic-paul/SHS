@@ -1,6 +1,6 @@
-# 📚 SHS Documentation
+# 📚 SHS Documentation Index
 
-Welcome to the Smart Health Synchronizer documentation. This guide will help you understand the system architecture, setup processes, and development workflows.
+Welcome to the Smart Health Synchronizer documentation. This guide follows industry-standard documentation practices to help developers, project managers, and stakeholders understand and contribute to the project.
 
 ---
 
@@ -8,211 +8,311 @@ Welcome to the Smart Health Synchronizer documentation. This guide will help you
 
 ```
 docs/
-├── architecture/          # System design and architecture
-├── collaboration/         # Project management documents
-├── project-docs/          # Feature-specific documentation
-├── sprints/              # Sprint planning and execution
-├── ADMIN_CREDENTIALS.md  # Admin access information
-├── GIT_WORKFLOW.md       # Git branching and workflow guide
-└── QUICK_START.md        # Quick setup guide
+├── architecture/           # System design and technical architecture
+├── collaboration/          # Project management and planning
+├── testing-guidelines/     # Testing procedures and guidelines
+├── sprints/               # Sprint-wise development documentation
+└── README.md             # This file
 ```
 
 ---
 
 ## 🏗️ Architecture Documentation
 
-Understand the system design and technical architecture.
+System design, technical architecture, and API specifications.
 
-| Document | Description |
-|----------|-------------|
-| [System Architecture](./architecture/SYSTEM_ARCHITECTURE.md) | High-level system design, microservices architecture, and component interactions |
-| [Database Schema](./architecture/DATABASE_SCHEMA.md) | Complete database design with ERD, relationships, and data models |
-| [API Design Principles](./architecture/API_DESIGN_PRINCIPLES.md) | RESTful API guidelines, naming conventions, and best practices |
+| Document | Description | Audience |
+|----------|-------------|----------|
+| [System Architecture](./architecture/SYSTEM_ARCHITECTURE.md) | Microservices architecture, service communication, and system design | Developers, Architects |
+| [Database Schema](./architecture/DATABASE_SCHEMA.md) | Complete database design with ERD and relationships | Backend Developers, DBAs |
+| [API Design Principles](./architecture/API_DESIGN_PRINCIPLES.md) | RESTful API guidelines, naming conventions, and standards | API Developers, Frontend Developers |
 
-**Key Topics:**
+**Topics Covered:**
 - Microservices architecture
 - Service communication patterns
-- Data flow and integration
+- Database design and relationships
+- API design and best practices
 - Security architecture
 - Scalability considerations
 
 ---
 
-## 🤝 Project Management
+## 🤝 Collaboration & Project Management
 
-Project planning, requirements, and team collaboration documents.
+Essential documents for project planning, requirements, and team collaboration.
 
-| Document | Description |
-|----------|-------------|
-| [Problem Statement](./collaboration/PROBLEM_STATEMENT.md) | Project vision, objectives, and problem being solved |
-| [Requirements](./collaboration/REQUIREMENTS.md) | Functional and non-functional requirements |
-| [Product Backlog](./collaboration/PRODUCT_BACKLOG.md) | Feature backlog, user stories, and priorities |
-| [User Base](./collaboration/USER_BASE.md) | Target users, personas, and user journeys |
+| Document | Description | Audience |
+|----------|-------------|----------|
+| [Problem Statement](./collaboration/PROBLEM_STATEMENT.md) | Project vision, objectives, and problems being solved | All Stakeholders |
+| [Requirements](./collaboration/REQUIREMENTS.md) | Functional and non-functional requirements | Product Managers, Developers |
+| [Product Backlog](./collaboration/PRODUCT_BACKLOG.md) | Feature backlog, user stories, and priorities | Product Managers, Team Leads |
+| [User Base](./collaboration/USER_BASE.md) | Target users, personas, and user journeys | UX Designers, Product Managers |
 
-**Key Topics:**
+**Topics Covered:**
 - Project goals and objectives
 - User requirements and needs
 - Feature prioritization
+- Target audience and personas
 - Stakeholder management
 
 ---
 
-## 🚀 Feature Documentation
+## 🧪 Testing Guidelines
 
-Detailed documentation for specific features and components.
+Comprehensive testing documentation following industry standards.
 
-| Document | Description |
-|----------|-------------|
-| [API Testing Guide](./project-docs/API_TESTING_GUIDE.md) | Complete API testing procedures, examples, and best practices |
-| [Disease Prediction Service](./project-docs/DISEASE_PREDICTION_SERVICE.md) | ML service architecture, model training, and usage |
-| [Doctor Recommendation](./project-docs/DOCTOR_RECOMMENDATION_FRONTEND.md) | Doctor search, filtering, and recommendation system |
+| Document | Description | Audience |
+|----------|-------------|----------|
+| [API Testing Guide](./testing-guidelines/API_TESTING_GUIDE.md) | Complete API testing procedures, examples, and best practices | QA Engineers, Developers |
+| [Disease Prediction Testing](./testing-guidelines/DISEASE_PREDICTION_SERVICE.md) | ML service testing, model validation, and accuracy metrics | Data Scientists, QA Engineers |
 
-**Key Topics:**
-- API endpoints and usage
-- Machine learning integration
-- Frontend features and components
-- Service interactions
+**Testing Coverage:**
+- API endpoint testing
+- Integration testing
+- ML model validation
+- Performance testing
+- Security testing
+- User acceptance testing
 
 ---
 
 ## 🏃 Sprint Documentation
 
-Sprint-wise development progress and feature implementation details.
+Sprint-wise development progress with detailed feature implementation.
 
 ### Sprint 1: Authentication & User Management
-- [Overview](./sprints/sprint-01-authentication/README.md)
+**Duration**: Dec 19-24, 2025 | **Status**: ✅ Complete
+
+- [Sprint 1 Overview](./sprints/sprint-01-authentication/README.md)
 - [Testing Guide](./sprints/sprint-01-authentication/TESTING_GUIDE.md)
 
 **Implemented:**
-- User registration and authentication
-- JWT-based security
+- JWT-based authentication
+- User registration with CAPTCHA
+- Profile management with image upload
 - Doctor application system
-- Profile management
+- Role-based access control
 
-### Sprint 2: Doctor Search & Appointments
-- [Overview](./sprints/sprint-02-doctor-search/README.md)
+---
+
+### Sprint 2: Doctor Search & Profiles
+**Duration**: Dec 25-27, 2025 | **Status**: ✅ Complete
+
+- [Sprint 2 Overview](./sprints/sprint-02-doctor-search/README.md)
 - [API Specification](./sprints/sprint-02-doctor-search/API_SPECIFICATION.md)
 - [Implementation Guide](./sprints/sprint-02-doctor-search/IMPLEMENTATION_GUIDE.md)
 - [TDD Approach](./sprints/sprint-02-doctor-search/TDD_APPROACH.md)
 - [User Stories](./sprints/sprint-02-doctor-search/USER_STORIES.md)
 
 **Implemented:**
-- Doctor search and filtering
+- Doctor search by specialization, location, availability
+- Doctor profile pages
+- Doctor verification system
+- Advanced filtering
+- Doctor listing page
+
+---
+
+### Sprint 3: Appointment Booking System
+**Duration**: Dec 28-31, 2025 | **Status**: ✅ Complete
+
+- [Sprint 3 Overview](./sprints/sprint-03-appointment-system/README.md)
+
+**Implemented:**
 - Appointment booking system
-- Calendar integration
-- CAPTCHA verification
+- CAPTCHA verification for bookings
+- Doctor dashboard with 7-day appointment window
+- Three-section dashboard (today, upcoming, requests)
+- Auto-cleanup of old appointments
+- My Appointments page for patients
 
 ---
 
-## 🔧 Development Guides
+### Sprint 4: AI Medical Chatbot
+**Duration**: Jan 1-5, 2026 | **Status**: ✅ Complete
 
-Essential guides for developers working on the project.
+- [Sprint 4 Overview](./sprints/sprint-04-ai-chatbot/README.md)
 
-### Quick Start
-- [Quick Start Guide](./QUICK_START.md) - Fast setup for new developers
-- [Git Workflow](./GIT_WORKFLOW.md) - Branching strategy and contribution guidelines
-
-### Service Documentation
-- [Backend Setup](../backend/README.md) - Django REST Framework backend
-- [Frontend Setup](../frontend/README.md) - React + Vite frontend
-- [AI Service Setup](../ai-service/README.md) - FastAPI AI chatbot
-- [Disease Prediction Setup](../disease-prediction-service/README.md) - ML service
-
-### Admin Access
-- [Admin Credentials](./ADMIN_CREDENTIALS.md) - Admin panel access information
+**Implemented:**
+- RAG-based medical chatbot
+- Google Gemini LLM integration
+- Pinecone vector database
+- LangChain RAG pipeline
+- Medical knowledge base
+- Source citation from medical documents
+- Real-time chat interface
+- Chat history persistence
 
 ---
 
-## 🎯 Getting Started
+### Sprint 5: Disease Prediction & Recommendations
+**Duration**: Jan 6-10, 2026 | **Status**: ✅ Complete
+
+- [Sprint 5 Overview](./sprints/sprint-05-disease-prediction/README.md)
+
+**Implemented:**
+- Disease prediction ML service (FastAPI)
+- Symptom analysis with scikit-learn models
+- Disease probability predictions
+- Doctor recommendation based on predicted disease
+- Disease treatment expertise for doctors
+- Model training pipeline
+- Frontend prediction interface
+
+---
+
+### Sprint 6: Medical Records & Blogs
+**Duration**: Jan 11-14, 2026 | **Status**: ✅ Complete
+
+- [Sprint 6 Overview](./sprints/sprint-06-medical-records-blog/README.md)
+
+**Implemented:**
+- Medical records management
+- Prescription writing system
+- Medical blog publishing platform
+- Patient view of records and prescriptions
+- Blog creation interface for doctors
+- Public blog listing and detail pages
+
+---
+
+### Sprint 7: Testing & Documentation
+**Duration**: Jan 15-20, 2026 | **Status**: 🔄 In Progress
+
+**Focus Areas:**
+- UI/UX improvements
+- Comprehensive testing
+- Documentation completion
+- Performance optimization
+- Bug fixes and refinements
+
+---
+
+## 🎯 Getting Started by Role
 
 ### For New Developers
 
-1. **Read the Problem Statement** - Understand what we're building and why
-2. **Review Requirements** - Know the functional and non-functional requirements
-3. **Study Architecture** - Understand the system design and components
-4. **Follow Quick Start** - Set up your development environment
-5. **Check Git Workflow** - Learn our branching and contribution process
-6. **Read Sprint Docs** - Understand implemented features
+**Recommended Reading Order:**
+1. [Problem Statement](./collaboration/PROBLEM_STATEMENT.md) - Understand the project
+2. [System Architecture](./architecture/SYSTEM_ARCHITECTURE.md) - Learn the technical design
+3. [Requirements](./collaboration/REQUIREMENTS.md) - Know what to build
+4. Sprint documentation (1-6) - Understand implemented features
+5. Service-specific READMEs - Setup your development environment
 
-### For Feature Development
+**Quick Links:**
+- [Backend Setup](../backend/README.md)
+- [Frontend Setup](../frontend/README.md)
+- [AI Service Setup](../ai-service/README.md)
+- [ML Service Setup](../disease-prediction-service/README.md)
 
-1. Check if feature exists in Product Backlog
-2. Review related sprint documentation
-3. Read API Design Principles
-4. Follow TDD approach
-5. Update documentation
-6. Create PR following Git Workflow
+---
 
-### For API Integration
+### For Frontend Developers
 
-1. Review [System Architecture](./architecture/SYSTEM_ARCHITECTURE.md)
-2. Read [API Design Principles](./architecture/API_DESIGN_PRINCIPLES.md)
-3. Check [API Testing Guide](./project-docs/API_TESTING_GUIDE.md)
-4. Test endpoints using provided examples
-5. Handle errors as per guidelines
+**Key Documentation:**
+- [API Design Principles](./architecture/API_DESIGN_PRINCIPLES.md)
+- [API Testing Guide](./testing-guidelines/API_TESTING_GUIDE.md)
+- Sprint 2: Doctor Search
+- Sprint 3: Appointment Booking
+- Sprint 4: AI Chatbot
+- Sprint 5: Disease Prediction
+
+---
+
+### For Backend Developers
+
+**Key Documentation:**
+- [System Architecture](./architecture/SYSTEM_ARCHITECTURE.md)
+- [Database Schema](./architecture/DATABASE_SCHEMA.md)
+- [API Design Principles](./architecture/API_DESIGN_PRINCIPLES.md)
+- All sprint documentation
+- [API Testing Guide](./testing-guidelines/API_TESTING_GUIDE.md)
+
+---
+
+### For Data Scientists
+
+**Key Documentation:**
+- Sprint 4: AI Chatbot (RAG implementation)
+- Sprint 5: Disease Prediction (ML models)
+- [Disease Prediction Testing](./testing-guidelines/DISEASE_PREDICTION_SERVICE.md)
+- [AI Service README](../ai-service/README.md)
+- [ML Service README](../disease-prediction-service/README.md)
+
+---
+
+### For Project Managers
+
+**Key Documentation:**
+- [Problem Statement](./collaboration/PROBLEM_STATEMENT.md)
+- [Requirements](./collaboration/REQUIREMENTS.md)
+- [Product Backlog](./collaboration/PRODUCT_BACKLOG.md)
+- [User Base](./collaboration/USER_BASE.md)
+- All sprint overviews
+
+---
+
+### For QA Engineers
+
+**Key Documentation:**
+- [API Testing Guide](./testing-guidelines/API_TESTING_GUIDE.md)
+- [Disease Prediction Testing](./testing-guidelines/DISEASE_PREDICTION_SERVICE.md)
+- Sprint testing sections
+- [System Architecture](./architecture/SYSTEM_ARCHITECTURE.md)
 
 ---
 
 ## 📊 Documentation Standards
 
-### Writing Guidelines
+This documentation follows industry best practices:
 
-- **Clear and Concise**: Write clear, actionable documentation
-- **Code Examples**: Include working code examples
-- **Visual Aids**: Use diagrams, tables, and screenshots
-- **Keep Updated**: Update docs when code changes
-- **Version Control**: Track doc changes in git
+### Format Standards
+- **Markdown**: All documentation in .md format
+- **Structure**: Consistent headings and sections
+- **Code Examples**: Working, tested code samples
+- **Diagrams**: ASCII art or linked images
+- **Tables**: For structured data
 
-### Document Structure
+### Content Standards
+- **Clear & Concise**: Easy to understand
+- **Accurate**: Up-to-date with current implementation
+- **Complete**: All necessary information included
+- **Examples**: Real-world usage examples
+- **References**: Links to related documentation
 
-Every feature documentation should include:
-
-1. **Overview** - What the feature does
-2. **Requirements** - Prerequisites and dependencies
-3. **Setup** - Installation and configuration
-4. **Usage** - How to use the feature
-5. **API Reference** - Endpoints and parameters (if applicable)
-6. **Examples** - Working code examples
-7. **Troubleshooting** - Common issues and solutions
-8. **Testing** - How to test the feature
+### Maintenance
+- Update docs when code changes
+- Review docs in PRs
+- Version documentation with releases
+- Archive old documentation
 
 ---
 
 ## 🔍 Finding Information
 
-### By Topic
+### By Technology
 
-- **Authentication**: Sprint 1 docs, Backend README
-- **Appointments**: Sprint 2 docs, API Testing Guide
-- **AI Chatbot**: AI Service README, Feature docs
-- **ML Prediction**: Disease Prediction docs
-- **Database**: Database Schema, System Architecture
-- **APIs**: API Design Principles, Testing Guide
+| Technology | Documentation |
+|------------|---------------|
+| **Django REST** | Backend README, Database Schema, Sprint docs |
+| **React + Vite** | Frontend README, Sprint docs |
+| **Google Gemini & Pinecone** | AI Service README, Sprint 4 |
+| **scikit-learn ML** | ML Service README, Sprint 5 |
+| **PostgreSQL** | Database Schema |
+| **JWT** | System Architecture, Sprint 1 |
 
-### By Role
+### By Feature
 
-**Frontend Developers:**
-- Frontend README
-- Doctor Recommendation docs
-- Sprint documentation
-- API Testing Guide
-
-**Backend Developers:**
-- Backend README
-- System Architecture
-- Database Schema
-- API Design Principles
-
-**Data Scientists:**
-- Disease Prediction Service docs
-- AI Service README
-- Model training guides
-
-**Project Managers:**
-- Problem Statement
-- Requirements
-- Product Backlog
-- Sprint documentation
+| Feature | Documentation |
+|---------|---------------|
+| **Authentication** | Sprint 1, System Architecture |
+| **Doctor Search** | Sprint 2 |
+| **Appointments** | Sprint 3, API Testing Guide |
+| **AI Chatbot** | Sprint 4, AI Service README |
+| **Disease Prediction** | Sprint 5, ML Service README, Testing Guidelines |
+| **Medical Records** | Sprint 6 |
+| **Prescriptions** | Sprint 6 |
+| **Blogs** | Sprint 6 |
 
 ---
 
@@ -220,20 +320,20 @@ Every feature documentation should include:
 
 ### Adding New Documentation
 
-1. Follow the established structure
+1. Follow the directory structure
 2. Use markdown formatting
 3. Include code examples
-4. Add to appropriate section
+4. Add links to related docs
 5. Update this index
-6. Create PR with docs updates
+6. Create PR with clear description
 
-### Updating Existing Docs
+### Updating Existing Documentation
 
-1. Ensure accuracy of changes
-2. Maintain formatting consistency
+1. Ensure accuracy
+2. Maintain formatting
 3. Update related documents
-4. Increment version if needed
-5. Note changes in commit message
+4. Note changes in commit message
+5. Review for completeness
 
 ---
 
@@ -241,9 +341,9 @@ Every feature documentation should include:
 
 If you can't find what you're looking for:
 
-1. Check the service-specific README files
-2. Review sprint documentation for implemented features
-3. Search the repository for code examples
+1. Check service-specific README files
+2. Review sprint documentation
+3. Search the repository
 4. Open an issue on GitHub
 5. Contact the development team
 
@@ -251,11 +351,11 @@ If you can't find what you're looking for:
 
 ## 📌 Quick Links
 
-### Most Used Documents
-- [Quick Start Guide](./QUICK_START.md)
+### Most Used
+- [Main Project README](../README.md)
 - [System Architecture](./architecture/SYSTEM_ARCHITECTURE.md)
-- [API Testing Guide](./project-docs/API_TESTING_GUIDE.md)
-- [Git Workflow](./GIT_WORKFLOW.md)
+- [API Testing Guide](./testing-guidelines/API_TESTING_GUIDE.md)
+- [Database Schema](./architecture/DATABASE_SCHEMA.md)
 
 ### Service Setup
 - [Backend Setup](../backend/README.md)
@@ -263,14 +363,15 @@ If you can't find what you're looking for:
 - [AI Service Setup](../ai-service/README.md)
 - [ML Service Setup](../disease-prediction-service/README.md)
 
-### For Quick Reference
-- [Main Project README](../README.md)
-- [Admin Credentials](./ADMIN_CREDENTIALS.md)
-- [Database Schema](./architecture/DATABASE_SCHEMA.md)
+### Collaboration
+- [Problem Statement](./collaboration/PROBLEM_STATEMENT.md)
+- [Requirements](./collaboration/REQUIREMENTS.md)
+- [Product Backlog](./collaboration/PRODUCT_BACKLOG.md)
 
 ---
 
 **Last Updated:** January 15, 2026  
-**Documentation Version:** 1.0.0
+**Documentation Version:** 2.0.0  
+**Maintained By:** SHS Development Team
 
 [⬆ Back to Main README](../README.md)

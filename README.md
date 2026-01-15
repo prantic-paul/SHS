@@ -19,6 +19,7 @@ A comprehensive, microservices-based healthcare management platform that connect
 - [Documentation](#-documentation)
 - [Tech Stack](#-tech-stack)
 - [Development](#-development)
+- [Project Status](#-project-status)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -28,20 +29,20 @@ A comprehensive, microservices-based healthcare management platform that connect
 
 SHS is a modern healthcare platform designed to bridge the gap between patients and healthcare providers through technology. The platform provides:
 
-- **Patient Portal**: Book appointments, manage health records, AI chatbot assistance
+- **Patient Portal**: Book appointments, manage health records, AI chatbot assistance, disease prediction
 - **Doctor Portal**: Manage appointments, patient records, write prescriptions, medical blogs
-- **AI Services**: Intelligent medical chatbot with RAG-based responses
+- **AI Services**: Intelligent medical chatbot with RAG using Google Gemini and Pinecone
 - **ML Prediction**: Disease prediction based on symptoms using machine learning
 - **Admin Dashboard**: Complete system administration and user management
 
 ### 🎬 Key Highlights
 
 - 🔐 **Secure**: JWT-based authentication with role-based access control
-- 🤖 **AI-Powered**: Claude-based medical chatbot with vector database
-- 🧠 **ML Integration**: Symptom-based disease prediction
+- 🤖 **AI-Powered**: RAG-based chatbot with Google Gemini and Pinecone vector database
+- 🧠 **ML Integration**: Symptom-based disease prediction with scikit-learn
 - 📱 **Responsive**: Mobile-first design with modern UI/UX
 - 🏗️ **Microservices**: Scalable architecture with independent services
-- 📚 **Document-Driven**: Comprehensive documentation for every feature
+- 📚 **Document-Driven**: Comprehensive documentation following industry standards
 
 ---
 
@@ -49,27 +50,32 @@ SHS is a modern healthcare platform designed to bridge the gap between patients 
 
 ### 👨‍⚕️ For Doctors
 - ✅ Professional profile with specialization and verification
-- ✅ Appointment management with calendar view (7-day visible appointments)
+- ✅ Appointment management dashboard (7-day visible appointments)
 - ✅ Patient medical records access
 - ✅ Prescription writing system
 - ✅ Medical blog publishing
-- ✅ Dashboard with analytics
+- ✅ Disease treatment expertise management
+- ✅ Dashboard analytics
 
 ### 🏥 For Patients
-- ✅ User registration and profile management
-- ✅ Doctor search by specialization, location, and availability
-- ✅ Appointment booking with CAPTCHA verification
-- ✅ AI medical chatbot for instant assistance
+- ✅ User registration with CAPTCHA verification
+- ✅ Profile management with image upload
+- ✅ Doctor search by specialization, location, availability
+- ✅ Appointment booking system
+- ✅ AI medical chatbot for instant health advice
 - ✅ Disease prediction based on symptoms
+- ✅ Doctor recommendation based on predicted disease
 - ✅ Medical record management
-- ✅ Prescription viewing
+- ✅ Prescription viewing and history
 
 ### 🤖 AI & ML Features
-- ✅ RAG-based medical chatbot using Anthropic Claude
-- ✅ ChromaDB vector database for medical knowledge
-- ✅ Disease prediction using trained ML models
+- ✅ RAG-based medical chatbot using Google Gemini
+- ✅ Pinecone vector database for medical knowledge
+- ✅ LangChain for RAG implementation
+- ✅ Disease prediction using trained ML models (scikit-learn)
 - ✅ Symptom analysis and recommendations
-- ✅ Medical document embeddings
+- ✅ Medical document embeddings with sentence-transformers
+- ✅ Source citation from medical documents
 
 ### 🔧 Admin Features
 - ✅ Doctor verification system
@@ -102,14 +108,15 @@ SHS is a modern healthcare platform designed to bridge the gap between patients 
 │                 │ │                │ │                 │
 │  • Auth         │ │  • Chatbot     │ │  • ML Models    │
 │  • Appointments │ │  • RAG         │ │  • Prediction   │
-│  • Records      │ │  • ChromaDB    │ │  • Analysis     │
-│  • Doctors      │ │  • Claude AI   │ │                 │
+│  • Records      │ │  • Pinecone    │ │  • Analysis     │
+│  • Doctors      │ │  • Gemini AI   │ │                 │
+│  • Blogs        │ │  • LangChain   │ │                 │
 └────────┬────────┘ └───────┬────────┘ └──────┬──────────┘
          │                   │                  │
          │                   │                  │
 ┌────────▼───────────────────▼──────────────────▼─────────────────┐
 │                        Data Layer                                │
-│     PostgreSQL DB    │   ChromaDB    │   Model Storage          │
+│     PostgreSQL DB    │   Pinecone    │   Model Storage          │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -132,7 +139,8 @@ SHS is a modern healthcare platform designed to bridge the gap between patients 
 - **Node.js** 18+ and npm
 - **PostgreSQL** 14+
 - **Git**
-- **Anthropic API Key** (for AI chatbot)
+- **Google Gemini API Key** (for AI chatbot)
+- **Pinecone API Key** (for vector database)
 
 ### One-Command Setup (All Services)
 
@@ -179,6 +187,7 @@ Main application backend handling all business logic, authentication, and data m
 - Medical record management
 - Prescription system
 - Blog management
+- Chat history
 
 📖 [Backend Documentation](./backend/README.md)
 
@@ -192,20 +201,23 @@ Modern, responsive web application providing user interfaces for patients and do
 - Appointment booking interface
 - AI chatbot integration
 - Disease prediction interface
+- Doctor recommendation system
 - Responsive design
 
 📖 [Frontend Documentation](./frontend/README.md)
 
 ### 3. AI Service (FastAPI)
 
-Intelligent medical chatbot service using RAG (Retrieval-Augmented Generation) with Anthropic Claude.
+Intelligent medical chatbot service using RAG (Retrieval-Augmented Generation) with Google Gemini and Pinecone.
 
 **Key Features:**
 - Medical question answering
-- Context-aware responses
-- Vector database integration
+- Context-aware responses using RAG
+- Pinecone vector database integration
 - Medical knowledge base
 - Real-time chat interface
+- Source citation from medical documents
+- LangChain RAG pipeline
 
 📖 [AI Service Documentation](./ai-service/README.md)
 
@@ -216,9 +228,10 @@ Machine learning service for symptom-based disease prediction.
 **Key Features:**
 - Symptom analysis
 - Disease probability prediction
-- Multiple ML models
+- Multiple ML models (scikit-learn)
 - Recommendation engine
 - Model training pipeline
+- Disease-doctor mapping
 
 📖 [Disease Prediction Documentation](./disease-prediction-service/README.md)
 
@@ -243,20 +256,12 @@ Machine learning service for symptom-based disease prediction.
 | [Product Backlog](./docs/collaboration/PRODUCT_BACKLOG.md) | Feature backlog and priorities |
 | [User Base](./docs/collaboration/USER_BASE.md) | Target users and personas |
 
-### Development Guides
+### Testing Documentation
 
 | Document | Description |
 |----------|-------------|
-| [Git Workflow](./docs/GIT_WORKFLOW.md) | Branching strategy and contribution guidelines |
-| [Quick Start Guide](./docs/QUICK_START.md) | Fast setup for new developers |
-| [API Testing Guide](./docs/project-docs/API_TESTING_GUIDE.md) | API testing procedures and examples |
-
-### Feature Documentation
-
-| Document | Description |
-|----------|-------------|
-| [Disease Prediction](./docs/project-docs/DISEASE_PREDICTION_SERVICE.md) | ML service design and usage |
-| [Doctor Recommendation](./docs/project-docs/DOCTOR_RECOMMENDATION_FRONTEND.md) | Doctor search and filtering |
+| [API Testing Guide](./docs/testing-guidelines/API_TESTING_GUIDE.md) | API testing procedures and examples |
+| [Disease Prediction Testing](./docs/testing-guidelines/DISEASE_PREDICTION_SERVICE.md) | ML service testing and validation |
 
 **📖 For complete documentation index, see [docs/README.md](./docs/README.md)**
 
@@ -279,13 +284,15 @@ Vite 7.2.4           - Build tool
 Tailwind CSS 3.4.17  - Styling
 React Router         - Navigation
 Axios                - HTTP client
+Lucide React         - Icons
 ```
 
 ### AI & ML Services
 ```
 FastAPI              - Web framework
-Anthropic Claude     - LLM for chatbot
-ChromaDB             - Vector database
+Google Gemini        - LLM for chatbot
+Pinecone             - Vector database
+LangChain            - RAG framework
 scikit-learn         - ML models
 sentence-transformers - Text embeddings
 ```
@@ -307,6 +314,8 @@ SHS/
 │   │   ├── prescription/     # Prescriptions
 │   │   ├── blog/             # Medical blogs
 │   │   └── chat/             # Chat history
+│   ├── config/               # Project settings
+│   ├── requirements.txt      # Python dependencies
 │   └── README.md            # Backend documentation
 │
 ├── frontend/                   # React + Vite frontend
@@ -314,29 +323,34 @@ SHS/
 │   │   ├── pages/           # Page components
 │   │   ├── components/      # Reusable components
 │   │   ├── contexts/        # React contexts
-│   │   └── services/        # API services
+│   │   ├── services/        # API services
+│   │   └── utils/           # Utility functions
+│   ├── package.json         # Node dependencies
 │   └── README.md           # Frontend documentation
 │
 ├── ai-service/                 # AI Chatbot service
 │   ├── app/                  # FastAPI application
 │   ├── knowledge_base/       # Medical documents
-│   ├── chroma_db/           # Vector database
+│   ├── requirements.txt     # Python dependencies
 │   └── README.md           # AI service documentation
 │
 ├── disease-prediction-service/ # ML Prediction service
 │   ├── app/                  # FastAPI application
 │   ├── models/              # Trained ML models
+│   ├── training/            # Model training scripts
+│   ├── requirements.txt     # Python dependencies
 │   └── README.md           # ML service documentation
 │
 ├── docs/                       # Documentation
 │   ├── architecture/         # System design
 │   ├── collaboration/        # Project management
-│   ├── project-docs/        # Feature documentation
+│   ├── testing-guidelines/  # Testing documentation
 │   ├── sprints/             # Sprint documentation
 │   └── README.md           # Documentation index
 │
 ├── start-all.sh               # Start all services script
 ├── stop-all.sh                # Stop all services script
+├── LICENSE                    # MIT License
 └── README.md                  # This file
 ```
 
@@ -360,7 +374,27 @@ git push origin fix/bug-description
 # Create PR to develop
 ```
 
-See [Git Workflow Guide](./docs/GIT_WORKFLOW.md) for details.
+---
+
+## 📊 Project Status
+
+### Sprint Progress
+
+| Sprint | Status | Features |
+|--------|--------|----------|
+| Sprint 1 | ✅ Complete | Authentication, User Management, Profile Pictures |
+| Sprint 2 | ✅ Complete | Doctor Search, Doctor Profiles, Verification System |
+| Sprint 3 | ✅ Complete | Appointment Booking, Calendar, CAPTCHA |
+| Sprint 4 | ✅ Complete | AI Chatbot, RAG with Gemini & Pinecone |
+| Sprint 5 | ✅ Complete | Disease Prediction ML, Doctor Recommendation |
+| Sprint 6 | ✅ Complete | Medical Records, Prescriptions, Blogs |
+| Sprint 7 | 🔄 In Progress | UI/UX Improvements, Testing, Documentation |
+
+### Development Timeline
+
+- **Dec 2025**: Project initiation, Sprint 1-2
+- **Jan 2026**: Sprint 3-6 implementation
+- **Current**: Documentation and testing phase
 
 ---
 
@@ -377,12 +411,10 @@ We welcome contributions! Please follow these steps:
 ### Contribution Guidelines
 
 - Follow the existing code style
-- Write meaningful commit messages
+- Write meaningful commit messages (Conventional Commits)
 - Add tests for new features
 - Update documentation
 - Ensure all tests pass
-
-See [Git Workflow Guide](./docs/GIT_WORKFLOW.md) for detailed contribution process.
 
 ---
 
@@ -396,17 +428,6 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 - **Repository**: [github.com/prantic-paul/SHS](https://github.com/prantic-paul/SHS)
 - **Issues**: [GitHub Issues](https://github.com/prantic-paul/SHS/issues)
-
----
-
-## 📊 Project Status
-
-| Sprint | Status | Features |
-|--------|--------|----------|
-| Sprint 1 | ✅ Complete | Authentication, User Management |
-| Sprint 2 | ✅ Complete | Doctor Search, Appointments |
-| Sprint 3 | ✅ Complete | AI Chatbot, Disease Prediction |
-| Sprint 4 | 🔄 In Progress | Medical Records, Prescriptions |
 
 ---
 
