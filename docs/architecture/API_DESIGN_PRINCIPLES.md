@@ -1,594 +1,704 @@
 # API Design Principles: Smart Health Synchronizer
 
-## Overview
-This document defines the REST API design standards and conventions for Smart Health Synchronizer. All backend APIs must follow these principles to ensure consistency, maintainability, and ease of use.
-
-**Status:** Sprint 0 - Foundation  
-**Last Updated:** December 21, 2025  
-**Applies To:** All sprints
+**Industry-Standard API Guidelines**
 
 ---
 
-## 1. REST API Fundamentals
+## 📋 Document Information
 
-### 1.1 RESTful Principles
-- Use **HTTP methods** correctly (GET, POST, PUT, PATCH, DELETE)
-- Resources are **nouns**, not verbs
-- Use **plural names** for collections
-- **Stateless** communication (JWT authentication)
-
-### 1.2 Base URL Structure
-```
-Development:  http://localhost:8000/api/v1/
-Production:   https://api.shsplatform.com/api/v1/
-```
-
-**Version in URL:** `/api/v1/` for future versioning support
+| Attribute | Value |
+|-----------|-------|
+| **Version** | 2.0 |
+| **Last Updated** | January 16, 2026 |
+| **API Framework** | Django REST Framework 3.14.0 |
+| **API Standard** | REST (RESTful) |
+| **Base URL** | `/api/v1/` |
 
 ---
 
-## 2. URL Naming Conventions
+## 🎯 Core Principles
 
-### 2.1 Resource Naming Rules
+### 1. RESTful Design
+We follow **REST (Representational State Transfer)** architectural constraints:
 
-✅ **DO:**
-- Use plural nouns: `/users`, `/doctors`, `/appointments`
-- Use lowercase: `/medical-records`
-- Use hyphens for multi-word: `/appointment-schedules`
-- Be consistent
+- **Stateless**: Each request contains all necessary information
+- **Client-Server Separation**: Decoupled frontend and backend
+- **Cacheable**: Responses define cacheability
+- **Uniform Interface**: Consistent endpoint structure
+- **Layered System**: Architecture can have intermediary servers (load balancers, caches)
 
-❌ **DON'T:**
-- Use verbs: `/getUsers`, `/createAppointment`
-- Use camelCase: `/medicalRecords`
-- Use underscores: `/medical_records`
-- Mix singular/plural: `/user`, `/doctors`
+### 2. Resource-Oriented
+APIs organized around **resources** (nouns), not actions (verbs):
 
-### 2.2 Examples
+✅ **Good:**
+- `GET /api/v1/doctors/` - List doctors
+- `POST /api/v1/appointments/` - Create appointment
+- `PUT /api/v1/users/profile/` - Update profile
 
-```
-✅ Good:
-GET    /api/v1/users              # List all users
-GET    /api/v1/users/123          # Get specific user
-POST   /api/v1/users              # Create user
-PUT    /api/v1/users/123          # Update entire user
-PATCH  /api/v1/users/123          # Partial update
-DELETE /api/v1/users/123          # Delete user
+❌ **Bad:**
+- `GET /api/v1/getDoctors/`
+- `POST /api/v1/createAppointment/`
+- `POST /api/v1/updateProfile/`
 
-❌ Bad:
-GET    /api/v1/getUsers
-POST   /api/v1/createUser
-GET    /api/v1/user/123
-PUT    /api/v1/updateUser/123
-```
+### 3. Consistency
+- Naming conventions strictly followed
+- Response formats standardized
+- Error handling unified
+- Authentication mechanism uniform
 
 ---
 
-## 3. HTTP Methods
+## 📐 Endpoint Structure
 
-### 3.1 Method Usage
-
-| Method | Usage | Idempotent | Safe |
-|--------|-------|------------|------|
-| **GET** | Retrieve resource(s) | ✅ Yes | ✅ Yes |
-| **POST** | Create new resource | ❌ No | ❌ No |
-| **PUT** | Replace entire resource | ✅ Yes | ❌ No |
-| **PATCH** | Update partial resource | ❌ No* | ❌ No |
-| **DELETE** | Remove resource | ✅ Yes | ❌ No |
-
-*PATCH should be idempotent but may not be in practice
-
-### 3.2 Method Examples
-
+### Base URL Pattern
 ```
-# GET - Retrieve
-GET /api/v1/users              → List users
-GET /api/v1/users/123          → Get user ID 123
-GET /api/v1/users/123/profile  → Get user's profile
+https://api.example.com/api/v1/{resource}/{id}/{action}/
+```
 
-# POST - Create
-POST /api/v1/users             → Create new user
-POST /api/v1/auth/login        → Login (create session/token)
-POST /api/v1/appointments      → Book appointment
-
-# PUT - Replace entire resource
-PUT /api/v1/users/123          → Replace all user fields
-
-# PATCH - Update partial
-PATCH /api/v1/users/123        → Update some user fields
-PATCH /api/v1/appointments/456 → Update appointment status
-
-# DELETE - Remove
-DELETE /api/v1/users/123       → Delete user
-DELETE /api/v1/appointments/456 → Cancel appointment
+### Examples
+```
+GET    /api/v1/doctors/                 # List all doctors
+GET    /api/v1/doctors/5/               # Get specific doctor
+POST   /api/v1/doctors/5/rate/          # Rate a doctor (custom action)
+GET    /api/v1/appointments/            # List user's appointments
+POST   /api/v1/appointments/            # Create appointment
+DELETE /api/v1/appointments/12/         # Cancel appointment
 ```
 
 ---
 
-## 4. HTTP Status Codes
+## 🔤 Naming Conventions
 
-### 4.1 Success Codes (2xx)
+### 1. URL Naming
+- **Lowercase only**: `/api/v1/users/`, not `/api/v1/Users/`
+- **Plural nouns**: `/doctors/`, not `/doctor/`
+- **Hyphens for multi-word**: `/medical-records/`, not `/medicalRecords/`
+- **No trailing slash in requests**: `/doctors` (but Django adds `/` by default)
 
-| Code | Meaning | Usage |
-|------|---------|-------|
-| **200 OK** | Success | GET, PUT, PATCH successful |
-| **201 Created** | Resource created | POST successful, returns new resource |
-| **204 No Content** | Success, no body | DELETE successful |
+### 2. JSON Field Naming
+- **snake_case**: `appointment_date`, not `appointmentDate`
+- **Descriptive**: `created_at`, not `created`
+- **Boolean prefix**: `is_verified`, `has_permission`
 
-### 4.2 Client Error Codes (4xx)
+### 3. Query Parameters
+- **snake_case**: `?specialization=cardiology&location=dhaka`
+- **Filters**: `?status=PENDING&date=2026-01-16`
+- **Pagination**: `?page=1&page_size=20`
+- **Search**: `?search=heart`
+- **Ordering**: `?ordering=-created_at` (descending)
 
-| Code | Meaning | Usage |
-|------|---------|-------|
-| **400 Bad Request** | Invalid input | Validation errors, malformed request |
-| **401 Unauthorized** | Not authenticated | Missing or invalid token |
-| **403 Forbidden** | Not authorized | Valid token but insufficient permissions |
-| **404 Not Found** | Resource not found | ID doesn't exist |
-| **409 Conflict** | Resource conflict | Duplicate email, double booking |
-| **422 Unprocessable Entity** | Validation failed | Business logic validation errors |
+---
 
-### 4.3 Server Error Codes (5xx)
+## 🔧 HTTP Methods
 
-| Code | Meaning | Usage |
-|------|---------|-------|
-| **500 Internal Server Error** | Server error | Unexpected errors, exceptions |
-| **503 Service Unavailable** | Service down | Maintenance, overload |
+### Standard CRUD Operations
 
-### 4.4 Response Examples
+| Method | Action | Example | Idempotent | Safe |
+|--------|--------|---------|------------|------|
+| **GET** | Read/Retrieve | `GET /api/v1/doctors/5/` | ✅ Yes | ✅ Yes |
+| **POST** | Create | `POST /api/v1/appointments/` | ❌ No | ❌ No |
+| **PUT** | Update (full) | `PUT /api/v1/users/profile/` | ✅ Yes | ❌ No |
+| **PATCH** | Update (partial) | `PATCH /api/v1/doctors/5/` | ❌ No | ❌ No |
+| **DELETE** | Delete | `DELETE /api/v1/appointments/12/` | ✅ Yes | ❌ No |
 
+### Custom Actions
+For actions that don't fit CRUD, use POST with action suffix:
+```
+POST /api/v1/doctors/5/rate/           # Rate doctor
+POST /api/v1/auth/login/                # User login
+POST /api/v1/auth/refresh/              # Refresh token
+GET  /api/v1/appointments/doctor-dashboard/  # Doctor's dashboard
+```
+
+---
+
+## 📊 Request Format
+
+### Headers
+```http
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Accept: application/json
+```
+
+### Request Body (POST/PUT/PATCH)
 ```json
-// 200 OK - Success
+{
+  "doctor_id": 5,
+  "appointment_date": "2026-01-20",
+  "appointment_time": "10:30",
+  "reason": "Regular checkup"
+}
+```
+
+### Query Parameters (GET)
+```http
+GET /api/v1/doctors/?specialization=Cardiology&location=Dhaka&page=1
+```
+
+---
+
+## 📤 Response Format
+
+### Success Response Structure
+```json
 {
   "success": true,
   "data": {
-    "id": 123,
-    "name": "John Doe"
+    "id": 5,
+    "name": "Dr. John Doe",
+    "specialization": "Cardiology",
+    "rating_avg": 4.5
   },
-  "message": "User retrieved successfully"
+  "message": "Doctor retrieved successfully",
+  "timestamp": "2026-01-16T10:30:00Z"
 }
+```
 
-// 201 Created - Resource created
+### List Response with Pagination
+```json
 {
   "success": true,
   "data": {
-    "id": 124,
-    "name": "Jane Smith",
-    "email": "jane@example.com"
+    "count": 150,
+    "next": "/api/v1/doctors/?page=2",
+    "previous": null,
+    "results": [
+      {
+        "id": 1,
+        "name": "Dr. Alice Smith",
+        "specialization": "Cardiology"
+      },
+      {
+        "id": 2,
+        "name": "Dr. Bob Johnson",
+        "specialization": "Neurology"
+      }
+    ]
   },
-  "message": "User created successfully"
+  "message": "Doctors retrieved successfully"
 }
+```
 
-// 400 Bad Request - Validation error
+### Error Response Structure
+```json
 {
   "success": false,
-  "errors": {
-    "email": ["Email is required", "Email must be valid"],
-    "password": ["Password must be at least 8 characters"]
+  "error": {
+    "code": "INVALID_CREDENTIALS",
+    "message": "Invalid email or password",
+    "details": {
+      "email": ["User with this email does not exist"]
+    }
   },
-  "message": "Validation failed"
-}
-
-// 401 Unauthorized - Not authenticated
-{
-  "success": false,
-  "error": "Token is invalid or expired",
-  "message": "Authentication required"
-}
-
-// 404 Not Found - Resource not found
-{
-  "success": false,
-  "error": "User with ID 999 not found",
-  "message": "Resource not found"
+  "timestamp": "2026-01-16T10:30:00Z"
 }
 ```
 
 ---
 
-## 5. Request/Response Format
+## 🔢 HTTP Status Codes
 
-### 5.1 Request Format
+### Success Codes (2xx)
 
-**Content-Type:** `application/json`
+| Code | Name | Usage |
+|------|------|-------|
+| **200** | OK | Successful GET, PUT, PATCH, DELETE |
+| **201** | Created | Successful POST (resource created) |
+| **204** | No Content | Successful DELETE (no response body) |
 
-```json
-// POST /api/v1/users
+### Client Error Codes (4xx)
+
+| Code | Name | Usage |
+|------|------|-------|
+| **400** | Bad Request | Validation error, malformed request |
+| **401** | Unauthorized | Missing or invalid authentication token |
+| **403** | Forbidden | Authenticated but not authorized |
+| **404** | Not Found | Resource does not exist |
+| **409** | Conflict | Duplicate resource (e.g., email already exists) |
+| **422** | Unprocessable Entity | Semantic validation error |
+| **429** | Too Many Requests | Rate limit exceeded |
+
+### Server Error Codes (5xx)
+
+| Code | Name | Usage |
+|------|------|-------|
+| **500** | Internal Server Error | Unexpected server error |
+| **502** | Bad Gateway | AI/ML service unavailable |
+| **503** | Service Unavailable | Server overload or maintenance |
+
+---
+
+## 🔐 Authentication & Authorization
+
+### JWT-Based Authentication
+
+#### 1. Login (Obtain Tokens)
+```http
+POST /api/v1/auth/login/
+Content-Type: application/json
+
 {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "SecurePass123",
-  "phone": "01712345678",
-  "location": "Dhaka",
-  "blood_group": "A+",
-  "gender": "Male",
-  "age": 30
+  "email": "patient@example.com",
+  "password": "securepassword"
 }
 ```
 
-### 5.2 Response Format (Standard)
-
-All responses follow this structure:
-
-```json
-{
-  "success": true|false,
-  "data": { ... },           // On success (single object or array)
-  "message": "...",          // Human-readable message
-  "errors": { ... },         // On validation errors (field-specific)
-  "error": "...",            // On general errors
-  "meta": { ... }            // Pagination, etc. (optional)
-}
-```
-
-### 5.3 Pagination Response
-
+**Response (200 OK):**
 ```json
 {
   "success": true,
-  "data": [
-    { "id": 1, "name": "User 1" },
-    { "id": 2, "name": "User 2" }
-  ],
-  "meta": {
-    "page": 1,
-    "per_page": 10,
-    "total": 50,
-    "total_pages": 5
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": 25,
+      "email": "patient@example.com",
+      "name": "John Doe",
+      "role": "PATIENT"
+    }
   },
-  "message": "Users retrieved successfully"
+  "message": "Login successful"
 }
 ```
 
----
+**Token Lifetimes:**
+- Access Token: 15 minutes
+- Refresh Token: 7 days
 
-## 6. Authentication & Authorization
+#### 2. Refresh Access Token
+```http
+POST /api/v1/auth/refresh/
+Content-Type: application/json
 
-### 6.1 JWT Token Authentication
-
-**Header Format:**
-```
-Authorization: Bearer <JWT_TOKEN>
-```
-
-**Example:**
-```
-GET /api/v1/users/profile
-Headers:
-  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-  Content-Type: application/json
+{
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
 ```
 
-### 6.2 Token Structure
-
-JWT payload should contain:
+**Response (200 OK):**
 ```json
 {
-  "user_id": "u-199232",
-  "email": "john@example.com",
-  "role": "PATIENT",  // or "DOCTOR", "ADMIN"
-  "exp": 1640000000,
-  "iat": 1639990000
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
-### 6.3 Public vs Protected Endpoints
-
-**Public (No auth required):**
-- `POST /api/v1/auth/register`
-- `POST /api/v1/auth/login`
-- `GET /api/v1/blogs` (read blogs)
-
-**Protected (Auth required):**
-- `GET /api/v1/users/profile`
-- `POST /api/v1/appointments`
-- `PATCH /api/v1/users/:id`
-
----
-
-## 7. Filtering, Sorting, Pagination
-
-### 7.1 Filtering (Query Parameters)
-
-```
-GET /api/v1/doctors?specialization=Cardiology&location=Dhaka
-GET /api/v1/appointments?status=CONFIRMED&date=2025-12-25
-GET /api/v1/users?role=DOCTOR&is_verified=true
+#### 3. Protected Endpoint Request
+```http
+GET /api/v1/users/profile/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-### 7.2 Sorting
+### Authorization Levels
 
-```
-GET /api/v1/doctors?sort=rating&order=desc
-GET /api/v1/appointments?sort=appointment_date&order=asc
-```
+| Role | Access |
+|------|--------|
+| **PATIENT** | Profile, appointments, chat, medical records, prescriptions (own) |
+| **DOCTOR** | All PATIENT + Doctor dashboard, create records/prescriptions, manage blogs |
+| **ADMIN** | All + Django admin, doctor verification, system management |
 
-### 7.3 Pagination
+### Error Responses
 
-```
-GET /api/v1/doctors?page=2&per_page=10
-GET /api/v1/blogs?page=1&per_page=20
-```
-
-### 7.4 Search
-
-```
-GET /api/v1/doctors?search=cardiology
-GET /api/v1/blogs?search=pandemic
-```
-
----
-
-## 8. Error Handling
-
-### 8.1 Validation Errors (422)
-
+**401 Unauthorized:**
 ```json
 {
   "success": false,
-  "errors": {
-    "email": ["Email already exists"],
-    "password": ["Password must contain at least one number"],
-    "phone": ["Phone number is invalid"]
-  },
-  "message": "Validation failed"
+  "error": {
+    "code": "AUTHENTICATION_REQUIRED",
+    "message": "Authentication credentials were not provided"
+  }
 }
 ```
 
-### 8.2 Authentication Errors (401)
-
+**403 Forbidden:**
 ```json
 {
   "success": false,
-  "error": "Token has expired",
-  "message": "Please log in again"
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "You do not have permission to perform this action"
+  }
 }
 ```
 
-### 8.3 Authorization Errors (403)
+---
 
+## ✅ Validation & Error Handling
+
+### Field Validation
+
+#### Required Field Missing
+**Request:**
+```json
+POST /api/v1/appointments/
+{
+  "doctor_id": 5
+  // Missing appointment_date
+}
+```
+
+**Response (400 Bad Request):**
 ```json
 {
   "success": false,
-  "error": "You do not have permission to perform this action",
-  "message": "Forbidden"
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Validation failed",
+    "details": {
+      "appointment_date": ["This field is required"]
+    }
+  }
 }
 ```
 
-### 8.4 Server Errors (500)
+#### Invalid Data Type
+**Request:**
+```json
+POST /api/v1/doctors/5/rate/
+{
+  "rating": "excellent"  // Should be integer 1-5
+}
+```
 
+**Response (400 Bad Request):**
 ```json
 {
   "success": false,
-  "error": "An unexpected error occurred",
-  "message": "Internal server error. Please try again later."
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Validation failed",
+    "details": {
+      "rating": ["A valid integer is required"]
+    }
+  }
 }
 ```
 
----
-
-## 9. Nested Resources
-
-### 9.1 When to Use Nested Routes
-
-**Use nested when resource is always accessed through parent:**
-```
-GET /api/v1/users/:user_id/appointments      # User's appointments
-GET /api/v1/doctors/:doctor_id/schedules     # Doctor's schedules
-POST /api/v1/appointments/:id/prescriptions  # Create prescription for appointment
-```
-
-**Don't over-nest (max 2 levels):**
-```
-❌ BAD: /api/v1/users/:user_id/appointments/:appt_id/prescriptions/:pres_id
-✅ GOOD: /api/v1/prescriptions/:id
-```
-
----
-
-## 10. Field Naming Conventions
-
-### 10.1 JSON Field Names
-
-**Use snake_case for consistency:**
+#### Business Logic Validation
+**Request:**
 ```json
+POST /api/v1/appointments/
 {
-  "user_id": "u-199232",
-  "first_name": "John",
-  "last_name": "Doe",
-  "phone_number": "01712345678",
-  "blood_group": "A+",
-  "created_at": "2025-12-21T10:30:00Z",
-  "is_verified": true
+  "doctor_id": 5,
+  "appointment_date": "2026-01-01"  // Past date
 }
 ```
 
-### 10.2 Date/Time Format
-
-**Use ISO 8601 format:**
-```json
-{
-  "created_at": "2025-12-21T10:30:00Z",
-  "updated_at": "2025-12-21T15:45:30Z",
-  "appointment_date": "2025-12-25T14:00:00Z"
-}
-```
-
----
-
-## 11. Versioning
-
-### 11.1 URL Versioning
-
-```
-/api/v1/users     # Version 1 (current)
-/api/v2/users     # Version 2 (future)
-```
-
-**When to version:**
-- Breaking changes to API structure
-- Major feature changes
-- Incompatible updates
-
-**Maintain old versions** for at least 6 months after new version release.
-
----
-
-## 12. Rate Limiting
-
-### 12.1 Rate Limit Headers (Future Implementation)
-
-```
-X-RateLimit-Limit: 100        # Max requests per window
-X-RateLimit-Remaining: 87     # Requests left
-X-RateLimit-Reset: 1640000000 # Reset time (Unix timestamp)
-```
-
-### 12.2 Rate Limit Response (429)
-
+**Response (400 Bad Request):**
 ```json
 {
   "success": false,
-  "error": "Rate limit exceeded. Try again in 15 minutes.",
-  "message": "Too many requests"
+  "error": {
+    "code": "INVALID_DATE",
+    "message": "Cannot book appointment in the past",
+    "details": {
+      "appointment_date": ["Date cannot be in the past"]
+    }
+  }
 }
 ```
 
 ---
 
-## 13. Security Best Practices
+## 🔍 Filtering, Searching & Pagination
 
-### 13.1 Always Use HTTPS
-- All production APIs must use HTTPS
-- Development can use HTTP locally
+### Filtering
+```http
+GET /api/v1/doctors/?specialization=Cardiology&location=Dhaka
+```
 
-### 13.2 Validate Input
-- Sanitize all user input
-- Use Django REST Framework serializers
-- Prevent SQL injection, XSS
+### Full-Text Search
+```http
+GET /api/v1/doctors/?search=heart surgery
+```
 
-### 13.3 Never Expose Sensitive Data
+### Ordering
+```http
+GET /api/v1/doctors/?ordering=-rating_avg  # Descending
+GET /api/v1/doctors/?ordering=experience_years  # Ascending
+```
+
+### Pagination
+```http
+GET /api/v1/doctors/?page=2&page_size=20
+```
+
+**Response:**
 ```json
-❌ BAD:
 {
-  "password": "hashed_value",
-  "secret_key": "abc123"
-}
-
-✅ GOOD:
-{
-  "email": "john@example.com",
-  "name": "John Doe"
+  "count": 150,
+  "next": "/api/v1/doctors/?page=3",
+  "previous": "/api/v1/doctors/?page=1",
+  "results": [...]
 }
 ```
 
-### 13.4 Use Role-Based Access Control (RBAC)
+### Combined Example
+```http
+GET /api/v1/doctors/?specialization=Cardiology&search=heart&ordering=-rating_avg&page=1&page_size=10
+```
+
+---
+
+## 📝 API Versioning
+
+### URL Versioning (Current Approach)
+```
+/api/v1/doctors/
+/api/v2/doctors/  (future)
+```
+
+**Benefits:**
+- Clear and explicit
+- Easy to route
+- Browser-friendly
+
+**Version Strategy:**
+- v1: Current stable version
+- v2: Breaking changes only
+- Maintain v1 for at least 6 months after v2 release
+
+---
+
+## 🔄 Idempotency
+
+### Idempotent Operations
+Same request multiple times = same result
+
+- **GET**: Always idempotent
+- **PUT**: Idempotent (full update, same data = same result)
+- **DELETE**: Idempotent (delete twice = same result)
+
+### Non-Idempotent Operations
+- **POST**: Creates new resource each time
+  ```http
+  POST /api/v1/appointments/  # Creates new appointment each time
+  ```
+
+### Idempotency Keys (Future Enhancement)
+For critical POST operations:
+```http
+POST /api/v1/appointments/
+Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000
+```
+
+---
+
+## 🚀 Performance Best Practices
+
+### 1. Response Caching
+```http
+Cache-Control: public, max-age=300  # Cache for 5 minutes
+ETag: "33a64df551425fcc55e4d42a148795d9f25f89d4"
+```
+
+### 2. Conditional Requests
+```http
+GET /api/v1/doctors/5/
+If-None-Match: "33a64df551425fcc55e4d42a148795d9f25f89d4"
+
+Response: 304 Not Modified (if unchanged)
+```
+
+### 3. Partial Responses (Field Selection)
+```http
+GET /api/v1/doctors/?fields=id,name,specialization
+```
+
+### 4. Pagination Limits
+- Default: 20 items per page
+- Maximum: 100 items per page
+- Use cursor-based pagination for large datasets (future)
+
+### 5. Rate Limiting
+```http
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1642329600
+```
+
+---
+
+## 🌐 CORS (Cross-Origin Resource Sharing)
+
+### Allowed Origins
 ```python
-# Check user role before allowing action
-if user.role == "ADMIN":
-    # Allow admin operations
-elif user.role == "DOCTOR":
-    # Allow doctor operations
-else:
-    # Return 403 Forbidden
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",      # Development
+    "https://app.example.com"     # Production
+]
+```
+
+### Allowed Methods
+```
+GET, POST, PUT, PATCH, DELETE, OPTIONS
+```
+
+### Exposed Headers
+```
+Content-Type, Authorization, X-RateLimit-*
 ```
 
 ---
 
-## 14. Documentation Standards
+## 📄 API Documentation
 
-### 14.1 API Documentation Format
+### Automatic Documentation (DRF)
+- **Browsable API**: `/api/v1/` (HTML interface)
+- **OpenAPI Schema**: `/api/v1/schema/` (JSON)
+- **Swagger UI**: `/api/v1/docs/` (future integration)
+- **ReDoc**: `/api/v1/redoc/` (future integration)
 
-Each endpoint must be documented with:
-1. **URL** - Full endpoint path
-2. **Method** - HTTP method
-3. **Auth Required** - Yes/No
-4. **Permissions** - Required role(s)
-5. **Request Body** - JSON schema
-6. **Response** - Success and error examples
-7. **Status Codes** - All possible codes
+### Documentation Standards
+Each endpoint documented with:
+- Description
+- Request parameters
+- Request body schema
+- Response schema
+- Status codes
+- Authentication requirements
+- Example requests/responses
 
-### 14.2 Example Endpoint Documentation
+---
 
-```markdown
-### Register User
+## 🧪 API Testing Standards
 
-**Endpoint:** `POST /api/v1/auth/register/`
+### 1. Unit Tests
+- Test serializers
+- Test viewsets
+- Test permissions
+- Test business logic
 
-**Auth Required:** No
+### 2. Integration Tests
+- Test full request/response cycle
+- Test authentication flow
+- Test error handling
 
-**Permissions:** None (public)
+### 3. Test Coverage
+- Minimum 85% code coverage
+- All endpoints tested
+- All error cases covered
 
-**Request Body:**
-{
-  "name": "string (required, max 100)",
-  "email": "string (required, unique, valid email)",
-  "password": "string (required, min 8 chars)",
-  "phone": "string (required, unique)",
-  "location": "string (required)",
-  "blood_group": "string (optional)",
-  "gender": "string (optional)",
-  "age": "integer (optional)"
-}
+---
 
-**Success Response (201):**
-{
-  "success": true,
-  "data": {
-    "user_id": "u-199232",
-    "name": "John Doe",
-    "email": "john@example.com"
-  },
-  "message": "User registered successfully"
-}
+## 🔒 Security Best Practices
 
-**Error Response (400):**
-{
-  "success": false,
-  "errors": {
-    "email": ["Email already exists"]
-  },
-  "message": "Validation failed"
-}
+### 1. Input Validation
+- Validate all input data
+- Sanitize HTML/JavaScript
+- Prevent SQL injection (Django ORM handles this)
+
+### 2. Authentication
+- Use HTTPS in production
+- JWT tokens with expiration
+- Secure token storage (httpOnly cookies future)
+
+### 3. Authorization
+- Role-based access control
+- Object-level permissions
+- Rate limiting per user
+
+### 4. Sensitive Data
+- Never log passwords
+- Mask sensitive data in logs
+- Use environment variables for secrets
+
+### 5. CAPTCHA
+- Implement CAPTCHA on:
+  - User registration
+  - Appointment booking
+  - Password reset (future)
+
+---
+
+## 📊 API Endpoint Catalog
+
+### Authentication
+```
+POST   /api/v1/auth/register/          # Register new user
+POST   /api/v1/auth/login/             # User login
+POST   /api/v1/auth/refresh/           # Refresh access token
+POST   /api/v1/auth/logout/            # User logout (future)
+```
+
+### Users
+```
+GET    /api/v1/users/profile/          # Get current user profile
+PUT    /api/v1/users/profile/          # Update profile
+POST   /api/v1/users/apply-doctor/     # Apply as doctor
+GET    /api/v1/users/doctor-profile/   # Get doctor profile
+```
+
+### Doctors
+```
+GET    /api/v1/doctors/                # List doctors (with filters)
+GET    /api/v1/doctors/{id}/           # Get doctor details
+POST   /api/v1/doctors/{id}/rate/      # Rate a doctor
+POST   /api/v1/doctors/{id}/add-disease-treatment/  # Add disease expertise
+```
+
+### Appointments
+```
+GET    /api/v1/appointments/           # List patient's appointments
+POST   /api/v1/appointments/           # Book appointment
+GET    /api/v1/appointments/{id}/      # Get appointment details
+PUT    /api/v1/appointments/{id}/      # Update appointment
+DELETE /api/v1/appointments/{id}/      # Cancel appointment
+GET    /api/v1/appointments/doctor-dashboard/  # Doctor's appointments
+```
+
+### Chat (AI Chatbot)
+```
+POST   /api/v1/chat/                   # Send chat message
+GET    /api/v1/chat/history/           # Get chat history
+DELETE /api/v1/chat/history/           # Clear chat history
+```
+
+### Medical Records
+```
+GET    /api/v1/medical-records/        # List patient's records
+GET    /api/v1/medical-records/{id}/   # Get record details
+POST   /api/v1/medical-records/        # Create record (Doctor only)
+```
+
+### Prescriptions
+```
+GET    /api/v1/prescriptions/          # List patient's prescriptions
+GET    /api/v1/prescriptions/{id}/     # Get prescription details
+POST   /api/v1/prescriptions/          # Create prescription (Doctor only)
+```
+
+### Blogs
+```
+GET    /api/v1/blogs/                  # List published blogs (public)
+GET    /api/v1/blogs/{id}/             # Get blog details (public)
+POST   /api/v1/blogs/                  # Create blog (Doctor only)
+PUT    /api/v1/blogs/{id}/             # Update blog (Owner only)
+DELETE /api/v1/blogs/{id}/             # Delete blog (Owner only)
+```
+
+### AI/ML Services (External)
+```
+POST   http://localhost:8001/chat      # AI chatbot (RAG)
+POST   http://localhost:8002/predict   # Disease prediction (ML)
+GET    http://localhost:8002/symptoms  # List symptoms
+GET    http://localhost:8002/diseases  # List diseases
 ```
 
 ---
 
-## 15. Testing Standards
+## 🔗 Related Documentation
 
-### 15.1 All APIs Must Have Tests
-- Unit tests for business logic
-- Integration tests for API endpoints
-- Test all status codes
-- Test authentication/authorization
-
-### 15.2 Example Test Cases
-```python
-# Test successful user creation
-# Test duplicate email error
-# Test missing required fields
-# Test invalid email format
-# Test authentication required
-# Test unauthorized access
-```
+- [System Architecture](./SYSTEM_ARCHITECTURE.md)
+- [Database Schema](./DATABASE_SCHEMA.md)
+- [Sprint Documentation](../sprints/)
 
 ---
 
-## Summary
+## 📚 References
 
-**Key Principles:**
-1. ✅ RESTful design (resources, HTTP methods)
-2. ✅ Consistent naming (snake_case, plural nouns)
-3. ✅ Standard response format
-4. ✅ Proper status codes
-5. ✅ JWT authentication
-6. ✅ Input validation
-7. ✅ Error handling
-8. ✅ Security first
-9. ✅ Complete documentation
-10. ✅ Comprehensive testing
-
-**These principles apply to ALL sprints and features.**
-
----
-
-**Document Status:** ✅ Completed  
-**Phase:** Sprint 0 - Foundation  
-**Next Step:** Implement Sprint 1 APIs following these principles
+- [REST API Best Practices](https://restfulapi.net/)
+- [Django REST Framework](https://www.django-rest-framework.org/)
+- [HTTP Status Codes](https://httpstatuses.com/)
+- [JWT RFC 7519](https://tools.ietf.org/html/rfc7519)
+- [OpenAPI Specification](https://swagger.io/specification/)
