@@ -163,12 +163,17 @@ graph TB
     
     MedicalDocs -.->|One-time Indexing| VectorDB
     
-    style User fill:#61dafb
-    style Django fill:#092e20
-    style FastAPI fill:#009688
-    style Gemini fill:#4285f4
-    style VectorDB fill:#8b5cf6
-    style MedicalDocs fill:#f59e0b
+    style User fill:#1e3a5f,stroke:#4fc3f7,stroke-width:2px,color:#e3f2fd
+    style Django fill:#1b5e20,stroke:#66bb6a,stroke-width:2px,color:#e8f5e9
+    style FastAPI fill:#004d40,stroke:#4db6ac,stroke-width:2px,color:#e0f2f1
+    style Embedding fill:#6a1b9a,stroke:#ab47bc,stroke-width:2px,color:#f3e5f5
+    style VectorDB fill:#4a148c,stroke:#9c27b0,stroke-width:2px,color:#f3e5f5
+    style Retriever fill:#6a1b9a,stroke:#ab47bc,stroke-width:2px,color:#f3e5f5
+    style LangChain fill:#6a1b9a,stroke:#ab47bc,stroke-width:2px,color:#f3e5f5
+    style Gemini fill:#0d47a1,stroke:#42a5f5,stroke-width:2px,color:#e3f2fd
+    style PineconeCloud fill:#4a148c,stroke:#9c27b0,stroke-width:2px,color:#f3e5f5
+    style GoogleAI fill:#0d47a1,stroke:#42a5f5,stroke-width:2px,color:#e3f2fd
+    style MedicalDocs fill:#e65100,stroke:#ff9800,stroke-width:2px,color:#fff3e0
 ```
 
 ### Request Flow (Step-by-Step)

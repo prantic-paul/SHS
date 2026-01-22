@@ -88,11 +88,20 @@ graph TB
     Chat -->|Proxy Requests| AI
     Backend -->|Symptom Data| ML
     
-    style Frontend fill:#61dafb
-    style DRF fill:#092e20
-    style DB fill:#003b57
-    style AI fill:#4285f4
-    style ML fill:#ff6f00
+    style Frontend fill:#1e3a5f,stroke:#4fc3f7,stroke-width:2px,color:#e3f2fd
+    style DRF fill:#1b5e20,stroke:#66bb6a,stroke-width:2px,color:#e8f5e9
+    style Users fill:#004d40,stroke:#4db6ac,stroke-width:2px,color:#e0f2f1
+    style Doctors fill:#004d40,stroke:#4db6ac,stroke-width:2px,color:#e0f2f1
+    style Appointment fill:#004d40,stroke:#4db6ac,stroke-width:2px,color:#e0f2f1
+    style Chat fill:#004d40,stroke:#4db6ac,stroke-width:2px,color:#e0f2f1
+    style Prescription fill:#004d40,stroke:#4db6ac,stroke-width:2px,color:#e0f2f1
+    style Blog fill:#004d40,stroke:#4db6ac,stroke-width:2px,color:#e0f2f1
+    style MedRecord fill:#004d40,stroke:#4db6ac,stroke-width:2px,color:#e0f2f1
+    style Auth fill:#6a1b9a,stroke:#ab47bc,stroke-width:2px,color:#f3e5f5
+    style CORS fill:#6a1b9a,stroke:#ab47bc,stroke-width:2px,color:#f3e5f5
+    style DB fill:#01579b,stroke:#29b6f6,stroke-width:2px,color:#e1f5fe
+    style AI fill:#0d47a1,stroke:#42a5f5,stroke-width:2px,color:#e3f2fd
+    style ML fill:#e65100,stroke:#ff9800,stroke-width:2px,color:#fff3e0
 ```
 
 ### Request Flow

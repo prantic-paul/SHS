@@ -311,12 +311,20 @@ graph TB
     Training -.->|Saves encoder| EncoderFile
     Training -.->|Saves index| SymptomFile
     
-    style User fill:#61dafb
-    style Django fill:#092e20
-    style FastAPI fill:#009688
-    style Model fill:#ff6f00
-    style Dataset fill:#f59e0b
-    style ModelFile fill:#8b5cf6
+    style User fill:#1e3a5f,stroke:#4fc3f7,stroke-width:2px,color:#e3f2fd
+    style Django fill:#1b5e20,stroke:#66bb6a,stroke-width:2px,color:#e8f5e9
+    style FastAPI fill:#004d40,stroke:#4db6ac,stroke-width:2px,color:#e0f2f1
+    style Input fill:#6a1b9a,stroke:#ab47bc,stroke-width:2px,color:#f3e5f5
+    style Matching fill:#6a1b9a,stroke:#ab47bc,stroke-width:2px,color:#f3e5f5
+    style Vector fill:#6a1b9a,stroke:#ab47bc,stroke-width:2px,color:#f3e5f5
+    style Model fill:#e65100,stroke:#ff9800,stroke-width:2px,color:#fff3e0
+    style Decoder fill:#6a1b9a,stroke:#ab47bc,stroke-width:2px,color:#f3e5f5
+    style Ranking fill:#6a1b9a,stroke:#ab47bc,stroke-width:2px,color:#f3e5f5
+    style ModelFile fill:#4a148c,stroke:#9c27b0,stroke-width:2px,color:#f3e5f5
+    style EncoderFile fill:#4a148c,stroke:#9c27b0,stroke-width:2px,color:#f3e5f5
+    style SymptomFile fill:#4a148c,stroke:#9c27b0,stroke-width:2px,color:#f3e5f5
+    style Dataset fill:#b71c1c,stroke:#ef5350,stroke-width:2px,color:#ffebee
+    style Training fill:#0d47a1,stroke:#42a5f5,stroke-width:2px,color:#e3f2fd
 ```
 
 ### Prediction Flow (Step-by-Step)
