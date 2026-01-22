@@ -1,6 +1,6 @@
 # 🧬 Disease Prediction Service – Smart Health Synchronizer
 
-**Machine Learning-powered disease prediction system using Random Forest classifier to predict 41 diseases from 132 symptoms with 90.5% accuracy.**
+**Machine Learning-powered disease prediction system using Random Forest classifier to predict diseases from symptoms.**
 
 ---
 
@@ -8,19 +8,19 @@
 
 The Disease Prediction Service is a FastAPI-based microservice that uses **machine learning** to predict potential diseases based on user-reported symptoms. The service employs a **Random Forest classifier** trained on a comprehensive medical dataset to provide:
 
-- **Multi-class classification** - Predicts among 41 different diseases
-- **Symptom-based prediction** - Users input symptoms, model predicts disease
-- **High accuracy** - 90.5% accuracy on test data
+- **Multi-class classification** - Predicts among multiple diseases
+- **Symptom-based prediction** - Users input symptoms, model predicts likely diseases
+- **High accuracy** - Trained and evaluated on medical dataset
 - **Fast inference** - Sub-second prediction time
-- **Explainable results** - Provides probability scores for top predictions
+- **Probability scores** - Provides confidence levels for predictions
 
 **Key Capabilities:**
 - 🏥 Predict diseases from symptom combinations
-- 📊 Probability scores for top 3 disease predictions
-- 🎯 132 symptoms coverage
+- 📊 Probability scores for top disease predictions
+- 🎯 Comprehensive symptom coverage
 - ⚡ Real-time predictions via REST API
-- 🔬 Trained on 4920 medical cases
-- 📈 Regular model updates with new data
+- 🔬 Trained on augmented medical dataset
+- 📈 Continuous model improvement
 
 **Important Medical Disclaimer:** This tool is for **informational purposes only** and is NOT a substitute for professional medical diagnosis. Users experiencing health concerns should consult qualified healthcare providers immediately.
 
@@ -31,7 +31,7 @@ The Disease Prediction Service is a FastAPI-based microservice that uses **machi
 ### Problem Statement
 
 **Task:** Multi-class classification problem  
-**Input:** Binary vector of 132 symptoms (present=1, absent=0)  
+**Input:** List of symptoms (text)  
 **Output:** Disease prediction with probability scores
 
 ### Business Objective
@@ -40,20 +40,22 @@ Enable patients to:
 1. Get preliminary disease insights based on symptoms
 2. Understand which specialist to consult
 3. Prepare informed questions for doctor appointments
-4. Reduce unnecessary hospital visits for minor concerns
-5. Identify urgent conditions requiring immediate care
+4. Identify conditions that may require medical attention
+5. Get alternative disease possibilities (differential diagnosis)
 
 ### Machine Learning Formulation
 
 ```
-Given: Symptom Vector S = [s₁, s₂, ..., s₁₃₂] where sᵢ ∈ {0, 1}
-Predict: Disease D ∈ {D₁, D₂, ..., D₄₁}
-Output: P(Dᵢ|S) for each disease class
+Given: Symptom List S = [symptom₁, symptom₂, ..., symptomₙ]
+Process: Match symptoms to indexed symptom vocabulary
+Predict: Disease D with probability P(D|S)
+Output: Top disease predictions with confidence scores
 ```
 
-**Classification Type:** Multi-class classification (41 classes)  
-**Features:** 132 binary features (symptom presence/absence)  
-**Target:** 41 disease categories
+**Classification Type:** Multi-class classification  
+**Algorithm:** Random Forest Classifier  
+**Features:** Symptom presence/absence (text to binary encoding)  
+**Target:** Disease categories
 
 ### Evaluation Metrics
 
@@ -61,7 +63,6 @@ Output: P(Dᵢ|S) for each disease class
 - **Precision:** True positives / (True positives + False positives)
 - **Recall:** True positives / (True positives + False negatives)
 - **F1-Score:** Harmonic mean of precision and recall
-- **Confusion Matrix:** Per-class performance analysis
 
 ---
 
@@ -69,66 +70,38 @@ Output: P(Dᵢ|S) for each disease class
 
 ### Source
 
-Custom curated medical dataset combining:
-- Clinical symptom databases
-- Medical textbooks
-- Healthcare provider data
-- Synthetic augmented samples
+**📥 Dataset Download Link:**  
+🔗 **Google Drive:** https://drive.google.com/file/d/1nxrNAHhYv0oNhET68nLjTeelHVx57Yag/view?usp=sharing
 
-### Dataset Statistics
+**Dataset Name:** `Final_Augmented_dataset_Diseases_and_Symptoms.csv`
 
-| Metric | Value |
-|--------|-------|
-| **Total Samples** | 4,920 |
-| **Training Set** | 3,936 (80%) |
-| **Test Set** | 984 (20%) |
-| **Features** | 132 symptoms |
-| **Classes** | 41 diseases |
-| **Average Symptoms per Case** | 8.5 |
-| **Class Balance** | Balanced (120 samples per disease) |
+### Dataset Overview
 
-### Disease Classes (41 Total)
+This is an augmented medical dataset that combines:
+- Clinical symptom-disease associations
+- Medical knowledge bases
+- Synthetic augmented samples for better model generalization
 
-```
-1. Fungal infection           15. Diabetes               29. Hepatitis B
-2. Allergy                    16. Gastroenteritis        30. Hepatitis C
-3. GERD                       17. Bronchial Asthma       31. Hepatitis D
-4. Chronic cholestasis        18. Hypertension           32. Hepatitis E
-5. Drug Reaction              19. Migraine               33. Alcoholic hepatitis
-6. Peptic ulcer disease       20. Cervical spondylosis   34. Tuberculosis
-7. AIDS                       21. Paralysis (brain)      35. Common Cold
-8. Diabetes                   22. Jaundice               36. Pneumonia
-9. Gastroenteritis            23. Malaria                37. Dimorphic hemmorhoids
-10. Bronchial Asthma          24. Chicken pox            38. Heart attack
-11. Hypertension              25. Dengue                 39. Varicose veins
-12. Migraine                  26. Typhoid                40. Hypothyroidism
-13. Cervical spondylosis      27. Hepatitis A            41. Hyperthyroidism
-14. Paralysis (brain)         28. Hepatitis B            ... and more
-```
+**Dataset Format:**
+- CSV file with diseases and associated symptoms
+- First column: Disease name
+- Remaining columns: Symptom features
+- Binary encoding (1 = symptom present, 0 = symptom absent)
 
-### Symptom Features (132 Total)
+### Dataset Processing
 
-Sample symptoms include:
-- itching, skin_rash, nodal_skin_eruptions
-- continuous_sneezing, shivering, chills
-- stomach_pain, acidity, ulcers_on_tongue
-- vomiting, cough, chest_pain
-- yellowish_skin, loss_of_appetite, abdominal_pain
-- high_fever, headache, fatigue
-- weight_loss, restlessness, lethargy
-- ... (132 symptoms total)
+The dataset is loaded and processed as follows:
 
-### Data Distribution
+```python
+# Load dataset
+data = pd.read_csv('Final_Augmented_dataset_Diseases_and_Symptoms.csv')
 
-```
-Symptom Frequency:
-- High frequency: fever (45%), headache (38%), fatigue (35%)
-- Medium frequency: cough (22%), stomach_pain (18%)
-- Low frequency: skin_rash (8%), weight_loss (5%)
+# Structure:
+# Column 0: 'diseases' - Target variable
+# Columns 1+: Symptom names - Feature variables
 
-Disease Distribution:
-- Balanced: Each disease ~120 samples
-- No significant class imbalance
+# Each row represents one disease-symptom combination
+# Symptoms are binary encoded (0 or 1)
 ```
 
 ---
@@ -139,36 +112,41 @@ Disease Distribution:
 
 ```python
 import pandas as pd
-import numpy as np
 
 # Load dataset
-df = pd.read_csv('dataset.csv')
+df = pd.read_csv('app/data/processed/Final_Augmented_dataset_Diseases_and_Symptoms.csv')
 
-# Shape: (4920, 133) - 132 symptoms + 1 target
+# Dataset structure
+# Column 0: diseases (target)
+# Columns 1+: symptoms (features)
+
 print(f"Dataset shape: {df.shape}")
-print(f"Missing values: {df.isnull().sum().sum()}")  # 0
+print(f"Number of diseases: {df['diseases'].nunique()}")
+print(f"Number of symptoms: {len(df.columns) - 1}")
 ```
 
-### 2. Feature Engineering
-
-**Original Features:** Symptom names (text)  
-**Transformed Features:** Binary encoding (0/1)
-
-```python
-# Symptoms already binary encoded in dataset
-# Each symptom column: 1 (present), 0 (absent)
-X = df.drop('prognosis', axis=1)  # 132 symptom columns
-y = df['prognosis']                # Disease label
-```
-
-### 3. Label Encoding
+### 2. Label Encoding
 
 ```python
 from sklearn.preprocessing import LabelEncoder
 
-label_encoder = LabelEncoder()
-y_encoded = label_encoder.fit_transform(y)
-# Maps disease names to integers: 0-40
+# Encode disease names to integers
+encoder = LabelEncoder()
+df['diseases'] = encoder.fit_transform(df['diseases'])
+
+# Save encoder for later use
+# encoder.classes_ contains original disease names
+```
+
+### 3. Feature Engineering
+
+```python
+# Extract features (symptoms) and target (disease)
+X = df.iloc[:, 1:]  # All columns except first (symptoms)
+y = df.iloc[:, 0]   # First column (diseases)
+
+# Create symptom index for prediction
+symptom_index = {symptom: idx for idx, symptom in enumerate(X.columns)}
 ```
 
 ### 4. Train-Test Split
@@ -177,67 +155,46 @@ y_encoded = label_encoder.fit_transform(y)
 from sklearn.model_selection import train_test_split
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y_encoded, 
-    test_size=0.2, 
-    random_state=42, 
-    stratify=y_encoded  # Maintain class distribution
+    X, y, 
+    test_size=0.2,      # 20% for testing
+    random_state=42,    # Reproducibility
+    stratify=y          # Maintain class distribution
 )
-```
-
-### 5. Feature Scaling
-
-```python
-from sklearn.preprocessing import StandardScaler
-
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
-```
-
-**Note:** Feature scaling applied for consistency, though Random Forest is scale-invariant.
-
-### 6. Data Validation
-
-```python
-# Check class balance
-print(np.bincount(y_train))  # ~96 samples per class
-
-# Check feature ranges
-print(X_train.min(), X_train.max())  # [0, 1]
-
-# Verify no data leakage
-assert len(set(X_train.index) & set(X_test.index)) == 0
 ```
 
 ---
 
 ## 🤖 Model Selection
 
-### Models Compared
+### Algorithm: Random Forest Classifier
 
-| Model | Accuracy | Precision | Recall | F1-Score | Training Time | Prediction Time |
-|-------|----------|-----------|--------|----------|---------------|-----------------|
-| **Random Forest** | **90.5%** | **90.2%** | **90.5%** | **90.3%** | 2.3s | **0.05s** |
-| Decision Tree | 85.2% | 84.8% | 85.2% | 84.9% | 0.5s | 0.02s |
-| Naive Bayes | 82.7% | 81.9% | 82.7% | 82.1% | 0.1s | 0.01s |
-| SVM (RBF) | 88.3% | 88.0% | 88.3% | 88.1% | 8.2s | 0.8s |
-| Neural Network | 89.1% | 88.8% | 89.1% | 88.9% | 15.4s | 0.1s |
+**Why Random Forest?**
 
-### Why Random Forest?
+✅ **Ensemble Method** - Combines multiple decision trees for better accuracy  
+✅ **Handles Binary Features** - Perfect for symptom presence/absence  
+✅ **Resistant to Overfitting** - Averaging reduces variance  
+✅ **Feature Importance** - Can identify which symptoms are most predictive  
+✅ **No Feature Scaling Needed** - Works with binary features directly  
+✅ **Fast Prediction** - Efficient for real-time inference  
 
-✅ **Best Accuracy** - 90.5% on test set  
-✅ **Fast Inference** - 0.05s prediction time  
-✅ **Robust** - Handles feature correlations well  
-✅ **Interpretable** - Feature importance analysis  
-✅ **No Overfitting** - Good generalization  
-✅ **Stable** - Consistent performance across runs  
+### Model Configuration
 
-**Random Forest Advantages for Medical Data:**
-- Handles binary features efficiently
-- Resistant to outliers
-- Provides probability estimates
-- Feature importance for explainability
-- Ensemble method reduces variance
+```python
+from sklearn.ensemble import RandomForestClassifier
+
+model = RandomForestClassifier(
+    n_estimators=100,     # 100 decision trees
+    random_state=42,      # Reproducibility
+    n_jobs=-1,            # Use all CPU cores
+    verbose=1             # Show training progress
+)
+```
+
+**Parameters Explained:**
+- `n_estimators=100`: Train 100 decision trees and average their predictions
+- `random_state=42`: Ensures reproducible results
+- `n_jobs=-1`: Parallel processing using all CPU cores
+- No max_depth: Trees grow until pure or minimum samples reached
 
 ---
 
@@ -246,113 +203,135 @@ assert len(set(X_train.index) & set(X_test.index)) == 0
 ### Model Training
 
 ```python
-from sklearn.ensemble import RandomForestClassifier
+# Train the model
+model.fit(X_train, y_train)
 
-# Train Random Forest
-rf_model = RandomForestClassifier(
-    n_estimators=100,      # 100 decision trees
-    max_depth=None,        # Unlimited depth
-    min_samples_split=2,
-    min_samples_leaf=1,
-    max_features='sqrt',   # sqrt(132) ≈ 11 features per split
-    random_state=42,
-    n_jobs=-1              # Use all CPU cores
-)
-
-rf_model.fit(X_train_scaled, y_train)
+# Training logs show progress:
+# [Parallel(n_jobs=-1)]: Done 100 out of 100 | elapsed: 2.3s finished
 ```
-
-### Hyperparameter Tuning
-
-```python
-from sklearn.model_selection import GridSearchCV
-
-param_grid = {
-    'n_estimators': [50, 100, 200],
-    'max_depth': [None, 10, 20, 30],
-    'min_samples_split': [2, 5, 10],
-    'max_features': ['sqrt', 'log2']
-}
-
-grid_search = GridSearchCV(
-    RandomForestClassifier(random_state=42),
-    param_grid,
-    cv=5,
-    scoring='accuracy',
-    n_jobs=-1
-)
-
-grid_search.fit(X_train_scaled, y_train)
-best_model = grid_search.best_estimator_
-```
-
-**Best Parameters:**
-- n_estimators: 100
-- max_depth: None
-- min_samples_split: 2
-- max_features: 'sqrt'
 
 ### Performance Metrics
 
-```python
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-
-y_pred = rf_model.predict(X_test_scaled)
-
-# Overall Metrics
-accuracy = accuracy_score(y_test, y_pred)  # 90.5%
-print(f"Accuracy: {accuracy:.2%}")
-
-# Per-class Metrics
-print(classification_report(y_test, y_pred, target_names=label_encoder.classes_))
-```
-
-**Results:**
-- **Accuracy:** 90.5%
-- **Macro Avg Precision:** 90.2%
-- **Macro Avg Recall:** 90.5%
-- **Macro Avg F1-Score:** 90.3%
-
-### Confusion Matrix Analysis
+After training, the model is evaluated on both training and test sets:
 
 ```python
-cm = confusion_matrix(y_test, y_pred)
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-# Most confused disease pairs:
-# - Hepatitis B vs Hepatitis C (8 misclassifications)
-# - Common Cold vs Allergy (6 misclassifications)
-# - Gastroenteritis vs Food Poisoning (5 misclassifications)
+# Predictions
+train_pred = model.predict(X_train)
+test_pred = model.predict(X_test)
+
+# Calculate metrics
+metrics = {
+    'train_accuracy': accuracy_score(y_train, train_pred),
+    'test_accuracy': accuracy_score(y_test, test_pred),
+    'precision': precision_score(y_test, test_pred, average='weighted'),
+    'recall': recall_score(y_test, test_pred, average='weighted'),
+    'f1_score': f1_score(y_test, test_pred, average='weighted')
+}
 ```
 
-### Cross-Validation
+**Note:** Actual performance metrics depend on the dataset. Train the model using `python train_model.py` to see actual results.
 
-```python
-from sklearn.model_selection import cross_val_score
+### Model Artifacts
 
-cv_scores = cross_val_score(rf_model, X_train_scaled, y_train, cv=5, scoring='accuracy')
-print(f"CV Accuracy: {cv_scores.mean():.2%} (+/- {cv_scores.std():.2%})")
-# Output: 89.8% (+/- 1.2%)
+After training, the following files are saved:
+
+```
+app/data/models/
+├── disease_model.pkl      # Trained Random Forest model
+├── encoder.pkl            # Label encoder (disease names)
+└── symptom_index.pkl      # Symptom to index mapping
 ```
 
-### Feature Importance
+---
 
-```python
-# Top 10 most important symptoms
-importances = rf_model.feature_importances_
-top_features = np.argsort(importances)[-10:][::-1]
+## 🏗️ Architecture Flow
 
-print("Top 10 Important Symptoms:")
-for idx in top_features:
-    print(f"{X.columns[idx]}: {importances[idx]:.4f}")
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        User[👤 User<br/>Frontend]
+    end
+    
+    subgraph "Backend Layer"
+        Django[🔧 Django Backend<br/>Port 8000]
+    end
+    
+    subgraph "ML Service - Port 8002"
+        FastAPI[⚡ FastAPI Server]
+        
+        subgraph "Prediction Pipeline"
+            Input[📝 Input Processing<br/>Symptom List]
+            
+            Matching[🔍 Symptom Matching<br/>Map to symptom index]
+            
+            Vector[🔢 Feature Vector<br/>Create binary array<br/>n_symptoms dimensions]
+            
+            Model[🤖 Random Forest Model<br/>100 decision trees<br/>Trained classifier]
+            
+            Decoder[📋 Result Decoding<br/>Label encoder<br/>Integer → Disease name]
+            
+            Ranking[📊 Confidence Ranking<br/>Top-K predictions<br/>with probabilities]
+        end
+        
+        subgraph "Model Artifacts"
+            ModelFile[(💾 disease_model.pkl<br/>Trained Random Forest)]
+            EncoderFile[(💾 encoder.pkl<br/>Disease Label Encoder)]
+            SymptomFile[(💾 symptom_index.pkl<br/>Symptom Dictionary)]
+        end
+    end
+    
+    subgraph "Training Phase"
+        Dataset[📊 Dataset CSV<br/>50,000+ samples<br/>Diseases & Symptoms]
+        Training[🏋️ Training Script<br/>train_model.py<br/>80-20 split]
+    end
+    
+    User -->|Symptom List| Django
+    Django -->|POST /predict| FastAPI
+    
+    FastAPI --> Input
+    Input --> Matching
+    Matching --> Vector
+    Vector --> Model
+    
+    Model --> Decoder
+    Decoder --> Ranking
+    
+    Model -.->|Loads| ModelFile
+    Decoder -.->|Loads| EncoderFile
+    Matching -.->|Loads| SymptomFile
+    
+    Ranking -->|JSON Response| FastAPI
+    FastAPI -->|Prediction Result| Django
+    Django -->|Display| User
+    
+    Dataset --> Training
+    Training -.->|Saves models| ModelFile
+    Training -.->|Saves encoder| EncoderFile
+    Training -.->|Saves index| SymptomFile
+    
+    style User fill:#61dafb
+    style Django fill:#092e20
+    style FastAPI fill:#009688
+    style Model fill:#ff6f00
+    style Dataset fill:#f59e0b
+    style ModelFile fill:#8b5cf6
 ```
 
-**Top Symptoms:**
-1. yellowish_skin (0.0342)
-2. vomiting (0.0298)
-3. high_fever (0.0276)
-4. stomach_pain (0.0254)
-5. chest_pain (0.0231)
-...
+### Prediction Flow (Step-by-Step)
+
+1. **User Input** → Patient enters symptoms: ["fever", "cough", "headache"]
+2. **Backend Proxy** → Django forwards to ML Service (Port 8002)
+3. **FastAPI Receives** → Validates symptom list
+4. **Symptom Matching** → Maps text symptoms to indices using symptom_index.pkl
+5. **Feature Vector Creation** → Creates binary array (all 0s, then set matched symptoms to 1)
+6. **Model Prediction** → Random Forest predicts disease probabilities
+7. **Probability Extraction** → Get probability scores for all diseases
+8. **Top-K Selection** → Select top 3 diseases with highest probabilities
+9. **Label Decoding** → Convert disease integers to names using encoder.pkl
+10. **Response Formation** → Format JSON with disease names and confidence scores
+11. **Return to Client** → Send response through Django to frontend
 
 ---
 
@@ -368,33 +347,49 @@ curl -X POST http://localhost:8002/predict \
   -H "Content-Type: application/json" \
   -d '{
     "symptoms": [
-      "itching",
-      "skin_rash",
-      "nodal_skin_eruptions",
-      "dischromic_patches"
+      "fever",
+      "cough",
+      "headache",
+      "fatigue"
     ]
   }'
+```
+
+**Request Body Schema:**
+```json
+{
+  "symptoms": ["symptom1", "symptom2", ...]
+}
 ```
 
 **Response:**
 ```json
 {
-  "prediction": "Fungal infection",
-  "confidence": 0.92,
-  "top_predictions": [
-    {"disease": "Fungal infection", "probability": 0.92},
-    {"disease": "Allergy", "probability": 0.05},
-    {"disease": "Drug Reaction", "probability": 0.02}
+  "disease": "Common Cold",
+  "confidence": 0.87,
+  "alternative_diseases": [
+    {"disease": "Flu", "confidence": 0.65},
+    {"disease": "Viral Infection", "confidence": 0.42}
   ],
-  "recommended_specialist": "Dermatologist",
-  "urgency": "low",
+  "matched_symptoms": ["fever", "cough", "headache", "fatigue"],
+  "unmatched_symptoms": [],
+  "recommendation": "Consult a General Physician",
   "disclaimer": "This prediction is for informational purposes only. Please consult a healthcare provider for accurate diagnosis."
 }
 ```
 
+**Response Fields:**
+- `disease`: Most likely disease prediction
+- `confidence`: Probability score (0-1)
+- `alternative_diseases`: Other possible diseases with their confidence scores
+- `matched_symptoms`: Symptoms that were found in model vocabulary
+- `unmatched_symptoms`: Symptoms not in model vocabulary
+- `recommendation`: Suggested specialist type
+- `disclaimer`: Medical safety disclaimer
+
 ### Endpoint: GET /symptoms
 
-Get list of all 132 valid symptoms.
+Get list of all valid symptoms in model vocabulary.
 
 **Request:**
 ```bash
@@ -405,11 +400,15 @@ curl http://localhost:8002/symptoms
 ```json
 {
   "symptoms": [
-    "itching", "skin_rash", "nodal_skin_eruptions",
-    "continuous_sneezing", "shivering", "chills",
+    "fever",
+    "cough",
+    "headache",
+    "fatigue",
+    "nausea",
+    "vomiting",
     ...
   ],
-  "total": 132
+  "total": 200
 }
 ```
 
@@ -426,9 +425,11 @@ curl http://localhost:8002/health
 ```json
 {
   "status": "healthy",
-  "service": "disease-prediction",
+  "service": "disease-prediction-service",
   "model_loaded": true,
-  "model_accuracy": 0.905
+  "model_path": "app/data/models/disease_model.pkl",
+  "n_diseases": 45,
+  "n_symptoms": 200
 }
 ```
 
@@ -436,34 +437,44 @@ curl http://localhost:8002/health
 
 ## 📊 Performance Metrics
 
-### Classification Metrics
+### Model Performance
 
-| Metric | Value |
-|--------|-------|
-| **Accuracy** | 90.5% |
-| **Precision (Macro)** | 90.2% |
-| **Recall (Macro)** | 90.5% |
-| **F1-Score (Macro)** | 90.3% |
-| **AUC-ROC** | 0.96 |
+Performance metrics are calculated during training. To see actual metrics:
+
+```bash
+python train_model.py
+```
+
+**Expected Output:**
+```
+Training Results
+================================================================================
+
+Dataset Information:
+  Total samples: 50000+
+  Number of diseases: 40-50
+  Number of symptoms: 200+
+
+Model Performance:
+  Train Accuracy: XX.XX%
+  Test Accuracy:  XX.XX%
+  Precision:      XX.XX%
+  Recall:         XX.XX%
+  F1 Score:       XX.XX%
+
+Model saved successfully!
+```
+
+**Note:** Actual accuracy depends on the dataset. The model typically achieves high accuracy on this augmented dataset due to clear symptom-disease patterns.
 
 ### Inference Performance
 
 | Metric | Value |
 |--------|-------|
-| **Prediction Time** | 50ms (average) |
-| **Throughput** | 20 predictions/second |
-| **Model Size** | 45 MB |
-| **Memory Usage** | 120 MB |
-
-### Per-Class Performance (Sample)
-
-| Disease | Precision | Recall | F1-Score | Support |
-|---------|-----------|--------|----------|---------|
-| Fungal infection | 0.95 | 0.93 | 0.94 | 24 |
-| Diabetes | 0.92 | 0.96 | 0.94 | 24 |
-| Malaria | 0.88 | 0.92 | 0.90 | 24 |
-| Pneumonia | 0.91 | 0.88 | 0.89 | 24 |
-| ... | ... | ... | ... | ... |
+| **Prediction Time** | < 100ms (average) |
+| **Model Size** | ~5-10 MB (depends on dataset) |
+| **Memory Usage** | ~50-100 MB |
+| **Throughput** | 10+ predictions/second |
 
 ---
 
@@ -471,30 +482,35 @@ curl http://localhost:8002/health
 
 ### Model Limitations
 
-1. **Not a Medical Diagnosis**
+1. **Not a Medical Diagnosis Tool**
    - Predictions are probabilistic, not definitive
    - Cannot replace professional medical examination
    - Should not be used for emergency situations
+   - No personalized medical advice
 
 2. **Dataset Constraints**
-   - Limited to 41 diseases (rare diseases not covered)
+   - Limited to diseases in training dataset
    - Based on common symptom presentations
-   - May not capture atypical cases
+   - May not capture atypical or rare cases
+   - Symptoms must be in model vocabulary
 
-3. **Symptom Ambiguity**
-   - Some symptoms overlap across diseases
+3. **Symptom Input Challenges**
+   - Requires users to accurately describe symptoms
+   - Symptom names must match model vocabulary
    - User-reported symptoms may be imprecise
-   - Requires accurate symptom input
+   - No severity or duration information
 
-4. **No Medical History Context**
+4. **No Medical Context**
    - Doesn't consider age, gender, medical history
    - Ignores patient-specific risk factors
-   - No lab test or imaging data
+   - No lab test or imaging data integration
+   - Cannot assess symptom severity
 
-5. **Accuracy Ceiling**
-   - 90.5% accuracy means ~10% errors
-   - Some disease pairs harder to distinguish
-   - False positives/negatives possible
+5. **Prediction Confidence**
+   - Confidence scores are model probabilities, not medical certainty
+   - Multiple diseases may have similar symptoms
+   - False positives/negatives are possible
+   - Alternative diseases should be considered
 
 ### Clinical Risks
 
@@ -502,71 +518,59 @@ curl http://localhost:8002/health
 - Emergency medical conditions
 - Serious chronic diseases
 - Conditions requiring immediate intervention
-- Diagnosis without doctor consultation
+- Any diagnosis without doctor consultation
 
 ### Mitigation Strategies
 
 ✅ **Clear Disclaimers** - Every response includes medical disclaimer  
 ✅ **Confidence Scores** - Users see prediction probability  
+✅ **Alternative Diseases** - Shows multiple possibilities (differential diagnosis)  
 ✅ **Specialist Recommendations** - Guides users to appropriate doctors  
-✅ **Urgency Indicators** - Flags potentially urgent conditions  
-✅ **Multi-prediction** - Shows top 3 predictions for context
+✅ **Matched Symptoms Display** - Shows which symptoms were recognized  
 
 ---
 
 ## 🚀 Future Improvements
 
-### Short-term (3-6 months)
+### Short-term
 
-1. **Expand Disease Coverage**
-   - Add 20+ more diseases (total 60+)
-   - Include rare conditions
-   - Regional disease variations
+1. **Dataset Enhancement**
+   - Add more diseases and symptoms
+   - Include symptom severity levels
+   - Add symptom duration information
+   - Balance rare disease representation
 
-2. **Improve Accuracy**
-   - Ensemble models (XGBoost + Random Forest)
-   - Deep learning models (Neural Networks)
-   - Active learning from user feedback
+2. **Model Improvements**
+   - Experiment with ensemble methods (XGBoost, LightGBM)
+   - Hyperparameter tuning
+   - Cross-validation for robustness
+   - Model versioning and A/B testing
 
-3. **Enhanced Features**
-   - Symptom duration (how long?)
-   - Symptom severity (mild/moderate/severe)
-   - Demographic data (age, gender)
-   - Medical history integration
+3. **Feature Engineering**
+   - Add demographic features (age, gender)
+   - Include medical history flags
+   - Symptom co-occurrence patterns
+   - Seasonal/regional disease patterns
 
-### Medium-term (6-12 months)
+### Long-term
 
 4. **Advanced ML Techniques**
-   - Multi-label classification (multiple diseases)
+   - Deep learning models (Neural Networks)
+   - Multi-label classification (multiple simultaneous conditions)
    - Hierarchical classification (disease categories)
-   - Transfer learning from medical LLMs
+   - Transfer learning from medical AI models
 
 5. **Explainability**
    - SHAP values for prediction explanation
-   - "Why this disease?" feature
+   - Feature importance visualization
+   - "Why this disease?" reasoning
    - Symptom contribution scores
 
-6. **Integration**
-   - Connect with electronic health records
-   - Lab test result integration
-   - Imaging data (X-rays, CT scans) with computer vision
-
-### Long-term (12+ months)
-
-7. **Personalization**
-   - Patient-specific risk models
-   - Genetic data integration
-   - Longitudinal health tracking
-
-8. **Clinical Validation**
-   - Collaborate with healthcare providers
-   - Real-world accuracy testing
-   - FDA approval pathway (if applicable)
-
-9. **Global Expansion**
-   - Multi-language support
-   - Regional disease databases
-   - Cultural symptom descriptions
+6. **Integration & Validation**
+   - Electronic health records integration
+   - Real-world accuracy tracking
+   - Medical professional validation
+   - Continuous learning from feedback
 
 ---
 
@@ -576,21 +580,30 @@ Create `.env` file in `disease-prediction-service/` directory:
 
 ```env
 # Application Settings
-PORT=8002
+SERVICE_HOST=0.0.0.0
+SERVICE_PORT=8002
 DEBUG=True
 LOG_LEVEL=INFO
 
 # Model Configuration
-MODEL_PATH=models/random_forest_model.pkl
-SCALER_PATH=models/scaler.pkl
-ENCODER_PATH=models/label_encoder.pkl
+MODEL_PATH=app/data/models/disease_model.pkl
+ENCODER_PATH=app/data/models/encoder.pkl
+SYMPTOM_INDEX_PATH=app/data/models/symptom_index.pkl
+MODEL_NAME=disease_prediction_model
+MODEL_VERSION=1.0.0
+
+# Data Paths
+DATA_FILE=app/data/processed/Final_Augmented_dataset_Diseases_and_Symptoms.csv
+
+# ML Configuration
+TEST_SIZE=0.2
+RANDOM_STATE=42
+N_ESTIMATORS=100
+N_ROWS=50000
 
 # Prediction Settings
 TOP_K_PREDICTIONS=3
-CONFIDENCE_THRESHOLD=0.5
-
-# Backend Integration
-BACKEND_URL=http://localhost:8000
+CONFIDENCE_THRESHOLD=0.1
 ```
 
 ---
@@ -599,39 +612,135 @@ BACKEND_URL=http://localhost:8000
 
 ### Prerequisites
 - Python 3.10+
-- scikit-learn 1.7.2+
+- pip package manager
 
 ### Installation
 
 ```bash
+# Navigate to ML service directory
 cd disease-prediction-service
+
+# Create virtual environment
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### Train Model (First Time Setup)
+### Prepare Dataset
+
+**Step 1: Download Dataset**
+- Download from: https://drive.google.com/file/d/1nxrNAHhYv0oNhET68nLjTeelHVx57Yag/view?usp=sharing
+- File name: `Final_Augmented_dataset_Diseases_and_Symptoms.csv`
+
+**Step 2: Place Dataset**
+```bash
+# Create directory
+mkdir -p app/data/processed
+
+# Place the downloaded CSV file here
+mv ~/Downloads/Final_Augmented_dataset_Diseases_and_Symptoms.csv app/data/processed/
+```
+
+### Train Model
 
 ```bash
+# Train the Random Forest model (first time setup)
 python train_model.py
 ```
 
-Outputs:
-- `models/random_forest_model.pkl`
-- `models/scaler.pkl`
-- `models/label_encoder.pkl`
+This will:
+- Load the dataset
+- Train Random Forest model
+- Evaluate performance
+- Save model artifacts to `app/data/models/`
+
+**Expected Output:**
+```
+================================================================================
+Disease Prediction Model Training
+================================================================================
+
+Configuration:
+  Data file: app/data/processed/Final_Augmented_dataset_Diseases_and_Symptoms.csv
+  N_ESTIMATORS: 100
+  TEST_SIZE: 0.2
+  RANDOM_STATE: 42
+
+Training...
+[Parallel(n_jobs=-1)]: Done 100 out of 100
+
+Training Results
+================================================================================
+Dataset Information:
+  Total samples: XXXXX
+  Number of diseases: XX
+  Number of symptoms: XXX
+
+Model Performance:
+  Train Accuracy: XX.XX%
+  Test Accuracy:  XX.XX%
+  Precision:      XX.XX%
+  Recall:         XX.XX%
+  F1 Score:       XX.XX%
+
+Saving Model...
+Model saved to:
+  model: app/data/models/disease_model.pkl
+  encoder: app/data/models/encoder.pkl
+  symptom_index: app/data/models/symptom_index.pkl
+
+Training Completed Successfully!
+================================================================================
+```
 
 ### Run Service
 
 ```bash
+# Start FastAPI server
 uvicorn main:app --reload --port 8002
 ```
 
 Service runs at `http://localhost:8002`
 
+### Verify Setup
+
+```bash
+# Check health
+curl http://localhost:8002/health
+
+# Get available symptoms
+curl http://localhost:8002/symptoms
+
+# Test prediction
+curl -X POST http://localhost:8002/predict \
+  -H "Content-Type: application/json" \
+  -d '{"symptoms": ["fever", "cough", "fatigue"]}'
+```
+
 ### API Documentation
+
+FastAPI auto-generates interactive docs:
 - **Swagger UI:** http://localhost:8002/docs
 - **ReDoc:** http://localhost:8002/redoc
+
+---
+
+## 🛠️ Tech Stack
+
+| Component | Technology | Version | Purpose |
+|-----------|-----------|---------|---------|
+| **Framework** | FastAPI | 0.116.2 | Async web framework |
+| **ML Library** | scikit-learn | 1.7.2 | Machine learning algorithms |
+| **Model** | Random Forest | - | Classification algorithm |
+| **Data Processing** | pandas | 2.3.2 | Data manipulation |
+| **Numerical** | numpy | 2.2.6 | Numerical computing |
+| **Model Persistence** | joblib | 1.5.2 | Model saving/loading |
+| **Visualization** | matplotlib | 3.10.6 | Training visualizations |
+| **Validation** | Pydantic | 2.11.9 | Data validation |
+| **Environment** | python-dotenv | 1.0.0 | Config management |
+| **Server** | uvicorn | 0.35.0 | ASGI server |
 
 ---
 
@@ -644,5 +753,5 @@ Part of Smart Health Synchronizer - MIT License
 ## 👨‍💻 Author
 
 **Prantic Paul**  
-GitHub: [@prantic-paul](https://github.com/prantic-paul)  
-Email: pranticpaulshimul@gmail.com
+- 📧 Email: pranticpaulshimul@gmail.com
+- 🐙 GitHub: [@prantic-paul](https://github.com/prantic-paul)

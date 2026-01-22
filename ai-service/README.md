@@ -11,14 +11,14 @@ The AI Service is an advanced **Retrieval-Augmented Generation (RAG)** chatbot d
 - **Google Gemini 1.5 Flash** - Latest LLM for natural language understanding
 - **Pinecone Vector Database** - Fast semantic search over medical knowledge
 - **LangChain** - Orchestration framework for RAG pipeline
-- **HuggingFace Embeddings** - Convert text to vector representations
+- **HuggingFace Embeddings** - Convert text to vector representations (sentence-transformers)
 
 The AI Service offers **intelligent medical advice** that is grounded in authoritative medical documents, reducing hallucinations and improving factual accuracy.
 
 **Key Capabilities:**
 - 💬 Natural conversational interface for health queries
 - 📚 Context-aware responses from medical knowledge base
-- 🔍 Semantic search across medical documents
+- �� Semantic search across medical documents
 - 🎯 Specialized medical prompting strategies
 - ⚡ Fast response times with vector similarity search
 - 🛡️ Safety disclaimers and medical ethics compliance
@@ -77,12 +77,13 @@ User Query → Embedding → Vector Search → Relevant Docs → Gemini (with co
 ### How It Works
 
 1. **Document Ingestion**
-   - Medical documents are split into chunks
-   - Each chunk is converted to embeddings (vectors)
+   - Medical documents (PDF) are loaded
+   - Documents split into chunks (500 chars, 50 overlap)
+   - Each chunk converted to embeddings (vectors)
    - Embeddings stored in Pinecone with metadata
 
 2. **Query Processing**
-   - User query is converted to embedding
+   - User query converted to embedding
    - Similarity search in Pinecone finds relevant chunks
    - Top K most relevant documents retrieved
 
@@ -108,68 +109,79 @@ User Query → Embedding → Vector Search → Relevant Docs → Gemini (with co
 
 ## 🏗️ Architecture Flow
 
-### System Architecture
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        User[👤 User<br/>React Frontend]
+    end
+    
+    subgraph "Backend Layer"
+        Django[🔧 Django Backend<br/>Port 8000]
+    end
+    
+    subgraph "AI Service - Port 8001"
+        FastAPI[⚡ FastAPI Server]
+        
+        subgraph "RAG Pipeline"
+            Embedding[🔤 HuggingFace Embeddings<br/>sentence-transformers/<br/>all-MiniLM-L6-v2<br/>384 dimensions]
+            
+            VectorDB[(🗄️ Pinecone Vector DB<br/>Medical Knowledge Base<br/>Indexed Documents)]
+            
+            Retriever[🔍 Retriever<br/>Top-K Similarity Search<br/>Returns relevant chunks]
+            
+            LangChain[🔗 LangChain<br/>Retrieval Chain<br/>Context Assembly]
+            
+            Gemini[🤖 Google Gemini 1.5 Flash<br/>Response Generation<br/>Temperature: 0.3]
+        end
+    end
+    
+    subgraph "External Services"
+        PineconeCloud[☁️ Pinecone Cloud<br/>Vector Database Service]
+        GoogleAI[☁️ Google AI<br/>Gemini API]
+    end
+    
+    subgraph "Data Source"
+        MedicalDocs[📚 Medical Documents<br/>PDF files from Drive<br/>Chunked & Embedded]
+    end
+    
+    User -->|Chat Message| Django
+    Django -->|POST /chat| FastAPI
+    
+    FastAPI --> Embedding
+    Embedding -->|Query Vector| Retriever
+    
+    Retriever <-->|Similarity Search| VectorDB
+    VectorDB <-->|Synced| PineconeCloud
+    
+    Retriever -->|Relevant Docs| LangChain
+    LangChain -->|Prompt + Context| Gemini
+    Gemini <-->|API Calls| GoogleAI
+    
+    Gemini -->|Response| FastAPI
+    FastAPI -->|JSON Response| Django
+    Django -->|Display| User
+    
+    MedicalDocs -.->|One-time Indexing| VectorDB
+    
+    style User fill:#61dafb
+    style Django fill:#092e20
+    style FastAPI fill:#009688
+    style Gemini fill:#4285f4
+    style VectorDB fill:#8b5cf6
+    style MedicalDocs fill:#f59e0b
+```
 
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                         User Interface (React)                        │
-└────────────────────────────────┬─────────────────────────────────────┘
-                                 │ HTTP Request (Chat Message)
-                                 ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                       Backend API (Django)                            │
-│  • Validates JWT token                                               │
-│  • Stores chat history in database                                   │
-│  • Forwards request to AI Service                                    │
-└────────────────────────────────┬─────────────────────────────────────┘
-                                 │ POST /chat
-                                 ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                    AI Service (FastAPI - Port 8001)                  │
-│                                                                       │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │                    1. Query Embedding                         │   │
-│  │    HuggingFace Embeddings (all-MiniLM-L6-v2)                │   │
-│  │    Converts user query to 384-dimensional vector             │   │
-│  └────────────────────────────┬─────────────────────────────────┘   │
-│                                │                                       │
-│                                ▼                                       │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │                    2. Semantic Search                         │   │
-│  │    Query: Pinecone Vector DB                                 │   │
-│  │    Returns: Top 5 most relevant medical document chunks      │   │
-│  └────────────────────────────┬─────────────────────────────────┘   │
-│                                │                                       │
-│                                ▼                                       │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │                    3. Context Assembly                        │   │
-│  │    LangChain RetrievalQA Chain                               │   │
-│  │    Combines: System Prompt + Retrieved Docs + User Query     │   │
-│  └────────────────────────────┬─────────────────────────────────┘   │
-│                                │                                       │
-│                                ▼                                       │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │                    4. Response Generation                     │   │
-│  │    Google Gemini 1.5 Flash                                   │   │
-│  │    Generates context-aware medical response                  │   │
-│  └────────────────────────────┬─────────────────────────────────┘   │
-│                                │                                       │
-└────────────────────────────────┼─────────────────────────────────────┘
-                                 │ JSON Response
-                                 ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                         Backend API (Django)                          │
-│  • Receives AI response                                              │
-│  • Stores in chat history                                            │
-│  • Forwards to frontend                                              │
-└────────────────────────────────┬─────────────────────────────────────┘
-                                 │
-                                 ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                         User Interface (React)                        │
-│  Displays AI response in chat interface                              │
-└──────────────────────────────────────────────────────────────────────┘
-```
+### Request Flow (Step-by-Step)
+
+1. **User Query** → Patient asks "What are symptoms of diabetes?"
+2. **Backend Proxy** → Django forwards request to AI Service (Port 8001)
+3. **FastAPI Receives** → Validates request, extracts message
+4. **Embedding Generation** → HuggingFace model converts query to 384-dim vector
+5. **Vector Search** → Pinecone finds top 5 most similar document chunks
+6. **Context Assembly** → LangChain combines system prompt + retrieved docs + query
+7. **LLM Generation** → Gemini 1.5 Flash generates context-aware response
+8. **Response Formatting** → Add disclaimers, format nicely
+9. **Return to Client** → JSON response sent back through Django to frontend
 
 ---
 
@@ -179,12 +191,18 @@ User Query → Embedding → Vector Search → Relevant Docs → Gemini (with co
 |-----------|-----------|---------|---------|
 | **Framework** | FastAPI | 0.108.0 | Async web framework |
 | **LLM** | Google Gemini | 1.5 Flash | Response generation |
-| **Vector DB** | Pinecone | Latest | Semantic search |
-| **Orchestration** | LangChain | 0.1.0 | RAG pipeline |
-| **Embeddings** | HuggingFace | all-MiniLM-L6-v2 | Text vectorization |
+| **Vector DB** | Pinecone | 3.0.0 | Semantic search & storage |
+| **Orchestration** | LangChain | 0.1.0 | RAG pipeline orchestration |
+| **LangChain Community** | langchain-community | 0.0.13 | Community integrations |
+| **LangChain Gemini** | langchain-google-genai | 0.0.6 | Gemini integration |
+| **LangChain Pinecone** | langchain-pinecone | 0.0.3 | Pinecone integration |
+| **Embeddings** | sentence-transformers | 3.4.0 | Text vectorization |
+| **Embedding Model** | all-MiniLM-L6-v2 | Latest | 384-dim embeddings |
+| **PDF Processing** | pypdf | 3.17.4 | Extract text from PDFs |
 | **HTTP Client** | requests | 2.31.0 | API calls |
 | **Environment** | python-dotenv | 1.0.0 | Config management |
-| **Validation** | Pydantic | 2.5.0 | Data validation |
+| **Validation** | Pydantic | 2.5.3 | Data validation |
+| **Settings** | pydantic-settings | 2.1.0 | Settings management |
 
 ---
 
@@ -192,38 +210,78 @@ User Query → Embedding → Vector Search → Relevant Docs → Gemini (with co
 
 ### Medical Knowledge Base
 
-The AI Service is grounded in curated medical documents including:
+The AI Service is grounded in a comprehensive medical textbook that covers:
 
-1. **Medical Textbooks** - General medicine, symptoms, diseases
-2. **Clinical Guidelines** - Treatment protocols, diagnostics
-3. **Health Information** - Common conditions, medications, preventive care
-4. **Specialist Directories** - When to consult specific specialists
+**📖 Medical Textbook (Primary Source):**
+- General medicine and diagnostics
+- Disease descriptions and symptoms
+- Treatment protocols and guidelines
+- Medication information
+- Preventive healthcare
+- Medical terminology and definitions
+
+**Download Medical Book:**  
+🔗 **Google Drive Link:** https://drive.google.com/file/d/1JFDzKO4beZjuFRQyvggW93V_givIJYqS/view?usp=sharing
+
+**Book Details:**
+- Format: PDF
+- Content: Comprehensive medical knowledge
+- Usage: Chunked into smaller segments and indexed in Pinecone
+- Purpose: Provides factual medical context for RAG system
 
 ### Document Processing Pipeline
 
 ```python
 # 1. Document Loading
-documents = TextLoader("medical_docs/").load()
+from langchain_community.document_loaders import PyPDFLoader
 
-# 2. Text Splitting (chunks of 500 tokens, 50 overlap)
+loader = PyPDFLoader("medical_book.pdf")
+documents = loader.load()
+
+# 2. Text Splitting (chunks of 500 chars, 50 overlap)
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=500,
-    chunk_overlap=50
+    chunk_overlap=50,
+    separators=["\n\n", "\n", ". ", " ", ""]
 )
 chunks = text_splitter.split_documents(documents)
 
 # 3. Embedding Generation
+from langchain_community.embeddings import HuggingFaceEmbeddings
+
 embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    model_kwargs={'device': 'cpu'}
 )
 
-# 4. Vector Store Creation
-vectorstore = Pinecone.from_documents(
+# 4. Vector Store Creation & Indexing
+from langchain_pinecone import PineconeVectorStore
+
+vectorstore = PineconeVectorStore.from_documents(
     chunks, 
     embeddings, 
     index_name="shs-medical"
 )
 ```
+
+### Indexing Process
+
+To index the medical documents into Pinecone:
+
+```bash
+# 1. Download the medical book from Drive link
+# 2. Place it in the ai-service directory
+# 3. Run indexing script
+python index_documents.py
+```
+
+This script:
+- Loads PDF document
+- Splits into chunks
+- Generates embeddings
+- Uploads to Pinecone cloud
 
 ---
 
@@ -231,52 +289,95 @@ vectorstore = Pinecone.from_documents(
 
 ### System Prompt Design
 
+The AI Service uses carefully crafted prompts to ensure medical accuracy and safety:
+
 ```python
 SYSTEM_PROMPT = """
-You are a helpful medical assistant for the Smart Health Synchronizer platform.
+You are a knowledgeable and empathetic medical AI assistant for the Smart Health Synchronizer platform.
+
+Your role is to:
+1. Provide accurate medical information based on the provided medical documents
+2. Explain complex medical concepts in simple, understandable language
+3. Suggest appropriate specialists when needed
+4. Always prioritize patient safety
 
 Guidelines:
-1. **Be Accurate**: Base responses on provided medical documents
-2. **Be Clear**: Use simple language, explain medical terms
-3. **Be Helpful**: Suggest next steps (book appointment, see specialist)
-4. **Be Safe**: Always include disclaimer about consulting healthcare professionals
-5. **Be Empathetic**: Show understanding and compassion
+- Base responses ONLY on the provided medical context
+- Use clear, compassionate language
+- Avoid medical jargon; explain terms when necessary
+- Provide actionable advice (e.g., "consult a cardiologist")
+- NEVER provide definitive diagnoses
 
-IMPORTANT DISCLAIMERS:
-- You are NOT a doctor and cannot provide medical diagnosis
+CRITICAL SAFETY RULES:
+- You are NOT a doctor and cannot diagnose conditions
+- Always include disclaimer about consulting healthcare professionals
+- For emergencies, direct users to call emergency services
 - Your advice is for informational purposes only
-- Users should always consult qualified healthcare providers
-- In emergencies, users should call emergency services immediately
+
+Response Format:
+- Clear explanation of the medical topic
+- Key points in bullet format
+- Recommended specialist type (if applicable)
+- Safety disclaimer at the end
 
 Context from medical documents:
 {context}
 
 User Question: {question}
+
+Provide a helpful, accurate, and safe response:
 """
 ```
 
 ### Response Structure
 
+AI responses follow this consistent structure:
+
 ```
-📋 **Explanation**
-[Clear explanation of medical topic]
+📋 **Medical Information**
+[Clear explanation based on retrieved medical documents]
 
 🔍 **Key Points**
-- Point 1
-- Point 2
+- Important point 1
+- Important point 2
+- Important point 3
 
-👨‍⚕️ **Recommended Specialist**
-[Specialist type if applicable]
+👨‍⚕️ **Recommended Action**
+[Suggested specialist type or next steps]
 
-⚠️ **Important Disclaimer**
-This information is for educational purposes only. Consult a healthcare provider.
+⚠️ **Important Medical Disclaimer**
+This information is for educational purposes only and should not be used for self-diagnosis. Please consult with a qualified healthcare provider for proper medical diagnosis and treatment. In case of emergency, call your local emergency services immediately.
 ```
+
+### Temperature & Model Settings
+
+```python
+# Google Gemini Configuration
+llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash",
+    temperature=0.3,  # Low temperature for factual responses
+    max_tokens=1024,  # Reasonable response length
+    top_p=0.95
+)
+```
+
+**Why temperature=0.3?**
+- Low temperature = more deterministic, factual responses
+- Reduces creative hallucinations
+- Better for medical domain where accuracy is critical
 
 ---
 
 ## 🌐 API Endpoints
 
-### POST /chat - Send Chat Message
+### Base URL
+`http://localhost:8001`
+
+### Endpoints
+
+#### 1. **POST /chat** - Send Chat Message
+
+Send a message to the AI medical assistant.
 
 **Request:**
 ```bash
@@ -288,16 +389,30 @@ curl -X POST http://localhost:8001/chat \
   }'
 ```
 
-**Response:**
+**Request Body:**
 ```json
 {
-  "response": "📋 **Diabetes Symptoms**\n\nCommon symptoms:\n\n🔍 **Key Symptoms**\n- Increased thirst\n- Frequent urination\n- Extreme hunger\n- Fatigue\n- Blurred vision\n\n👨‍⚕️ **Recommended Specialist**\nConsult an **Endocrinologist**\n\n⚠️ **Disclaimer**\nConsult a healthcare provider for diagnosis.",
-  "timestamp": "2026-01-22T10:30:00Z",
-  "sources": ["diabetes_overview.pdf"]
+  "message": "What are the symptoms of diabetes?",
+  "user_id": "user_123"
 }
 ```
 
-### GET /health - Health Check
+**Response:**
+```json
+{
+  "response": "📋 **Diabetes Symptoms**\n\nDiabetes is a metabolic disorder characterized by elevated blood sugar levels...\n\n🔍 **Key Symptoms**\n- Increased thirst and frequent urination\n- Extreme hunger\n- Unexplained weight loss\n- Fatigue and weakness\n- Blurred vision\n- Slow-healing wounds\n\n👨‍⚕️ **Recommended Action**\nConsult an **Endocrinologist** for proper diagnosis...\n\n⚠️ **Disclaimer**\nThis is educational information only. Consult a healthcare provider.",
+  "timestamp": "2026-01-22T10:30:00Z"
+}
+```
+
+**Status Codes:**
+- `200 OK` - Successful response
+- `400 Bad Request` - Invalid input
+- `500 Internal Server Error` - Service error
+
+#### 2. **GET /health** - Health Check
+
+Check AI service status and connectivity.
 
 **Request:**
 ```bash
@@ -309,8 +424,11 @@ curl http://localhost:8001/health
 {
   "status": "healthy",
   "service": "ai-service",
-  "pinecone": "connected",
-  "gemini": "available"
+  "version": "1.0.0",
+  "timestamp": "2026-01-22T10:30:00Z",
+  "pinecone_connected": true,
+  "gemini_available": true,
+  "embeddings_loaded": true
 }
 ```
 
@@ -318,31 +436,92 @@ curl http://localhost:8001/health
 
 ## ⚠️ Limitations
 
-1. **Not a Medical Diagnosis Tool** - Cannot replace professional medical consultation
-2. **Knowledge Base Scope** - Limited to documents in vector database
-3. **Language Support** - Primary: English
-4. **Privacy** - User queries sent to external services (Gemini, Pinecone)
-5. **Response Time** - 2-5 seconds depending on query
-6. **Response Quality** - May occasionally provide incomplete information
+### Current Constraints
+
+1. **Not a Medical Diagnosis Tool**
+   - Cannot replace professional medical consultation
+   - Should not be used for emergency situations
+   - Cannot interpret lab results, X-rays, or medical images
+   - No personalized medical advice
+
+2. **Knowledge Base Scope**
+   - Limited to documents in vector database
+   - May not cover very rare conditions
+   - Medical knowledge requires periodic updates
+   - General medicine focus (not specialist-level detail)
+
+3. **Language Support**
+   - Primary: English
+   - Other languages: Limited (Gemini supports, but knowledge base is English)
+
+4. **Privacy Considerations**
+   - Chat history stored in Django backend database
+   - User queries sent to external services (Google Gemini, Pinecone Cloud)
+   - No Protected Health Information (PHI) should be shared
+   - HIPAA compliance not implemented
+
+5. **Technical Limitations**
+   - Requires internet connection for Gemini and Pinecone
+   - Average response time: 2-5 seconds
+   - Rate limits on free tiers of external services
+   - Vector database requires periodic reindexing
+
+6. **Response Quality**
+   - May occasionally provide incomplete information
+   - Context window limits very long conversations
+   - Cannot access real-time medical research
+   - Retrieval quality depends on document indexing
 
 ### Safety Measures
 
-✅ Always includes medical disclaimer  
-✅ Encourages professional consultation  
-✅ Suggests appropriate specialists  
-✅ Refuses to diagnose conditions  
-✅ Provides emergency guidance when needed
+✅ **Always includes medical disclaimer**  
+✅ **Encourages professional consultation**  
+✅ **Suggests appropriate specialists**  
+✅ **Refuses to provide diagnoses**  
+✅ **Provides emergency guidance when needed**  
+✅ **Low temperature for factual responses**
 
 ---
 
 ## 🚀 Future Enhancements
 
-1. **Enhanced Knowledge Base** - Expand to 10,000+ medical documents
-2. **Fine-Tuned Models** - Custom fine-tuned Gemini model on medical data
-3. **Personalization** - User medical history integration (with consent)
-4. **Advanced Features** - Image analysis, voice input/output, multi-turn memory
-5. **Quality Improvements** - Source citation, confidence scores, feedback loop
-6. **Integration** - Direct booking, EHR integration, medication checker
+### Planned Improvements
+
+1. **Enhanced Knowledge Base**
+   - Expand to multiple medical textbooks and journals
+   - Add specialist-specific knowledge domains
+   - Include latest medical research papers
+   - Multi-language medical documents
+
+2. **Advanced RAG Techniques**
+   - Hybrid search (vector + keyword)
+   - Re-ranking retrieved documents
+   - Query expansion and reformulation
+   - Multi-hop reasoning
+
+3. **Model Improvements**
+   - Custom fine-tuned Gemini model on medical data
+   - Domain-specific embeddings for better retrieval
+   - Medical entity recognition (NER)
+   - Confidence scoring for answers
+
+4. **Personalization**
+   - User medical history integration (with consent)
+   - Personalized health recommendations
+   - Follow-up conversation context
+   - Learning from feedback
+
+5. **Advanced Features**
+   - Image analysis (X-rays, skin conditions) with Gemini Pro Vision
+   - Voice input/output for accessibility
+   - Multi-turn conversation memory
+   - Source citation in responses
+
+6. **Quality & Safety**
+   - Medical professional review system
+   - Fact-checking layer
+   - Hallucination detection
+   - A/B testing different prompts
 
 ---
 
@@ -355,20 +534,26 @@ Create `.env` file in `ai-service/` directory:
 GOOGLE_API_KEY=your-gemini-api-key-here
 
 # Pinecone Configuration
-PINECONE_API_KEY=your-pinecone-api-key
+PINECONE_API_KEY=your-pinecone-api-key-here
 PINECONE_ENVIRONMENT=us-east1-gcp
 PINECONE_INDEX_NAME=shs-medical
 
 # Model Configuration
 EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 LLM_MODEL=gemini-1.5-flash
+LLM_TEMPERATURE=0.3
 MAX_TOKENS=1024
-TEMPERATURE=0.3
 
 # Application Settings
-PORT=8001
+SERVICE_HOST=0.0.0.0
+SERVICE_PORT=8001
 DEBUG=True
 LOG_LEVEL=INFO
+
+# Document Processing
+CHUNK_SIZE=500
+CHUNK_OVERLAP=50
+TOP_K_RESULTS=5
 ```
 
 ---
@@ -377,35 +562,70 @@ LOG_LEVEL=INFO
 
 ### Prerequisites
 - Python 3.10+
-- Google Gemini API key
-- Pinecone account and API key
+- Google Gemini API key ([Get it here](https://makersuite.google.com/app/apikey))
+- Pinecone account and API key ([Sign up here](https://www.pinecone.io/))
 
 ### Installation
 
 ```bash
+# Navigate to AI service directory
 cd ai-service
+
+# Create virtual environment
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Configure environment
 cp .env.example .env
 nano .env  # Add your API keys
 ```
 
 ### Initialize Vector Database
 
+**Step 1: Download Medical Book**
+- Download from: https://drive.google.com/file/d/1JFDzKO4beZjuFRQyvggW93V_givIJYqS/view?usp=sharing
+- Place in `ai-service/` directory (same level as main.py)
+
+**Step 2: Run Indexing Script**
 ```bash
-python scripts/ingest_documents.py
+# Index medical documents into Pinecone (one-time setup)
+python index_documents.py
 ```
+
+This will:
+- Load the medical book PDF
+- Split into 500-character chunks
+- Generate embeddings
+- Upload to Pinecone cloud
+- Takes ~5-10 minutes
 
 ### Run Service
 
 ```bash
+# Start FastAPI server
 uvicorn main:app --reload --port 8001
 ```
 
 Service runs at `http://localhost:8001`
 
+### Verify Setup
+
+```bash
+# Check health
+curl http://localhost:8001/health
+
+# Test chat
+curl -X POST http://localhost:8001/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What is hypertension?", "user_id": "test"}'
+```
+
 ### API Documentation
+
+FastAPI auto-generates interactive docs:
 - **Swagger UI:** http://localhost:8001/docs
 - **ReDoc:** http://localhost:8001/redoc
 
@@ -420,5 +640,5 @@ Part of Smart Health Synchronizer - MIT License
 ## 👨‍💻 Author
 
 **Prantic Paul**  
-GitHub: [@prantic-paul](https://github.com/prantic-paul)  
-Email: pranticpaulshimul@gmail.com
+- 📧 Email: pranticpaulshimul@gmail.com
+- 🐙 GitHub: [@prantic-paul](https://github.com/prantic-paul)
