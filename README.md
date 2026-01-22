@@ -156,6 +156,23 @@ graph TB
 | **AI Components** | Gemini, Pinecone, ML Models | Language model, vector storage, prediction models |
 | **Data** | PostgreSQL | Persistent storage for users, doctors, appointments, blogs |
 
+
+### System Workflow
+
+**📋 How the System Works:**
+
+1. **User Authentication** → User accesses the frontend and authenticates via Django backend with JWT tokens
+2. **Patient Portal** → Patients search for doctors, view profiles, and book appointments stored in SQLite3
+3. **AI Medical Chatbot** → User asks medical questions → Backend forwards to AI Service → Gemini LLM processes with Pinecone RAG → Returns evidence-based answers
+4. **Disease Prediction** → User inputs symptoms → Backend sends to ML Service → Random Forest model predicts disease (90.5% accuracy) → Returns diagnosis with recommended doctors
+5. **Doctor Dashboard** → Doctors manage appointments, create prescriptions, publish blogs, and track patient history
+6. **Admin Panel** → Admins verify doctors, manage users, moderate content, and monitor system health
+
+**🔄 Data Flow:**
+```
+User Request → React Frontend → Django API (JWT) → SQLite3/AI/ML Services → Response Chain → UI Update
+```
+
 ### Communication Flow
 
 ```mermaid
@@ -244,8 +261,13 @@ Before running the project, ensure you have the following installed:
 
 - **Python** 3.10 or higher
 - **Node.js** 18+ and npm
-- **PostgreSQL** 14 or higher
 - **Git** for version control
+
+> **📚 Detailed Setup Instructions:**
+> - **Backend Setup**: See [backend/README.md](./backend/README.md) for detailed Django setup, database configuration, and API documentation
+> - **Frontend Setup**: See [frontend/README.md](./frontend/README.md) for React app setup, routing, and component structure
+> - **AI Service Setup**: See [ai-service/README.md](./ai-service/README.md) for RAG implementation, Gemini API, and Pinecone configuration
+> - **ML Service Setup**: See [disease-prediction-service/README.md](./disease-prediction-service/README.md) for ML model training, disease prediction API
 
 ### Required API Keys
 
@@ -265,26 +287,9 @@ git clone https://github.com/prantic-paul/SHS.git
 cd SHS
 ```
 
-### Step 2: Setup PostgreSQL Database
+### Step 2: Setup Django Backend
 
-```bash
-# Login to PostgreSQL
-sudo -u postgres psql
-
-# Create database
-CREATE DATABASE shs_db;
-
-# Create user with password
-CREATE USER shs_user WITH PASSWORD 'your_password';
-
-# Grant privileges
-GRANT ALL PRIVILEGES ON DATABASE shs_db TO shs_user;
-
-# Exit
-\q
-```
-
-### Step 3: Setup Django Backend
+> 💡 **Note**: The project uses **SQLite3** database (`db.sqlite3`) by default for easy local development. No PostgreSQL setup needed!
 
 ```bash
 cd backend
@@ -302,12 +307,11 @@ pip install -r requirements.txt
 cat > .env << EOF
 DEBUG=True
 SECRET_KEY=your-secret-key-here
-DATABASE_URL=postgresql://shs_user:your_password@localhost:5432/shs_db
 AI_SERVICE_URL=http://localhost:8001
 ML_SERVICE_URL=http://localhost:8002
 EOF
 
-# Run migrations
+# Run migrations (creates db.sqlite3 automatically)
 python manage.py makemigrations
 python manage.py migrate
 
@@ -319,7 +323,9 @@ python manage.py runserver
 # Backend runs at http://localhost:8000
 ```
 
-### Step 4: Setup AI Service (Medical Chatbot)
+> 📖 **For detailed backend setup, database schema, and API endpoints**, see [backend/README.md](./backend/README.md)
+
+### Step 3: Setup AI Service (Medical Chatbot)
 
 ```bash
 # Open new terminal
@@ -348,7 +354,9 @@ uvicorn main:app --reload --port 8001
 # AI Service runs at http://localhost:8001
 ```
 
-### Step 5: Setup Disease Prediction Service
+> 📖 **For RAG implementation details, Gemini setup, and Pinecone configuration**, see [ai-service/README.md](./ai-service/README.md)
+
+### Step 4: Setup Disease Prediction Service
 
 ```bash
 # Open new terminal
@@ -369,7 +377,9 @@ uvicorn main:app --reload --port 8002
 # ML Service runs at http://localhost:8002
 ```
 
-### Step 6: Setup React Frontend
+> 📖 **For ML model details, training process, and prediction API**, see [disease-prediction-service/README.md](./disease-prediction-service/README.md)
+
+### Step 5: Setup React Frontend
 
 ```bash
 # Open new terminal
@@ -388,7 +398,9 @@ npm run dev
 # Frontend runs at http://localhost:5173
 ```
 
-### Step 7: Access the Application
+> 📖 **For frontend architecture, component structure, and routing details**, see [frontend/README.md](./frontend/README.md)
+
+### Step 6: Access the Application
 
 Once all services are running:
 
@@ -400,7 +412,7 @@ Once all services are running:
 | **AI Service Docs** | http://localhost:8001/docs | FastAPI auto-generated docs |
 | **ML Service Docs** | http://localhost:8002/docs | FastAPI auto-generated docs |
 
-### Step 8: First Steps
+### Step 7: First Steps
 
 1. **Register a Patient Account**: Go to http://localhost:5173/register
 2. **Register as Doctor**: Select "Doctor" role during registration
