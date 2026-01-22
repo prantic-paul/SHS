@@ -17,7 +17,7 @@ Smart Health Synchronizer (SHS) is a modern, microservices-based healthcare plat
   - **Doctors**: Managing appointments, patient records, and sharing medical knowledge
   - **Healthcare Administrators**: Overseeing doctor verification and system management
 
-- **Key Technologies**: Django REST Framework, React, FastAPI, Google Gemini AI, Machine Learning (scikit-learn), Pinecone Vector Database, PostgreSQL
+- **Key Technologies**: Django REST Framework, React, FastAPI, Google Gemini AI, Machine Learning (scikit-learn), Pinecone Vector Database, SQLite3
 
 ---
 ## 📑 Table of Contents
