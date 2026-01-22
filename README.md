@@ -103,80 +103,96 @@ Smart Health Synchronizer solves these problems by providing an **intelligent, A
 
 ## 🏗️ System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                              🖥️  CLIENT LAYER                                    │
-│                                                                                  │
-│  ┌─────────────────────────────────────────────────────────────────────────┐  │
-│  │                      React Frontend (Vite 7.2.4)                         │  │
-│  │  • Patient Portal  • Doctor Dashboard  • Admin Panel                    │  │
-│  │  • Tailwind CSS 3.4  • React Router  • Axios HTTP Client                │  │
-│  └─────────────────────────────────────────────────────────────────────────┘  │
-└────────────────────────────────┬────────────────────────────────────────────────┘
-                                 │
-                                 │ 🔐 REST API (JWT Authentication)
-                                 │ 📊 JSON Data Exchange
-                                 ▼
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                          🔧 APPLICATION LAYER                                    │
-│                                                                                  │
-│  ┌────────────────────────────────────────────────────────────────────────┐   │
-│  │              Django Backend (Port 8000) - Django 4.2.7                  │   │
-│  │  ┌──────────────────────────────────────────────────────────────────┐  │   │
-│  │  │  📦 Core Apps:                                                    │  │   │
-│  │  │  • users: Authentication, User Profiles, Doctor Info             │  │   │
-│  │  │  • doctors: Search, Ratings, Recommendations, Verification       │  │   │
-│  │  │  • appointment: Booking System, Dashboard, Auto-cleanup          │  │   │
-│  │  │  • chat: AI Chat History Storage                                 │  │   │
-│  │  │  • prescription: Medical Records, Vital Signs                    │  │   │
-│  │  │  • blog: Content Management, Medical Articles                    │  │   │
-│  │  │  • medical_record: Patient History Management                    │  │   │
-│  │  └──────────────────────────────────────────────────────────────────┘  │   │
-│  │  • Django REST Framework 3.14  • JWT Auth  • CORS Headers           │   │
-│  └────────────────────────────────────────────────────────────────────────┘   │
-└──────────────────┬─────────────────────────────────┬───────────────────────────┘
-                   │                                 │
-                   │ 🔗 HTTP REST API                │ 🔗 HTTP REST API
-                   │                                 │
-                   ▼                                 ▼
-    ┌──────────────────────────────┐    ┌──────────────────────────────┐
-    │   🤖 AI Service (Port 8001)  │    │  🧬 ML Service (Port 8002)   │
-    │      FastAPI 0.108.0         │    │      FastAPI 0.116.2         │
-    │  ┌────────────────────────┐  │    │  ┌────────────────────────┐  │
-    │  │  RAG System:           │  │    │  │  Disease Prediction:   │  │
-    │  │  • Google Gemini LLM   │  │    │  │  • Random Forest 90.5% │  │
-    │  │  • LangChain Pipeline  │  │    │  │  • Decision Tree 87.2% │  │
-    │  │  • Medical Q&A         │  │    │  │  • Logistic Reg 85.8%  │  │
-    │  │  • Source Citations    │  │    │  │  • 132 Symptoms        │  │
-    │  └────────────────────────┘  │    │  │  • 41 Diseases         │  │
-    └──────────────┬───────────────┘    │  │  • Doctor Matching     │  │
-                   │                     │  └────────────────────────┘  │
-                   ▼                     └───────────────────────────────┘
-    ┌──────────────────────────────┐
-    │   🗄️  Pinecone Vector DB     │
-    │   • Medical Documents        │
-    │   • 384-dim Embeddings       │
-    │   • Semantic Search          │
-    │   • sentence-transformers    │
-    └──────────────────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                          💾 DATA LAYER                                           │
-│                                                                                  │
-│  ┌────────────────────────────────────────────────────────────────────────┐   │
-│  │                    PostgreSQL Database (Port 5432)                      │   │
-│  │  📊 Tables:                                                             │   │
-│  │  • custom_user            • doctor_information    • appointments        │   │
-│  │  • doctor_ratings         • prescriptions         • medical_records    │   │
-│  │  • blog_posts             • chat_messages         • comments           │   │
-│  └────────────────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────────────────┘
+### Architecture Diagram
+
+```mermaid
+graph TB
+    subgraph Client["🖥️ Client Layer"]
+        React["React Frontend<br/>(Vite + Tailwind)"]
+    end
+    
+    subgraph Application["⚙️ Application Layer"]
+        Django["Django Backend<br/>(DRF + JWT)"]
+        AI["AI Service<br/>(FastAPI)"]
+        ML["ML Service<br/>(FastAPI)"]
+    end
+    
+    subgraph AIComponents["🤖 AI/ML Components"]
+        Gemini["Google Gemini API"]
+        Pinecone["Pinecone Vector DB"]
+        Models["ML Models<br/>(Random Forest)"]
+    end
+    
+    subgraph Data["💾 Data Layer"]
+        DB["PostgreSQL Database"]
+    end
+    
+    React -->|REST API| Django
+    Django -->|AI Queries| AI
+    Django -->|Predictions| ML
+    AI -->|LLM Requests| Gemini
+    AI -->|Vector Search| Pinecone
+    ML -->|Training/Inference| Models
+    Django -->|CRUD| DB
+    AI -->|Store Embeddings| Pinecone
+    
+    style React fill:#61dafb,stroke:#333,stroke-width:2px,color:#000
+    style Django fill:#0c4b33,stroke:#333,stroke-width:2px,color:#fff
+    style AI fill:#009688,stroke:#333,stroke-width:2px,color:#fff
+    style ML fill:#ff6b6b,stroke:#333,stroke-width:2px,color:#fff
+    style DB fill:#336791,stroke:#333,stroke-width:2px,color:#fff
+    style Gemini fill:#4285f4,stroke:#333,stroke-width:2px,color:#fff
+    style Pinecone fill:#00c9a7,stroke:#333,stroke-width:2px,color:#fff
+    style Models fill:#ff9800,stroke:#333,stroke-width:2px,color:#fff
 ```
 
-### Workflow Overview
+### Architecture Overview
 
-The system follows a **microservices architecture** where the React frontend communicates with the Django backend for core operations (auth, booking, data management), while the Django backend orchestrates AI and ML services for intelligent features (chatbot responses and disease prediction). All data is persisted in PostgreSQL, while AI services use Pinecone for semantic medical knowledge retrieval.
+| Layer | Components | Responsibilities |
+|-------|-----------|------------------|
+| **Client** | React Frontend | User interface, authentication, appointment booking, AI chat |
+| **Application** | Django Backend | API gateway, business logic, authentication, data management |
+| **AI/ML** | AI Service, ML Service | Medical chatbot (RAG), disease prediction, doctor recommendations |
+| **AI Components** | Gemini, Pinecone, ML Models | Language model, vector storage, prediction models |
+| **Data** | PostgreSQL | Persistent storage for users, doctors, appointments, blogs |
+
+### Communication Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend as React Frontend
+    participant Backend as Django Backend
+    participant AI as AI Service
+    participant ML as ML Service
+    participant DB as Database
+    
+    User->>Frontend: Access Platform
+    Frontend->>Backend: Authentication Request
+    Backend->>DB: Validate Credentials
+    DB-->>Backend: User Data
+    Backend-->>Frontend: JWT Token
+    
+    User->>Frontend: Book Appointment
+    Frontend->>Backend: Create Appointment
+    Backend->>DB: Store Appointment
+    DB-->>Backend: Confirmation
+    Backend-->>Frontend: Success Response
+    
+    User->>Frontend: Ask Medical Question
+    Frontend->>Backend: Forward Query
+    Backend->>AI: Process with RAG
+    AI->>AI: Gemini + Pinecone Search
+    AI-->>Backend: AI Response
+    Backend-->>Frontend: Medical Advice
+    
+    User->>Frontend: Predict Disease
+    Frontend->>Backend: Submit Symptoms
+    Backend->>ML: Disease Prediction
+    ML->>ML: Random Forest Model
+    ML-->>Backend: Prediction + Doctors
+    Backend-->>Frontend: Results
+```
 
 ---
 
