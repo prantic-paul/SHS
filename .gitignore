@@ -95,3 +95,9 @@ npm-debug.log*
 .secrets/
 *.backup
 .service-pids
+
+# Documentation files that should not be tracked (empty/temporary files)
+**/CHATBOT_READY.md
+**/CLEANUP_AND_SCRIPTS_SETUP.md
+**/REPOSITORY_CLEANUP_SUMMARY.md
+docs/project-docs/
