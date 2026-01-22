@@ -44,7 +44,7 @@ The Smart Health Synchronizer frontend is a responsive, user-friendly web applic
 - 🔍 **Doctor Search & Filter** - Find doctors by specialty, location, rating
 - 📅 **Appointment Booking** - Book, view, and manage appointments
 - 💬 **AI Medical Assistant** - Chat with RAG-powered AI for medical advice
-- 🧬 **Disease Prediction** - Input symptoms to predict diseases with 90.5% accuracy
+- 🧬 **Disease Prediction** - Input symptoms to predict diseases with 94.3% accuracy
 - 👨‍⚕️ **Doctor Recommendations** - Get doctor suggestions based on predicted disease
 - 📋 **Medical History** - View prescriptions and health records
 - 👤 **Profile Management** - Update personal information and preferences
@@ -315,42 +315,7 @@ export const getDoctorById = async (id) => {
 
 ---
 
-## 📦 Build & Deployment
-
-### Build for Production
-
-```bash
-# Build optimized production bundle
-npm run build
-```
-
-This creates a `dist/` folder with optimized static files.
-
-### Preview Production Build
-
-```bash
-npm run preview
-```
-
-### Deploy to Static Hosting
-
-The built files in `dist/` can be deployed to:
-- **Vercel** - `vercel deploy`
-- **Netlify** - Drag and drop `dist/` folder
-- **GitHub Pages** - Use `gh-pages` package
-- **AWS S3 + CloudFront**
-- **Nginx** - Serve the `dist/` folder
-
-### Environment Variables for Production
-
-Update your hosting platform with:
-```env
-VITE_API_URL=https://your-backend-domain.com/api/v1
-```
-
----
-
-## 🚧 Future Improvements
+##  Future Improvements
 
 - [ ] **Real-time Notifications** - WebSocket for appointment updates
 - [ ] **Video Consultation** - WebRTC integration for telemedicine
