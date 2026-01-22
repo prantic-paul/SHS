@@ -20,6 +20,26 @@ Smart Health Synchronizer (SHS) is a modern, microservices-based healthcare plat
 - **Key Technologies**: Django REST Framework, React, FastAPI, Google Gemini AI, Machine Learning (scikit-learn), Pinecone Vector Database, PostgreSQL
 
 ---
+## 📑 Table of Contents
+
+- [Overview](#-overview)
+- [Problem Statement](#-problem-statement)
+- [Solution](#-solution)
+- [Key Features](#-key-features)
+- [System Architecture](#-system-architecture)
+- [Tech Stack](#-tech-stack)
+- [Services Documentation](#-services-documentation)
+- [Installation](#-installation)
+- [Run Locally](#-run-locally)
+- [Future Improvements](#-future-improvements)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Author](#-author)
+- [Support](#-support)
+
+---
+
+
 
 ## 🎯 Problem Statement
 
@@ -436,22 +456,137 @@ To stop all services:
 
 ---
 
-## 👨‍💻 Author
+---
 
-**Prantic Paul**
+## 🤝 Contributing
 
-- 📧 Email: pranticpaulshimul@gmail.com
-- 📱 Phone: +880 1739509014
-- 💼 LinkedIn: [Prantic Paul](https://www.linkedin.com/in/prantic-paul-80917a28a/details/skills/)
-- 🐙 GitHub: [prantic-paul](https://github.com/prantic-paul)
+We welcome contributions from the community! Whether you're fixing bugs, adding features, improving documentation, or spreading the word, your help is appreciated.
+
+### How to Contribute
+
+1. **Fork the Repository**
+   ```bash
+   git clone https://github.com/prantic-paul/SHS.git
+   cd SHS
+   ```
+
+2. **Create a Branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Make Your Changes**
+   - Write clean, documented code
+   - Follow existing code style
+   - Add tests if applicable
+
+4. **Commit Your Changes**
+   ```bash
+   git add .
+   git commit -m "feat: add your feature description"
+   ```
+
+5. **Push to Your Fork**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+6. **Create a Pull Request**
+   - Go to the original repository
+   - Click "New Pull Request"
+   - Describe your changes
+
+### Contribution Guidelines
+
+- **Code Quality**: Write clean, maintainable code with proper comments
+- **Testing**: Test your changes thoroughly before submitting
+- **Documentation**: Update documentation for any new features
+- **Commit Messages**: Use conventional commit format (feat:, fix:, docs:, etc.)
+- **Issue First**: For major changes, open an issue first to discuss
+
+### Areas for Contribution
+
+- 🐛 **Bug Fixes**: Help identify and fix bugs
+- ✨ **New Features**: Implement new healthcare features
+- 📝 **Documentation**: Improve docs, add tutorials, fix typos
+- 🧪 **Testing**: Add unit tests, integration tests
+- 🎨 **UI/UX**: Enhance user interface and experience
+- 🌍 **Translations**: Add multi-language support
+- ⚡ **Performance**: Optimize code and database queries
+
+### Code of Conduct
+
+- Be respectful and inclusive
+- Provide constructive feedback
+- Help others learn and grow
+- Focus on what's best for the community
+
+For detailed guidelines, see [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+### MIT License Summary
+
+```
+MIT License
+
+Copyright (c) 2026 Prantic Paul
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+**What this means:**
+- ✅ Free to use for personal and commercial projects
+- ✅ Modify and distribute as needed
+- ✅ Private use allowed
+- ⚠️ No warranty provided
+- ⚠️ Must include original license and copyright notice
 
 ---
+
+## 👨‍💻 Author
+
+**Prantic Paul**
+
+<table>
+<tr>
+<td width="30%">
+<img src="https://github.com/prantic-paul.png" width="150" style="border-radius: 50%;" alt="Prantic Paul"/>
+</td>
+<td width="70%">
+<b>Full Stack Developer | AI/ML Enthusiast</b><br/><br/>
+Passionate about building intelligent healthcare solutions that make a difference.<br/><br/>
+
+📧 <b>Email:</b> pranticpaulshimul@gmail.com<br/>
+📱 <b>Phone:</b> +880 1739509014<br/>
+💼 <b>LinkedIn:</b> <a href="https://www.linkedin.com/in/prantic-paul-80917a28a/">Prantic Paul</a><br/>
+🐙 <b>GitHub:</b> <a href="https://github.com/prantic-paul">@prantic-paul</a><br/>
+</td>
+</tr>
+</table>
+
+---
+
 
 ## 🙏 Acknowledgments
 
