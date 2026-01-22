@@ -124,7 +124,7 @@ graph TB
     end
     
     subgraph Data["💾 Data Layer"]
-        DB["PostgreSQL Database"]
+        DB["SQLite3 Database"]
     end
     
     React -->|REST API| Django
@@ -154,7 +154,7 @@ graph TB
 | **Application** | Django Backend | API gateway, business logic, authentication, data management |
 | **AI/ML** | AI Service, ML Service | Medical chatbot (RAG), disease prediction, doctor recommendations |
 | **AI Components** | Gemini, Pinecone, ML Models | Language model, vector storage, prediction models |
-| **Data** | PostgreSQL | Persistent storage for users, doctors, appointments, blogs |
+| **Data** | SQLite3 | Persistent storage for users, doctors, appointments, blogs |
 
 
 ### System Workflow
@@ -241,8 +241,8 @@ sequenceDiagram
 - **numpy** 2.2.6 - Numerical computing
 
 ### Database
-- **PostgreSQL** 15+ - Relational database
-- **psycopg2-binary** 2.9.9 - PostgreSQL adapter for Python
+- **SQLite3** - Lightweight embedded database (db.sqlite3)
+- **Built-in sqlite3** - No additional database adapter needed
 
 ### Tools & Services
 - **Git** - Version control
